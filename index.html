@@ -1,1 +1,881 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OFF SCRIPT</title>
+  <meta name="description" content="OFF SCRIPT — скрытый режим игры. Сканируй свой профиль решений и забери управление обратно." />
 
+  <style>
+    :root{
+      /* Pearl / Apple-ish */
+      --bg0:#0B0B12;
+      --bg1:#0E0C18;
+      --bg2:#120E22;
+
+      --ink:#F8FBFF;
+      --muted: rgba(248,251,255,.70);
+
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.05);
+      --stroke: rgba(255,255,255,.18);
+      --stroke2: rgba(255,255,255,.10);
+
+      --p1:#FFFFFF;   /* white */
+      --p2:#F4EFFF;   /* pearl */
+      --p3:#E7D8FF;   /* lilac */
+      --p4:#D7F2FF;   /* icy */
+      --p5:#E9E3FF;   /* soft violet */
+
+      --shadow: 0 24px 90px rgba(0,0,0,.55);
+      --shadow2: 0 10px 40px rgba(0,0,0,.45);
+
+      --r:24px;
+      --r2:18px;
+
+      --shineSpeed: 2.9s;
+      --scanSpeed: 2.3s;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1100px 700px at 18% 12%, rgba(231,216,255,.18), transparent 60%),
+        radial-gradient(900px 520px at 82% 18%, rgba(215,242,255,.14), transparent 62%),
+        radial-gradient(900px 700px at 55% 86%, rgba(244,239,255,.12), transparent 62%),
+        linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 45%, var(--bg2) 100%);
+      overflow-x:hidden;
+    }
+
+    /* ===== FX Layers (Future feel) ===== */
+    .fx{position:fixed; inset:0; pointer-events:none; z-index:0;}
+    .fx.vignette{
+      background: radial-gradient(80% 70% at 50% 40%, transparent 55%, rgba(0,0,0,.62) 100%);
+      opacity:.65;
+    }
+    .fx.scanlines{
+      opacity:.10;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.06) 0px,
+        rgba(255,255,255,.06) 1px,
+        transparent 2px,
+        transparent 7px
+      );
+      mix-blend-mode: overlay;
+    }
+    .fx.noise{
+      opacity:.10;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+    .fx.glow{
+      opacity:.65;
+      background:
+        radial-gradient(900px 650px at 20% 10%, rgba(231,216,255,.20), transparent 60%),
+        radial-gradient(800px 550px at 80% 20%, rgba(215,242,255,.18), transparent 62%),
+        radial-gradient(900px 650px at 55% 88%, rgba(244,239,255,.14), transparent 64%);
+      filter: blur(2px);
+      mix-blend-mode: screen;
+      animation: breathe 6.2s ease-in-out infinite;
+    }
+    @keyframes breathe{
+      0%,100%{transform:scale(1); opacity:.55}
+      50%{transform:scale(1.02); opacity:.78}
+    }
+
+    /* Particle canvas sits above glow but behind UI */
+    canvas#particles{
+      position:fixed; inset:0;
+      z-index:1;
+      pointer-events:none;
+      opacity:.55;
+      mix-blend-mode: screen;
+    }
+
+    /* ===== Layout ===== */
+    .wrap{
+      position:relative;
+      z-index:2;
+      max-width:1160px;
+      margin:0 auto;
+      padding:28px 18px 84px;
+    }
+
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .brand{display:flex; align-items:center; gap:12px; user-select:none;}
+    .sig{
+      width:40px; height:40px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.20);
+      background:
+        radial-gradient(24px 18px at 30% 30%, rgba(255,255,255,.22), transparent 62%),
+        radial-gradient(24px 18px at 70% 70%, rgba(231,216,255,.22), transparent 62%),
+        rgba(255,255,255,.05);
+      box-shadow: 0 0 26px rgba(231,216,255,.18);
+      position:relative; overflow:hidden;
+    }
+    .sig:after{
+      content:"";
+      position:absolute; inset:-35%;
+      background: conic-gradient(from 180deg, transparent, rgba(255,255,255,.20), rgba(231,216,255,.16), transparent);
+      animation: spin 7s linear infinite;
+      opacity:.8;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .chips{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .chip{
+      font-size:12px;
+      color:rgba(248,251,255,.76);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:999px;
+      padding:7px 10px;
+      background: rgba(255,255,255,.05);
+      white-space:nowrap;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* ===== Hero ===== */
+    .hero{
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: var(--r);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+
+    .heroGrid{
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.22;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mix-blend-mode: overlay;
+      mask: radial-gradient(70% 70% at 50% 35%, #000 60%, transparent 100%);
+      z-index:0;
+    }
+
+    /* Scan beam */
+    .scanBeam{
+      position:absolute; inset:-10%;
+      pointer-events:none;
+      opacity:.0;
+      z-index:1;
+      background:
+        linear-gradient(to bottom,
+          transparent 0%,
+          rgba(255,255,255,.00) 35%,
+          rgba(231,216,255,.08) 46%,
+          rgba(255,255,255,.35) 50%,
+          rgba(215,242,255,.12) 53%,
+          transparent 62%,
+          transparent 100%
+        );
+      mix-blend-mode: screen;
+      filter: blur(.4px);
+      transform: translateY(-45%);
+    }
+    .hero.scanning .scanBeam{
+      opacity:1;
+      animation: scanPass var(--scanSpeed) linear infinite;
+    }
+    @keyframes scanPass{
+      0%{transform: translateY(-55%)}
+      100%{transform: translateY(55%)}
+    }
+
+    .heroInner{
+      position:relative;
+      z-index:2;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:16px;
+      padding: 22px;
+    }
+    @media (max-width: 920px){ .heroInner{grid-template-columns:1fr;} }
+
+    .pane{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: var(--r2);
+      background: rgba(255,255,255,.05);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow2);
+    }
+
+    /* Apple-ish title */
+    .title{
+      margin:0;
+      font-weight: 1000;
+      font-size: 54px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      line-height: 1.02;
+
+      background: linear-gradient(110deg,
+        var(--p1) 0%,
+        var(--p2) 18%,
+        var(--p3) 38%,
+        var(--p4) 58%,
+        var(--p5) 78%,
+        var(--p1) 100%
+      );
+      background-size: 240% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+
+      filter: drop-shadow(0 0 18px rgba(231,216,255,.18));
+      position:relative;
+    }
+    @media (max-width: 560px){ .title{font-size:42px} }
+
+    /* Shimmer sweep */
+    .title:after{
+      content:"";
+      position:absolute; inset:-20% -40%;
+      background: linear-gradient(120deg,
+        transparent 35%,
+        rgba(255,255,255,.22) 45%,
+        rgba(231,216,255,.18) 50%,
+        rgba(215,242,255,.20) 55%,
+        transparent 65%
+      );
+      transform: translateX(-40%);
+      animation: shine var(--shineSpeed) ease-in-out infinite;
+      mix-blend-mode: screen;
+      pointer-events:none;
+      opacity:.9;
+      filter: blur(.2px);
+      mask: linear-gradient(#000, #000);
+    }
+    @keyframes shine{
+      0%{transform: translateX(-45%)}
+      60%{transform: translateX(45%)}
+      100%{transform: translateX(45%)}
+    }
+
+    .subline{
+      margin-top:10px;
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      color: rgba(248,251,255,.72);
+      font-size:12px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+    }
+    .dot{
+      width:9px; height:9px; border-radius:50%;
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 0 16px rgba(231,216,255,.26);
+    }
+
+    .lead{
+      margin: 16px 0 0;
+      font-size: 15.5px;
+      line-height: 1.65;
+      color: rgba(248,251,255,.90);
+      max-width: 78ch;
+    }
+    .lead b{color: var(--ink)}
+    .mini{
+      margin: 12px 0 0;
+      font-size: 13.7px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    /* Proof blocks */
+    .proofRow{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+    @media (max-width: 920px){ .proofRow{grid-template-columns:1fr;} }
+
+    .proof{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      padding: 12px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, filter .18s ease, border-color .18s ease;
+    }
+    .proof:hover{
+      transform: translateY(-2px);
+      border-color: rgba(231,216,255,.24);
+      filter: brightness(1.06);
+    }
+    .proof .k{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color: rgba(248,251,255,.72);
+      display:flex; align-items:center; gap:8px;
+      margin-bottom:8px;
+    }
+    .proof .k .p{
+      width:7px; height:7px; border-radius:50%;
+      background: rgba(215,242,255,.72);
+      box-shadow: 0 0 14px rgba(215,242,255,.22);
+    }
+    .proof .v{
+      font-size:13.5px;
+      line-height:1.55;
+      color: rgba(248,251,255,.86);
+    }
+
+    /* Form */
+    .formTitle{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin:0 0 12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight:900;
+      font-size:13px;
+      color: rgba(248,251,255,.86);
+    }
+    .statusPill{
+      font-size:11px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      padding:7px 10px;
+      background: rgba(255,255,255,.04);
+      color: rgba(248,251,255,.70);
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      color: rgba(248,251,255,.72);
+      margin: 10px 0 7px;
+      letter-spacing:.04em;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 520px){ .row{grid-template-columns:1fr;} }
+
+    input, select{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      color: var(--ink);
+      outline:none;
+      font-size:14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    input:focus, select:focus{
+      border-color: rgba(231,216,255,.32);
+      box-shadow: 0 0 0 4px rgba(231,216,255,.10);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator{
+      filter: invert(1);
+      opacity:.85;
+    }
+
+    .cta{
+      width:100%;
+      margin-top: 14px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background:
+        linear-gradient(90deg,
+          rgba(255,255,255,.14),
+          rgba(231,216,255,.14),
+          rgba(215,242,255,.12),
+          rgba(255,255,255,.12)
+        );
+      color: var(--ink);
+      font-weight: 950;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      cursor:pointer;
+      user-select:none;
+      box-shadow: 0 0 35px rgba(231,216,255,.12);
+      transition: transform .12s ease, filter .12s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .cta:hover{filter:brightness(1.07)}
+    .cta:active{transform: translateY(1px)}
+    .cta:before{
+      content:"";
+      position:absolute; inset:-60% -40%;
+      background: linear-gradient(120deg,
+        transparent 35%,
+        rgba(255,255,255,.16) 45%,
+        rgba(231,216,255,.14) 52%,
+        transparent 65%
+      );
+      transform: translateX(-35%);
+      animation: shineBtn 3.2s ease-in-out infinite;
+      opacity:.9;
+      pointer-events:none;
+      filter: blur(.2px);
+    }
+    @keyframes shineBtn{
+      0%{transform: translateX(-45%)}
+      55%{transform: translateX(45%)}
+      100%{transform: translateX(45%)}
+    }
+
+    /* Sections */
+    .section{
+      margin-top: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--r);
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--shadow2);
+      padding: 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position:relative;
+      overflow:hidden;
+    }
+    .section h2{
+      margin:0 0 10px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size:13px;
+      color: rgba(248,251,255,.86);
+    }
+    .section .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:12px;
+    }
+    .card{
+      grid-column: span 6;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, border-color .18s ease, filter .18s ease;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(231,216,255,.22);
+      filter: brightness(1.06);
+    }
+    .card.wide{grid-column: span 12;}
+    @media (max-width: 920px){ .card{grid-column: span 12;} }
+
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      color: rgba(248,251,255,.72);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .tag .tDot{
+      width:8px; height:8px; border-radius:50%;
+      background: rgba(231,216,255,.80);
+      box-shadow: 0 0 14px rgba(231,216,255,.24);
+    }
+
+    .text{
+      color: rgba(248,251,255,.86);
+      line-height: 1.62;
+      font-size: 13.9px;
+    }
+    .list{
+      margin:10px 0 0;
+      padding-left:18px;
+      color: rgba(248,251,255,.78);
+      line-height:1.62;
+      font-size: 13.4px;
+    }
+    .list li{margin:7px 0}
+
+    /* Scroll reveal */
+    .reveal{opacity:0; transform: translateY(14px); filter: blur(3px);}
+    .reveal.show{opacity:1; transform: translateY(0); filter: blur(0); transition: all .7s ease;}
+
+    /* Tiny micro-glitch */
+    .microglitch{position:relative;}
+    .microglitch:after{
+      content: attr(data-g);
+      position:absolute; inset:0;
+      opacity:0;
+      color: rgba(231,216,255,.65);
+      transform: translateX(-1px);
+      clip-path: inset(0 0 50% 0);
+      animation: micro 6.8s infinite;
+      pointer-events:none;
+    }
+    @keyframes micro{
+      0%, 93%, 100%{opacity:0}
+      94%{opacity:.55}
+      95%{opacity:0}
+    }
+
+    .footer{
+      margin-top: 16px;
+      color: rgba(248,251,255,.58);
+      font-size: 12px;
+      line-height: 1.55;
+      text-align:center;
+      padding: 14px 0 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fx glow"></div>
+  <div class="fx scanlines"></div>
+  <div class="fx noise"></div>
+  <div class="fx vignette"></div>
+  <canvas id="particles"></canvas>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="sig"></div>
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="font-weight:950; letter-spacing:.14em;">OFF SCRIPT</div>
+            <div class="chip microglitch" data-g="HUD">HUD</div>
+            <div class="chip microglitch" data-g="SCAN">SCAN</div>
+          </div>
+          <div style="font-size:12px; color:rgba(248,251,255,.62); letter-spacing:.08em; margin-top:4px;">
+            скрытый режим игры: где ты живёшь по сценарию и где у тебя есть ход
+          </div>
+        </div>
+      </div>
+
+      <div class="chips">
+        <div class="chip">без эзотерики</div>
+        <div class="chip">без обещаний</div>
+        <div class="chip">только структура</div>
+      </div>
+    </div>
+
+    <section class="hero scanning" id="hero">
+      <div class="heroGrid"></div>
+      <div class="scanBeam"></div>
+
+      <div class="heroInner">
+        <!-- Left -->
+        <div class="pane reveal">
+          <h1 class="title">OFF SCRIPT</h1>
+          <div class="subline">
+            <span class="dot"></span>
+            <span>hidden game mode</span>
+            <span style="opacity:.55;">•</span>
+            <span>интерфейс решений</span>
+            <span style="opacity:.55;">•</span>
+            <span>карта игрока</span>
+          </div>
+
+          <p class="lead">
+            <b>если ты умный, но живёшь не своей жизнью — это не “характер”.</b><br>
+            это сценарий. он работает в фоне и забирает управление так тихо, что ты называешь это “реальностью”.
+          </p>
+
+          <p class="mini">
+            OFF SCRIPT показывает не “кто ты”. а <b>где у тебя отняли ход</b>, какие петли тебя крутят,
+            и какой следующий шаг возвращает контроль.
+          </p>
+
+          <div class="proofRow">
+            <div class="proof">
+              <div class="k"><span class="p"></span> почему это работает</div>
+              <div class="v">мы не угадываем. мы строим интерфейс из повторяемых паттернов решений и реакций.</div>
+            </div>
+            <div class="proof">
+              <div class="k"><span class="p"></span> без магии</div>
+              <div class="v">никаких “предсказаний”. только логика, структура и читаемая диагностика.</div>
+            </div>
+            <div class="proof">
+              <div class="k"><span class="p"></span> фильтр</div>
+              <div class="v">если тебе нужно утешение — это не сюда. тут — ясность и ход.</div>
+            </div>
+          </div>
+
+          <div class="mini" style="margin-top:14px;">
+            <span style="opacity:.7">вход занимает</span> <b>60 секунд</b>.
+            <span style="opacity:.7">выход — прежним не будет.</span>
+          </div>
+        </div>
+
+        <!-- Right -->
+        <div class="pane reveal">
+          <div class="formTitle">
+            <span>ВХОД В СКАН</span>
+            <span class="statusPill">alpha access</span>
+          </div>
+
+          <label>Дата рождения</label>
+          <input id="dob" type="date" />
+
+          <div class="row">
+            <div>
+              <label>Время (если знаешь)</label>
+              <input id="tob" type="time" placeholder="--:--" />
+            </div>
+            <div>
+              <label>Таймзона</label>
+              <select id="tz">
+                <option value="+03:00">UTC+03</option>
+                <option value="+02:00">UTC+02</option>
+                <option value="+01:00">UTC+01</option>
+                <option value="+00:00">UTC+00</option>
+                <option value="-01:00">UTC-01</option>
+                <option value="-02:00">UTC-02</option>
+                <option value="-03:00">UTC-03</option>
+                <option value="-04:00">UTC-04</option>
+                <option value="-05:00">UTC-05</option>
+                <option value="-06:00">UTC-06</option>
+                <option value="-07:00">UTC-07</option>
+                <option value="-08:00">UTC-08</option>
+              </select>
+            </div>
+          </div>
+
+          <label>Город (опционально)</label>
+          <input id="place" type="text" placeholder="например: Москва" />
+
+          <button class="cta" id="go">ENTER OFF SCRIPT</button>
+
+          <div class="mini" style="margin-top:12px;">
+            скан выдаёт: <b>ONE-LINER</b>, <b>CORE</b>, <b>LOOPS</b>, <b>QUEST</b>, <b>ENERGY</b>, <b>SETTINGS</b>.
+          </div>
+
+          <div class="mini" style="margin-top:10px; opacity:.78">
+            если внутри появился скепсис — нормально. он и есть твой охранник у входа.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT YOU GET -->
+    <section class="section reveal">
+      <h2>что ты получишь за 3 минуты</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> ONE-LINER</div>
+          <div class="text">
+            короткий диагноз, который либо попадает — либо ты закрываешь вкладку.
+            компромиссов нет.
+          </div>
+          <ul class="list">
+            <li>где у тебя отняли ход</li>
+            <li>что ты называешь “характером”</li>
+            <li>какая цена у сценария</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> LOOPS</div>
+          <div class="text">
+            петли — это не “проблемы”. это повторяющиеся механики поведения, которые включаются сами.
+          </div>
+          <ul class="list">
+            <li>что тебя триггерит</li>
+            <li>как ты сливаешь ресурс</li>
+            <li>почему “понимание” не помогает</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> SETTINGS</div>
+          <div class="text">
+            меню управления: команды, которые возвращают доступ. не мотивация. не “полюби себя”. ход.
+          </div>
+          <ul class="list">
+            <li>что выключить</li>
+            <li>что включить</li>
+            <li>какой следующий шаг дать системе</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> QUEST</div>
+          <div class="text">
+            твой повторяющийся квест: тема, в которую ты заходишь снова и снова, пока не пройдёшь.
+          </div>
+          <ul class="list">
+            <li>какой “босс” возвращается</li>
+            <li>какой выбор ты избегаешь</li>
+            <li>что станет иначе после прохождения</li>
+          </ul>
+        </div>
+
+        <div class="card wide">
+          <div class="tag"><span class="tDot"></span> честный фильтр</div>
+          <div class="text">
+            OFF SCRIPT не для всех. и это плюс.
+            <ul class="list">
+              <li>если тебе нужно, чтобы тебя пожалели — закрывай</li>
+              <li>если ты хочешь “быстро и без боли” — закрывай</li>
+              <li>если ты готов увидеть правду и сделать ход — оставайся</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY TRUST -->
+    <section class="section reveal">
+      <h2>почему скептик остаётся</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> 01</div>
+          <div class="text">
+            мы не продаём “веру”. мы продаём <b>интерфейс</b>. ты видишь структуру — и проверяешь на себе.
+          </div>
+        </div>
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> 02</div>
+          <div class="text">
+            никакой мистики. если тебе “не зашло” — значит, не попало. мы не будем тебя уговаривать.
+          </div>
+        </div>
+        <div class="card wide">
+          <div class="tag"><span class="tDot"></span> 03</div>
+          <div class="text">
+            оффер простой: <b>получи карту</b>. если узнавание есть — дальше решаешь, нужен ли полный доступ.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      OFF SCRIPT — интерфейс ясности и выбора. не медицина. не терапия. не гадание.
+    </div>
+  </div>
+
+  <script>
+    // Save input and go to map
+    function makeId(dob, tob){
+      const r = Math.random().toString(16).slice(2,6).toUpperCase();
+      const base = dob.replaceAll('-','') + (tob ? tob.replace(':','') : 'XXXX');
+      return "OS-" + base + "-" + r;
+    }
+
+    document.getElementById('go').addEventListener('click', ()=>{
+      const dob = document.getElementById('dob').value;
+      const tob = document.getElementById('tob').value;
+      const tz = document.getElementById('tz').value;
+      const place = document.getElementById('place').value.trim();
+
+      if(!dob){
+        alert("введи дату рождения.");
+        return;
+      }
+
+      const payload = {
+        id: makeId(dob, tob),
+        dob,
+        tob: tob || "",
+        tz,
+        place: place || ""
+      };
+
+      localStorage.setItem("offscript_session", JSON.stringify(payload));
+      window.location.href = "map.html";
+    });
+
+    // Scroll reveal
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting) e.target.classList.add("show");
+      });
+    }, {threshold: 0.12});
+    document.querySelectorAll(".reveal").forEach(el=>obs.observe(el));
+
+    // Particles (pearl)
+    const c = document.getElementById("particles");
+    const ctx = c.getContext("2d");
+    let W, H, DPR;
+
+    function resize(){
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = c.width = Math.floor(window.innerWidth * DPR);
+      H = c.height = Math.floor(window.innerHeight * DPR);
+      c.style.width = window.innerWidth + "px";
+      c.style.height = window.innerHeight + "px";
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    const rand = (a,b)=>a+Math.random()*(b-a);
+
+    const dots = Array.from({length: 60}, ()=>({
+      x: rand(0, W), y: rand(0, H),
+      r: rand(0.8, 2.2) * DPR,
+      vx: rand(-0.18, 0.18) * DPR,
+      vy: rand(-0.14, 0.14) * DPR,
+      a: rand(0.08, 0.22),
+      hue: rand(230, 285)
+    }));
+
+    function step(){
+      ctx.clearRect(0,0,W,H);
+      for(const d of dots){
+        d.x += d.vx; d.y += d.vy;
+        if(d.x < -40) d.x = W+40;
+        if(d.x > W+40) d.x = -40;
+        if(d.y < -40) d.y = H+40;
+        if(d.y > H+40) d.y = -40;
+
+        const g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r*8);
+        g.addColorStop(0, `hsla(${d.hue}, 100%, 90%, ${d.a})`);
+        g.addColorStop(1, `hsla(${d.hue}, 100%, 90%, 0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r*8, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(255,255,255,${Math.min(d.a*2,0.35)})`;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+      requestAnimationFrame(step);
+    }
+    step();
+  </script>
+</body>
+</html>
