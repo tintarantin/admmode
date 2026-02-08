@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OFF SCRIPT — карта игрока</title>
+  <meta name="description" content="OFF SCRIPT — карта игрока. Скан завершён: статусы, петли, квесты, энергия и точки управления." />
+
+  <style>
+    :root{
+      --bg:#060812;
+      --ink:#EAF6FF;
+      --muted: rgba(234,246,255,.72);
+      --panel: rgba(14, 18, 33, .78);
+      --panel2: rgba(10, 14, 28, .62);
+      --stroke: rgba(120,255,240,.28);
+
+      --a:#76FFF0;   /* cyan */
+      --b:#FFB35C;   /* amber */
+      --c:#B86BFF;   /* violet */
+      --d:#FF5C8A;   /* pink */
+
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+      --r:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1100px 600px at 18% 12%, rgba(118,255,240,.14), transparent 60%),
+        radial-gradient(900px 520px at 82% 22%, rgba(255,179,92,.12), transparent 62%),
+        radial-gradient(1000px 700px at 60% 86%, rgba(184,107,255,.12), transparent 65%),
+        radial-gradient(700px 600px at 40% 70%, rgba(255,92,138,.08), transparent 62%),
+        linear-gradient(180deg, #050712 0%, #070A16 45%, #050712 100%);
+      overflow-x:hidden;
+    }
+
+    /* FX */
+    .fx{position:fixed; inset:0; pointer-events:none; z-index:0;}
+    .fx.stars{
+      opacity:.42; mix-blend-mode: screen;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.35) 50%, transparent 52%),
+        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.25) 50%, transparent 52%),
+        radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,.22) 50%, transparent 52%),
+        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,.18) 50%, transparent 52%),
+        radial-gradient(1px 1px at 55% 10%, rgba(255,255,255,.20) 50%, transparent 52%),
+        radial-gradient(1px 1px at 15% 65%, rgba(255,255,255,.14) 50%, transparent 52%);
+      filter: blur(.25px);
+    }
+    .fx.scanlines{
+      opacity:.10;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.06) 0px,
+        rgba(255,255,255,.06) 1px,
+        transparent 2px,
+        transparent 6px
+      );
+      mix-blend-mode: overlay;
+    }
+    .fx.vignette{
+      background: radial-gradient(80% 70% at 50% 40%, transparent 55%, rgba(0,0,0,.55) 100%);
+      opacity:.55;
+    }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 28px 18px 90px;
+    }
+
+    /* TOPBAR */
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom: 14px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; user-select:none;}
+    .sig{
+      width:38px; height:38px; border-radius:12px;
+      border:1px solid rgba(120,255,240,.35);
+      background:
+        radial-gradient(22px 18px at 30% 30%, rgba(118,255,240,.35), transparent 60%),
+        radial-gradient(22px 18px at 70% 70%, rgba(255,179,92,.22), transparent 60%),
+        rgba(0,0,0,.22);
+      box-shadow: 0 0 18px rgba(118,255,240,.18);
+      position:relative; overflow:hidden;
+    }
+    .sig:after{
+      content:"";
+      position:absolute; inset:-20%;
+      background: conic-gradient(from 180deg, transparent, rgba(118,255,240,.22), transparent);
+      animation: spin 5.5s linear infinite;
+      opacity:.75;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .chip{
+      font-size:12px;
+      color:rgba(234,246,255,.72);
+      border:1px solid rgba(120,255,240,.18);
+      border-radius:999px;
+      padding:6px 10px;
+      background: rgba(0,0,0,.20);
+      white-space:nowrap;
+    }
+    .chip b{color:rgba(234,246,255,.92)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;}
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(118,255,240,.35);
+      background: linear-gradient(90deg, rgba(118,255,240,.18), rgba(184,107,255,.14), rgba(255,179,92,.14));
+      color: rgba(234,246,255,.95);
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      cursor:pointer;
+      box-shadow: 0 0 28px rgba(118,255,240,.12);
+      user-select:none;
+      text-decoration:none;
+    }
+    .btn:hover{filter:brightness(1.06)}
+    .ghostBtn{
+      display:inline-flex; align-items:center; justify-content:center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(120,255,240,.22);
+      background: rgba(0,0,0,.18);
+      color: rgba(234,246,255,.90);
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      font-weight:850;
+      cursor:pointer;
+      user-select:none;
+      text-decoration:none;
+    }
+    .ghostBtn:hover{filter:brightness(1.08)}
+
+    /* HERO PANEL */
+    .hero{
+      border:1px solid rgba(120,255,240,.26);
+      border-radius: var(--r);
+      background: linear-gradient(180deg, rgba(14,18,33,.72), rgba(10,14,28,.58));
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+    .hero:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(520px 240px at 12% 0%, rgba(118,255,240,.18), transparent 60%),
+        radial-gradient(520px 240px at 88% 0%, rgba(255,179,92,.14), transparent 60%),
+        radial-gradient(520px 240px at 50% 100%, rgba(184,107,255,.12), transparent 62%);
+      pointer-events:none;
+      filter: blur(1px);
+      z-index:0;
+    }
+    .heroInner{
+      position:relative;
+      z-index:2;
+      display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; justify-content:space-between;
+    }
+    h1{
+      margin:0 0 8px;
+      letter-spacing:.14em;
+      font-weight: 950;
+      font-size: 26px;
+      text-transform:uppercase;
+    }
+    .subline{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      margin: 0;
+      color: rgba(234,246,255,.70);
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:12px;
+    }
+    .badgeDot{
+      width:8px; height:8px; border-radius:50%;
+      background: var(--a);
+      box-shadow: 0 0 14px rgba(118,255,240,.55);
+    }
+    .lead{
+      margin: 10px 0 0;
+      font-size: 14px;
+      line-height: 1.55;
+      color: rgba(234,246,255,.88);
+      max-width: 86ch;
+    }
+    .lead b{color:rgba(234,246,255,.98)}
+
+    .rightCol{
+      display:flex; flex-direction:column; gap:10px;
+      min-width: 260px;
+      align-items:flex-end;
+    }
+
+    /* GRID */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .card{
+      grid-column: span 6;
+      border:1px solid rgba(120,255,240,.18);
+      border-radius: 18px;
+      background: rgba(0,0,0,.18);
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card.wide{grid-column: span 12;}
+    @media (max-width: 900px){ .card{grid-column: span 12;} }
+
+    .card:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(420px 220px at 0% 0%, rgba(118,255,240,.12), transparent 55%),
+        radial-gradient(420px 220px at 100% 0%, rgba(255,179,92,.10), transparent 55%);
+      pointer-events:none;
+      z-index:0;
+    }
+    .card > *{position:relative; z-index:1;}
+
+    .card h3{
+      margin:0 0 10px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      font-size:13px;
+    }
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(120,255,240,.18);
+      background: rgba(0,0,0,.18);
+      color: rgba(234,246,255,.72);
+      font-size:12px;
+      margin-bottom:10px;
+      user-select:none;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: var(--a);
+      box-shadow: 0 0 12px rgba(118,255,240,.5);
+    }
+    .dot.b{background: var(--b); box-shadow: 0 0 12px rgba(255,179,92,.45);}
+    .dot.c{background: var(--c); box-shadow: 0 0 12px rgba(184,107,255,.45);}
+    .dot.d{background: var(--d); box-shadow: 0 0 12px rgba(255,92,138,.45);}
+
+    .line{color: rgba(234,246,255,.88); line-height:1.55; font-size:13.5px;}
+    .line b{color: rgba(234,246,255,.98);}
+    .mini{margin:10px 0 0; color: var(--muted); line-height:1.55; font-size:13px;}
+    .list{margin:8px 0 0; padding-left:18px; color: rgba(234,246,255,.78); line-height:1.55;}
+    .list li{margin:6px 0}
+
+    .callout{
+      border:1px solid rgba(255,179,92,.18);
+      background: rgba(0,0,0,.18);
+      border-radius: 16px;
+      padding: 12px;
+      color: rgba(234,246,255,.82);
+      line-height: 1.55;
+      font-size: 13.5px;
+    }
+
+    .footer{
+      margin-top:16px;
+      font-size:12px;
+      color: rgba(234,246,255,.58);
+      line-height:1.55;
+      border-top:1px solid rgba(120,255,240,.12);
+      padding-top:14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fx stars"></div>
+  <div class="fx scanlines"></div>
+  <div class="fx vignette"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="sig"></div>
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="font-weight:900; letter-spacing:.12em;">OFF SCRIPT</div>
+            <div class="chip">HUD</div>
+          </div>
+          <div style="font-size:12px; color:rgba(234,246,255,.62); letter-spacing:.06em;">
+            скан завершён → статус → петли → управление
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+        <a class="ghostBtn" href="index.html">← назад</a>
+        <a class="btn" href="pricing.html">К ПРАЙСУ</a>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="heroInner">
+        <div style="max-width: 720px;">
+          <h1>SCAN COMPLETE</h1>
+          <div class="subline">
+            <span class="badgeDot"></span>
+            <span>OFF SCRIPT</span>
+            <span style="opacity:.55;">•</span>
+            <span>твоё текущее состояние</span>
+          </div>
+          <p class="lead">
+            это не “тест”. это схема того, как ты реально живёшь и принимаешь решения.
+            если ты узнаёшь себя — это не совпадение.
+          </p>
+        </div>
+
+        <div class="rightCol">
+          <div class="chip"><b>SESSION</b>: <span class="mono" id="sid">—</span></div>
+          <div class="chip"><b>DOB</b>: <span class="mono" id="sdob">—</span> <span id="stob"></span></div>
+          <div class="chip"><b>TZ</b>: <span class="mono" id="stz">—</span></div>
+          <div class="chip"><b>PLACE</b>: <span class="mono" id="splace">—</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div class="card wide">
+        <h3>one-liner</h3>
+        <div class="tag"><span class="dot"></span> коротко и по делу</div>
+        <div class="line mono" id="oneLiner">—</div>
+        <div class="mini" id="oneLinerSub">—</div>
+      </div>
+
+      <div class="card">
+        <h3>PLAYER STATUS</h3>
+        <div class="tag"><span class="dot b"></span> где ты сейчас</div>
+        <div class="line" id="statusText">—</div>
+        <ul class="list" id="statusList"></ul>
+      </div>
+
+      <div class="card">
+        <h3>CORE</h3>
+        <div class="tag"><span class="dot c"></span> как ты выбираешь</div>
+        <div class="line" id="coreTitle">—</div>
+        <ul class="list" id="coreList"></ul>
+      </div>
+
+      <div class="card">
+        <h3>LOOPS</h3>
+        <div class="tag"><span class="dot d"></span> петли, которые тебя крутят</div>
+        <div class="line" id="loopsText">—</div>
+        <ul class="list" id="loopsList"></ul>
+      </div>
+
+      <div class="card">
+        <h3>QUEST</h3>
+        <div class="tag"><span class="dot"></span> куда ты постоянно заходишь</div>
+        <div class="line" id="questText">—</div>
+        <ul class="list" id="questList"></ul>
+      </div>
+
+      <div class="card">
+        <h3>ENERGY</h3>
+        <div class="tag"><span class="dot b"></span> где теряешь / где возвращаешь</div>
+        <div class="line" id="energyText">—</div>
+        <ul class="list" id="energyList"></ul>
+      </div>
+
+      <div class="card">
+        <h3>SETTINGS</h3>
+        <div class="tag"><span class="dot c"></span> точка управления</div>
+        <div class="line" id="controlText">—</div>
+        <ul class="list" id="controlList"></ul>
+      </div>
+
+      <div class="card wide" id="full">
+        <h3>FULL ACCESS</h3>
+        <div class="callout">
+          <b>это обзор.</b><br>
+          он показывает структуру, но не разбирает её до костей.<br><br>
+          <b>полный доступ</b> нужен, если ты хочешь понять:
+          <ul class="list" style="margin-top:8px;">
+            <li>почему именно эти петли включаются у тебя</li>
+            <li>где ты отдаёшь управление (и как забрать)</li>
+            <li>какой следующий шаг даст сдвиг, а не “мотивацию на два дня”</li>
+          </ul>
+          <div class="mini" style="margin-top:10px;">
+            без обещаний. без утешений. только разбор и конкретика.
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; justify-content:flex-end;">
+          <a class="ghostBtn" href="pricing.html">СМОТРЕТЬ ТАРИФЫ</a>
+          <a class="btn" href="pricing.html">ОТКРЫТЬ ДОСТУП</a>
+        </div>
+
+        <div class="footer">
+          данные сессии хранятся локально в браузере. хочешь стереть — нажми “очистить”.<br>
+          <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="ghostBtn" id="clearBtn" type="button">очистить сессию</button>
+            <button class="ghostBtn" id="copyBtn" type="button">скопировать отчёт</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- engine (offline, v1) ----------
+    function sumDigits(str){
+      return String(str).replace(/\\D/g,'').split('').reduce((a,c)=>a+Number(c),0);
+    }
+    function reduceTo1to9(n){
+      while(n>9){ n = String(n).split('').reduce((a,c)=>a+Number(c),0); }
+      return n;
+    }
+    function pad2(n){ return String(n).padStart(2,'0'); }
+
+    function readSession(){
+      try{ return JSON.parse(localStorage.getItem("offscript_session") || "null"); }
+      catch(e){ return null; }
+    }
+
+    // CORE (1..9). Потом расширим до твоей полной системы.
+    const CORE = {
+      1: {title:"ты не “ищешь себя”. ты хочешь решать.", bullets:[
+        "когда тебе не дают выбирать — ты злишься и срываешься",
+        "тебе нужен контроль над шагом, а не над людьми",
+        "тень: превращаешь контроль в броню"
+      ]},
+      2: {title:"ты чувствуешь людей, но иногда платишь за это собой.", bullets:[
+        "ты ловишь контекст и настроение быстрее других",
+        "тень: уступаешь, чтобы не рушить связь",
+        "если молчишь — копишь яд"
+      ]},
+      3: {title:"тебе нужен голос и движение. иначе ты гаснешь.", bullets:[
+        "ты оживаешь, когда выражаешься (текст/речь/дело)",
+        "тень: распыление и откладывание старта",
+        "твой враг — самообесценивание"
+      ]},
+      4: {title:"тебе нужна опора. ты строишь — даже когда делаешь вид, что нет.", bullets:[
+        "ты сильнее, когда у тебя есть правила, которые ты выбрал",
+        "тень: жёсткость и страх ошибки",
+        "ты не ленивый — ты боишься криво собрать"
+      ]},
+      5: {title:"ты не “непостоянный”. ты не переносишь клетку.", bullets:[
+        "тебе нужен воздух: смена, движение, риск",
+        "тень: разрушать раньше, чем договориться",
+        "лекарство — свобода + дисциплина"
+      ]},
+      6: {title:"ты держишь качество. но спасательство жрёт тебя.", bullets:[
+        "ты умеешь улучшать и защищать",
+        "тень: брать чужое как своё",
+        "границы — твой апгрейд"
+      ]},
+      7: {title:"ты видишь глубже. но если застрянешь в голове — всё встанет.", bullets:[
+        "ты читаешь людей и ситуации почти как рентген",
+        "тень: изоляция и перфекционизм",
+        "тебе нужен шаг, пока не готово"
+      ]},
+      8: {title:"твой язык — ресурс и власть. не стыдись этого.", bullets:[
+        "ты стратег, если играешь честно",
+        "тень: контроль ради безопасности",
+        "тебе важно “на своих условиях”"
+      ]},
+      9: {title:"ты закрываешь циклы. но не обязана спасать всех.", bullets:[
+        "ты чувствуешь смысл и картину целиком",
+        "тень: выгорание от роли “держать мир”",
+        "твоя сила — завершать и отпускать"
+      ]},
+    };
+
+    function pickByDay(D){
+      if(D <= 10) return {
+        tag: "замирание",
+        text: "ты часто откладываешь вход. не потому что слабый — потому что ждёшь “правильного момента”.",
+        bullets: ["ждёшь уверенность вместо шага", "не называешь условия", "сливаешь ход до старта"]
+      };
+      if(D >= 21) return {
+        tag: "перегрев",
+        text: "ты входишь рывком и потом падаешь. ты сильный — но без дозировки.",
+        bullets: ["делаешь резко и до конца", "если не ты — никто", "конфликт включается быстрее диалога"]
+      };
+      return {
+        tag: "автопилот",
+        text: "ты живёшь “нормально”, но часто не выбираешь остро. привычка сильнее желания.",
+        bullets: ["готовишься дольше, чем делаешь", "сравнение жрёт ресурс", "решения откладываются ‘на потом’"]
+      };
+    }
+
+    function questByLifePath(lp){
+      const Q = {
+        1: ["перестать доказывать — начать выбирать", "босс: зависимость от контроля"],
+        2: ["выйти из режима “удобно всем”", "босс: страх конфликта"],
+        3: ["говорить ясно, не прятать смысл", "босс: страх быть увиденным"],
+        4: ["строить свою систему, а не чужую", "босс: страх ошибки"],
+        5: ["свобода без самосноса", "босс: импульсивные решения"],
+        6: ["помогать без спасательства", "босс: вина"],
+        7: ["действовать, а не анализировать", "босс: изоляция"],
+        8: ["власть на своих условиях", "босс: контроль ради безопасности"],
+        9: ["завершать и не выгорать", "босс: роль спасателя"],
+      };
+      return Q[lp] || ["выйти из сценария", "босс: автопилот"];
+    }
+
+    function energyByMonth(M){
+      const E = {
+        1:["реген: старт и движение","утечка: ожидание","аптечка: действие до сомнений"],
+        2:["реген: доверие","утечка: подавленный конфликт","аптечка: честный разговор"],
+        3:["реген: выражение","утечка: самокритика","аптечка: выпустить текст/голос"],
+        4:["реген: порядок","утечка: хаос","аптечка: список 3 дел"],
+        5:["реген: смена среды","утечка: рутина","аптечка: новый маршрут"],
+        6:["реген: забота с границами","утечка: спасательство","аптечка: “нет” без объяснений"],
+        7:["реген: тишина","утечка: шум","аптечка: 30 минут одиночества"],
+        8:["реген: власть и масштаб","утечка: чужие правила","аптечка: один жёсткий выбор в день"],
+        9:["реген: смысл","утечка: суета","аптечка: закрыть 1 хвост"],
+        10:["реген: точность","утечка: расплывчатость","аптечка: правило на день"],
+        11:["реген: видение","утечка: сомнение","аптечка: решение без обсуждений"],
+        12:["реген: гибкость","утечка: вина","аптечка: отпустить одно “надо”"],
+      };
+      return E[M] || ["реген: движение","утечка: сомнения","аптечка: действие"];
+    }
+
+    function controlPack(lp, dayTag){
+      const base = [
+        "правило: один ручной выбор в день (без обсуждений)",
+        "команда: “я выбираю” (вслух/в тексте)",
+        "запрет: не торговаться с собой"
+      ];
+      if(lp === 8 || lp === 1){
+        base.unshift("маркер: у тебя высокий потенциал управления — вопрос, где ты его слил");
+      }
+      if(dayTag === "перегрев"){
+        base.push("стоп-сигнал: не решай на эмоции. решай на фактах.");
+      }else if(dayTag === "замирание"){
+        base.push("старт: сделай ход до уверенности.");
+      }else{
+        base.push("взлом автопилота: поменяй одну привычку и смотри, что вскроется.");
+      }
+      return base;
+    }
+
+    function buildReport(session){
+      const [Y,M,D] = session.dob.split("-").map(Number);
+      const lp = reduceTo1to9(sumDigits(`${Y}${pad2(M)}${pad2(D)}`));
+      const core = CORE[lp] || CORE[7];
+      const dayPack = pickByDay(D);
+      const quest = questByLifePath(lp);
+      const energy = energyByMonth(M);
+
+      let one = "ты не “не такой”. ты просто живёшь по сценарию, который когда-то помог выжить.";
+      if(lp === 8) one = "ты умеешь управлять. но часть власти ты отдал — и теперь бесишься, а не выбираешь.";
+      if(lp === 1) one = "тебе нужен контроль над выбором. когда его нет — ты превращаешься в огонь без цели.";
+      if(lp === 5) one = "ты хочешь свободы. но иногда путаешь свободу с разрушением.";
+
+      const oneSub = "если попало — дальше будет точнее. если не попало — ты просто ещё не видишь свою петлю.";
+
+      const statusText = "ты уже в игре. вопрос не “получится ли”. вопрос — кто сейчас держит управление.";
+      const statusList = [
+        `life code: ${lp} (паттерн поведения)`,
+        `режим дня: ${dayPack.tag}`,
+        "цель карты: увидеть, где ты на автопилоте"
+      ];
+
+      const loopsText = "это места, где ты повторяешь одно и то же — и называешь это “жизнью”.";
+      const loopsList = dayPack.bullets;
+
+      const questText = "это твоя повторяющаяся тема. пока ты её не видишь — она видит тебя.";
+      const questList = quest;
+
+      const energyText = "энергия уходит туда, где ты действуешь против себя. возвращается, когда играешь честно.";
+      const energyList = energy;
+
+      const controlText = "вот меню управления. не “советы”. команды, которые возвращают доступ.";
+      const controlList = controlPack(lp, dayPack.tag);
+
+      return {
+        one, oneSub,
+        statusText, statusList,
+        core, loopsText, loopsList,
+        questText, questList,
+        energyText, energyList,
+        controlText, controlList
+      };
+    }
+
+    function el(id){ return document.getElementById(id); }
+    function fillList(id, arr){
+      const ul = el(id);
+      ul.innerHTML = "";
+      arr.forEach(x=>{
+        const li = document.createElement("li");
+        li.textContent = x;
+        ul.appendChild(li);
+      });
+    }
+
+    function init(){
+      const s = readSession();
+      if(!s){
+        alert("сессия не найдена. вернись на главную и нажми ENTER OFF SCRIPT.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      el("sid").textContent = s.id || "—";
+      el("sdob").textContent = s.dob || "—";
+      el("stob").textContent = s.tob ? (" • " + s.tob) : "";
+      el("stz").textContent = s.tz || "—";
+      el("splace").textContent = s.place || "—";
+
+      const r = buildReport(s);
+
+      el("oneLiner").textContent = r.one;
+      el("oneLinerSub").textContent = r.oneSub;
+
+      el("statusText").textContent = r.statusText;
+      fillList("statusList", r.statusList);
+
+      el("coreTitle").textContent = r.core.title;
+      fillList("coreList", r.core.bullets);
+
+      el("loopsText").textContent = r.loopsText;
+      fillList("loopsList", r.loopsList);
+
+      el("questText").textContent = r.questText;
+      fillList("questList", r.questList);
+
+      el("energyText").textContent = r.energyText;
+      fillList("energyList", r.energyList);
+
+      el("controlText").textContent = r.controlText;
+      fillList("controlList", r.controlList);
+
+      // copy report
+      el("copyBtn").addEventListener("click", async ()=>{
+        const txt =
+`OFF SCRIPT — КАРТА ИГРОКА
+session: ${s.id}
+дата: ${s.dob}${s.tob ? (" " + s.tob) : ""} | tz: ${s.tz || "-"} | город: ${s.place || "-"}
+---
+КРАТКО:
+${r.one}
+${r.oneSub}
+
+СТАТУС:
+- ${r.statusText}
+${r.statusList.map(x=>"- "+x).join("\\n")}
+
+CORE:
+- ${r.core.title}
+${r.core.bullets.map(x=>"- "+x).join("\\n")}
+
+LOOPS:
+- ${r.loopsText}
+${r.loopsList.map(x=>"- "+x).join("\\n")}
+
+QUEST:
+- ${r.questText}
+${r.questList.map(x=>"- "+x).join("\\n")}
+
+ENERGY:
+- ${r.energyText}
+${r.energyList.map(x=>"- "+x).join("\\n")}
+
+SETTINGS:
+- ${r.controlText}
+${r.controlList.map(x=>"- "+x).join("\\n")}
+`;
+        try{
+          await navigator.clipboard.writeText(txt);
+          alert("отчёт скопирован.");
+        }catch(e){
+          const ta = document.createElement("textarea");
+          ta.value = txt;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          ta.remove();
+          alert("отчёт скопирован.");
+        }
+      });
+
+      // clear session
+      el("clearBtn").addEventListener("click", ()=>{
+        localStorage.removeItem("offscript_session");
+        alert("сессия очищена.");
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
