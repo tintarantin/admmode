@@ -4,179 +4,72 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ADM MODE — Player Map</title>
-  <meta name="description" content="ADM MODE — игровой интерфейс самодиагностики по дате рождения. RU/EN." />
   <style>
     :root{
-      --bg:#060812;
-      --panel: rgba(12, 16, 34, .72);
-      --panel2: rgba(10, 14, 28, .62);
-      --stroke: rgba(120,255,240,.22);
-      --stroke2: rgba(255,179,92,.18);
+      --bg:#070A12;
+      --panel: rgba(14, 18, 33, .78);
+      --stroke: rgba(120,255,240,.28);
       --txt:#EAF6FF;
       --muted: rgba(234,246,255,.72);
       --a:#76FFF0;
       --b:#FFB35C;
-      --c:#FF5C8A;
-      --ok:#7CFF7C;
-      --shadow: 0 18px 60px rgba(0,0,0,.55);
-      --radius: 18px;
+      --p:#B86BFF;
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+      --r:18px;
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color: var(--txt);
+      color:var(--txt);
+      min-height:100vh;
       background:
-        radial-gradient(1100px 600px at 15% 8%, rgba(118,255,240,.16), transparent 60%),
-        radial-gradient(900px 520px at 88% 22%, rgba(255,179,92,.12), transparent 60%),
-        radial-gradient(900px 620px at 55% 95%, rgba(255,92,138,.10), transparent 65%),
-        linear-gradient(180deg, #050611, #070A14 55%, #04050D);
-      overflow-x:hidden;
+        radial-gradient(900px 500px at 15% 10%, rgba(118,255,240,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 25%, rgba(255,179,92,.14), transparent 60%),
+        radial-gradient(900px 600px at 55% 95%, rgba(184,107,255,.12), transparent 60%),
+        var(--bg);
     }
-
-    /* subtle grid */
-    .grid-bg{
-      position:fixed; inset:0;
-      background:
-        linear-gradient(rgba(118,255,240,.045) 1px, transparent 1px) 0 0/48px 48px,
-        linear-gradient(90deg, rgba(118,255,240,.035) 1px, transparent 1px) 0 0/48px 48px;
-      mask-image: radial-gradient(900px 600px at 40% 15%, rgba(0,0,0,.9), transparent 70%);
-      pointer-events:none;
-      opacity:.55;
-    }
-
-    .wrap{max-width:1120px; margin:0 auto; padding:26px 16px 64px;}
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; margin-bottom:14px;
-    }
-    .logo{
-      display:flex; align-items:center; gap:10px;
-      letter-spacing:.14em; font-weight:900; text-transform:uppercase;
-    }
-    .logo .mark{
-      width:34px; height:34px; border-radius:10px;
-      background: radial-gradient(18px 18px at 30% 30%, rgba(118,255,240,.95), rgba(118,255,240,.12)),
-                  radial-gradient(26px 26px at 70% 70%, rgba(255,179,92,.70), transparent 70%),
-                  rgba(8,10,22,.6);
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 80px}
+    .top{display:flex;gap:14px;flex-wrap:wrap;align-items:stretch}
+    .card{
       border:1px solid var(--stroke);
-      box-shadow: 0 0 18px rgba(118,255,240,.22);
-    }
-    .controls{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-    }
-    .btn-ghost{
-      border:1px solid var(--stroke);
-      background: rgba(0,0,0,.18);
-      color: var(--txt);
-      padding:10px 12px;
-      border-radius: 999px;
-      cursor:pointer;
-      font-weight:700;
-      letter-spacing:.04em;
-    }
-    .btn-ghost:hover{filter:brightness(1.08)}
-    .pill{
-      border:1px solid rgba(120,255,240,.18);
-      background: rgba(0,0,0,.16);
-      padding:10px 12px;
-      border-radius: 999px;
-      color: var(--muted);
-      font-size:13px;
-      white-space:nowrap;
-    }
-
-    .hero{
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(14,18,42,.72), rgba(8,10,22,.55));
+      background: linear-gradient(180deg, rgba(14,18,33,.84), rgba(10,14,28,.66));
       box-shadow: var(--shadow);
+      border-radius: var(--r);
+      padding:16px;
       position:relative;
       overflow:hidden;
-      padding:18px;
     }
-    .hero:before{
+    .card:before{
       content:"";
       position:absolute; inset:-2px;
       background:
-        radial-gradient(520px 220px at 10% 0%, rgba(118,255,240,.22), transparent 60%),
-        radial-gradient(520px 220px at 90% 0%, rgba(255,179,92,.16), transparent 60%),
-        radial-gradient(720px 420px at 50% 110%, rgba(255,92,138,.10), transparent 60%);
-      filter: blur(2px);
+        radial-gradient(420px 220px at 0% 0%, rgba(118,255,240,.18), transparent 55%),
+        radial-gradient(420px 220px at 100% 0%, rgba(255,179,92,.12), transparent 55%),
+        radial-gradient(420px 220px at 50% 110%, rgba(184,107,255,.10), transparent 55%);
       pointer-events:none;
+      filter: blur(1px);
     }
-
-    .hero-grid{
-      display:grid;
-      grid-template-columns: 1.25fr .75fr;
-      gap:14px;
-      align-items:stretch;
-    }
-    @media (max-width: 920px){
-      .hero-grid{grid-template-columns: 1fr; }
-    }
-
-    h1{
-      margin:0 0 8px;
-      font-weight:900;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      font-size:26px;
-    }
-    .sub{
-      margin:0;
-      color: var(--muted);
-      line-height:1.45;
-      font-size:14px;
-      max-width: 62ch;
-    }
-    .meta-row{
-      display:flex; gap:10px; flex-wrap:wrap;
-      margin-top:12px;
-    }
-    .chip{
-      display:inline-flex; gap:8px; align-items:center;
-      padding:8px 10px;
-      border-radius: 999px;
-      border:1px solid rgba(118,255,240,.22);
-      background: rgba(0,0,0,.18);
-      color: var(--muted);
-      font-size:12px;
-    }
-    .dot{
-      width:8px; height:8px; border-radius:50%;
-      background: var(--a);
-      box-shadow: 0 0 12px rgba(118,255,240,.55);
-    }
-
-    .panel{
+    .brand{flex:1 1 520px}
+    .panel{flex:0 1 360px}
+    h1{margin:0 0 6px;letter-spacing:.08em;font-weight:900}
+    .sub{margin:0;color:var(--muted);line-height:1.4}
+    .pill{
+      display:inline-flex;gap:10px;align-items:center;
+      padding:8px 12px;border-radius:999px;margin-top:10px;
       border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(12,16,34,.70), rgba(10,14,28,.62));
-      padding:14px;
-      box-shadow: var(--shadow);
-    }
-    .panel h2{
-      margin:0 0 10px;
+      background: rgba(0,0,0,.18);
+      color:var(--muted);
       font-size:13px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color: rgba(234,246,255,.9);
     }
-    label{
-      display:block;
-      color: var(--muted);
-      font-size:13px;
-      margin-bottom:8px;
-    }
+    label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}
     input[type="date"]{
       width:100%;
       background: rgba(0,0,0,.22);
-      color: var(--txt);
-      border:1px solid rgba(118,255,240,.28);
-      border-radius: 14px;
-      padding:12px 12px;
+      color:var(--txt);
+      border:1px solid rgba(118,255,240,.30);
+      border-radius:12px;
+      padding:12px;
       outline:none;
       font-size:15px;
     }
@@ -184,527 +77,269 @@
     .btn{
       width:100%;
       margin-top:12px;
-      border:1px solid rgba(118,255,240,.38);
-      background: linear-gradient(90deg, rgba(118,255,240,.20), rgba(255,179,92,.14), rgba(255,92,138,.10));
-      color: var(--txt);
-      border-radius: 14px;
+      border:1px solid rgba(118,255,240,.40);
+      background: linear-gradient(90deg, rgba(118,255,240,.20), rgba(255,179,92,.16), rgba(184,107,255,.14));
+      color:var(--txt);
+      border-radius:12px;
       padding:12px 14px;
-      font-weight:900;
-      letter-spacing:.10em;
-      text-transform:uppercase;
+      font-weight:800;
+      letter-spacing:.08em;
       cursor:pointer;
     }
     .btn:hover{filter:brightness(1.08)}
-    .hint{
-      margin-top:10px;
-      color: var(--muted);
-      font-size:12px;
-      line-height:1.45;
-    }
-
-    .section-title{
-      margin:18px 2px 10px;
-      font-size:12px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color: rgba(234,246,255,.82);
-    }
-
-    .cards{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:14px;
-    }
-    .card{
-      grid-column: span 6;
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(12,16,34,.72), rgba(10,14,28,.60));
-      box-shadow: var(--shadow);
-      padding:14px 14px 12px;
-      position:relative;
-      overflow:hidden;
-      min-height: 170px;
-    }
-    .card.wide{grid-column: span 12; min-height:auto;}
-    .card:before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(420px 220px at 0% 0%, rgba(118,255,240,.12), transparent 60%),
-        radial-gradient(420px 220px at 100% 0%, rgba(255,179,92,.10), transparent 60%);
-      pointer-events:none;
-    }
-    .card h3{
-      margin:0 0 10px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      font-size:13px;
-    }
-    .badge{
-      display:inline-flex; gap:8px; align-items:center;
-      padding:7px 10px;
-      border-radius:999px;
+    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:16px}
+    .mini{grid-column:span 6}
+    .wide{grid-column:span 12}
+    .h3{margin:0 0 10px;letter-spacing:.10em;font-weight:900;font-size:14px}
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;margin-bottom:10px;
       border:1px solid rgba(118,255,240,.22);
       background: rgba(0,0,0,.18);
-      color: var(--muted);
+      color:var(--muted);
       font-size:12px;
-      margin-bottom:10px;
     }
-    .mono{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      color: rgba(234,246,255,.88);
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: var(--a);
+      box-shadow: 0 0 12px rgba(118,255,240,.7);
     }
-    ul{
-      margin:0;
-      padding-left:18px;
-      color: var(--muted);
-      line-height:1.55;
-    }
+    ul{margin:8px 0 0;padding-left:18px;color:var(--muted);line-height:1.55}
     li{margin:6px 0}
-    .footer{
-      margin-top:14px;
-      border-top:1px solid rgba(120,255,240,.15);
-      padding-top:12px;
-      color: var(--muted);
-      font-size:12px;
-      line-height:1.5;
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;color:rgba(234,246,255,.88)}
+    .lang{
+      display:flex;gap:10px;align-items:center;margin-top:10px
     }
-    .warn{color: rgba(255,179,92,.95)}
-    .ok{color: rgba(124,255,124,.95)}
-    .danger{color: rgba(255,92,138,.95)}
-    .tiny{font-size:11px; opacity:.85}
-    .row{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    .lang a{
+      color:var(--muted);
+      text-decoration:none;
+      border:1px solid rgba(120,255,240,.18);
+      padding:6px 10px;border-radius:999px;
+      background: rgba(0,0,0,.16);
     }
-    .spacer{flex:1}
+    .lang a.active{color:var(--txt);border-color:rgba(118,255,240,.40)}
+    @media (max-width: 860px){
+      .mini{grid-column:span 12}
+      .panel{flex:1 1 360px}
+    }
   </style>
 </head>
-
 <body>
-  <div class="grid-bg"></div>
-
   <div class="wrap">
-    <div class="topbar">
-      <div class="logo">
-        <div class="mark"></div>
-        <div>ADM MODE</div>
-      </div>
+    <div class="top">
+      <div class="card brand">
+        <h1 id="t_title">ADM MODE</h1>
+        <p class="sub" id="t_sub">
+          PLAYER MAP — игровой интерфейс самодиагностики по дате рождения.
+          Не терапия. Не гадание. Это “скан”: где ты отдал управление и как забрать.
+        </p>
+        <div class="pill" id="t_pill"><b>INPUT:</b> дата рождения • <b>OUTPUT:</b> CORE / KIT / GLITCHES / QUEST / ENERGY / ACCESS</div>
 
-      <div class="controls">
-        <div class="pill" id="pillState">RU • v1.0 • GitHub Pages</div>
-        <button class="btn-ghost" id="langBtn" type="button">EN</button>
-      </div>
-    </div>
-
-    <div class="hero">
-      <div class="hero-grid">
-        <div>
-          <h1 id="hTitle">Player Map</h1>
-          <p class="sub" id="hSub">
-            Игровая карта самодиагностики по дате рождения. Не терапия и не гадание.
-            Это интерфейс: <b>где ты отдал управление</b> и <b>какой шаг возвращает контроль</b>.
-          </p>
-
-          <div class="meta-row">
-            <div class="chip"><span class="dot"></span><span id="chip1">INPUT: дата рождения</span></div>
-            <div class="chip"><span class="dot"></span><span id="chip2">OUTPUT: CORE / KIT / GLITCHES / QUEST / ENERGY / ACCESS</span></div>
-            <div class="chip"><span class="dot"></span><span id="chip3">RU/EN</span></div>
-          </div>
-
-          <div class="section-title" id="howTitle">как это работает</div>
-          <p class="sub" id="howText">
-            Внутри — простая “системная математика”: мы берём коды из даты и собираем модули карты.
-            <b>Ты потом заменишь словари на свои игровые термины</b> (мы сделаем словарь и методику).
-          </p>
+        <div class="lang">
+          <a href="#" id="ruBtn" class="active">RU</a>
+          <a href="#" id="enBtn">EN</a>
         </div>
+      </div>
 
-        <div class="panel">
-          <h2 id="scanTitle">scan</h2>
-          <label id="dobLabel" for="dob">Введи дату рождения</label>
-          <input id="dob" type="date" />
-          <button class="btn" id="go">СКАНИРОВАТЬ</button>
-          <div class="hint" id="scanHint">
-            Совет: сначала проверь на своей дате. Потом — на любых датах друзей.
-          </div>
+      <div class="card panel">
+        <label for="dob" id="t_label">Введи дату рождения</label>
+        <input id="dob" type="date" />
+        <button class="btn" id="go">СКАНИРОВАТЬ</button>
+        <div class="hint" id="t_hint">
+          Это демо-движок. Дальше мы заменим термины на твой игровой словарь и сделаем “AAA UI”.
         </div>
       </div>
     </div>
 
-    <div class="section-title" id="resTitle" style="display:none;">результат</div>
-
-    <div class="cards" id="out" style="display:none;">
+    <div class="grid" id="out" style="display:none;">
       <div class="card wide">
-        <h3 id="sessionTitle">SESSION</h3>
-        <div class="row">
-          <div class="badge"><span class="dot"></span><span id="idLabel">ID:</span> <span class="mono" id="idPlayer"></span></div>
-          <div class="badge"><span class="dot"></span><span id="modeLabel">MODE:</span> <span class="mono" id="mode"></span></div>
-          <div class="spacer"></div>
-          <div class="badge"><span class="dot"></span><span class="mono" id="codes"></span></div>
+        <div class="h3" id="t_session">СЕССИЯ</div>
+        <div class="tag"><span class="dot"></span>
+          <span id="t_id">ID игрока:</span> <span class="mono" id="idPlayer"></span> •
+          <span id="t_mode">Режим:</span> <span class="mono" id="mode"></span>
         </div>
         <div class="mono" id="oneLine"></div>
-        <div class="tiny" id="disclaimer"></div>
       </div>
 
-      <div class="card">
-        <h3>CORE</h3>
-        <div class="badge"><span class="dot"></span><span id="coreBadge">Ядро</span></div>
+      <div class="card mini">
+        <div class="h3">CORE</div>
+        <div class="tag"><span class="dot"></span><span id="t_core">Ядро персонажа</span></div>
         <div class="mono" id="coreTitle"></div>
         <ul id="coreList"></ul>
       </div>
 
-      <div class="card">
-        <h3>KIT</h3>
-        <div class="badge"><span class="dot"></span><span id="kitBadge">Стартовый набор</span></div>
+      <div class="card mini">
+        <div class="h3">START KIT</div>
+        <div class="tag"><span class="dot"></span><span id="t_kit">Стартовый набор</span></div>
         <ul id="kitList"></ul>
       </div>
 
-      <div class="card">
-        <h3>GLITCHES</h3>
-        <div class="badge"><span class="dot"></span><span id="glitchBadge">Активные баги</span></div>
+      <div class="card mini">
+        <div class="h3">GLITCHES</div>
+        <div class="tag"><span class="dot"></span><span id="t_gl">Активные баги</span></div>
         <ul id="glitchList"></ul>
       </div>
 
-      <div class="card">
-        <h3>QUEST</h3>
-        <div class="badge"><span class="dot"></span><span id="questBadge">Повторяющийся квест</span></div>
+      <div class="card mini">
+        <div class="h3">QUEST</div>
+        <div class="tag"><span class="dot"></span><span id="t_q">Квест-линия</span></div>
         <ul id="questList"></ul>
       </div>
 
-      <div class="card">
-        <h3>ENERGY</h3>
-        <div class="badge"><span class="dot"></span><span id="energyBadge">Ресурс</span></div>
+      <div class="card mini">
+        <div class="h3">ENERGY</div>
+        <div class="tag"><span class="dot"></span><span id="t_e">Ресурс</span></div>
         <ul id="energyList"></ul>
       </div>
 
-      <div class="card">
-        <h3>ACCESS</h3>
-        <div class="badge"><span class="dot"></span><span id="accessBadge">Доступ</span></div>
-        <div class="mono" id="accessTitle"></div>
-        <ul id="accessList"></ul>
-      </div>
-
-      <div class="footer">
-        <span class="warn" id="nextWarn">Дальше:</span>
-        <span id="nextText">мы заменим все термины на твои игровые (словарь), добавим уровни/ранги и страницу “Купить”.</span>
+      <div class="card mini">
+        <div class="h3">ACCESS</div>
+        <div class="tag"><span class="dot"></span><span id="t_a">Доступ к управлению</span></div>
+        <div class="mono" id="adminTitle"></div>
+        <ul id="adminList"></ul>
       </div>
     </div>
   </div>
 
 <script>
-/* =========================================================
-   ADM MODE — Player Map (static prototype)
-   RU/EN, no external libs, works on GitHub Pages.
-   ========================================================= */
-
-const I18N = {
-  ru: {
-    pill: "RU • v1.0 • GitHub Pages",
-    title: "Player Map",
-    sub: "Игровая карта самодиагностики по дате рождения. Не терапия и не гадание. Это интерфейс: где ты отдал управление и какой шаг возвращает контроль.",
-    chip1: "INPUT: дата рождения",
-    chip2: "OUTPUT: CORE / KIT / GLITCHES / QUEST / ENERGY / ACCESS",
-    chip3: "RU/EN",
-    howTitle: "как это работает",
-    howText: "Внутри — простая “системная математика”: мы берём коды из даты и собираем модули карты. Ты потом заменишь словари на свои игровые термины (мы сделаем словарь и методику).",
-    scanTitle: "scan",
-    dobLabel: "Введи дату рождения",
-    btn: "СКАНИРОВАТЬ",
-    scanHint: "Совет: сначала проверь на своей дате. Потом — на любых датах друзей.",
-    resTitle: "результат",
-    session: "SESSION",
-    idLabel: "ID:",
-    modeLabel: "MODE:",
-    disclaimer: "Важно: это не медицинская и не психологическая диагностика. Это самоанализ в игровом формате. Если тебе плохо или опасно — обратись за помощью к специалистам/службам поддержки.",
-    coreBadge: "Ядро",
-    kitBadge: "Стартовый набор",
-    glitchBadge: "Активные баги",
-    questBadge: "Повторяющийся квест",
-    energyBadge: "Ресурс",
-    accessBadge: "Доступ",
-    nextWarn: "Дальше:",
-    nextText: "мы заменим все термины на твои игровые (словарь), добавим уровни/ранги и страницу “Купить”.",
-    modeAdmin: "ADMIN (потенциал)",
-    modePlayer: "PLAYER",
-    modeFreeze: "PLAYER (зависание)",
-    modeRush: "PLAYER (форс)"
-  },
-  en: {
-    pill: "EN • v1.0 • GitHub Pages",
-    title: "Player Map",
-    sub: "A game-like self-scan based on your birth date. Not therapy. Not fortune-telling. A UI that shows where you gave away control — and what step gives it back.",
-    chip1: "INPUT: birth date",
-    chip2: "OUTPUT: CORE / KIT / GLITCHES / QUEST / ENERGY / ACCESS",
-    chip3: "RU/EN",
-    howTitle: "how it works",
-    howText: "Inside is simple “system math”: we take codes from your date and assemble modules. Later you’ll replace every term with your own game vocabulary (we’ll build the dictionary + methodology).",
-    scanTitle: "scan",
-    dobLabel: "Enter your birth date",
-    btn: "SCAN",
-    scanHint: "Tip: test it on your date first. Then try friends’ dates.",
-    resTitle: "result",
-    session: "SESSION",
-    idLabel: "ID:",
-    modeLabel: "MODE:",
-    disclaimer: "Note: this is not medical or clinical psychological diagnosis. It’s a game-format self-reflection tool. If you feel unsafe or in crisis, seek professional help or local support services.",
-    coreBadge: "Core",
-    kitBadge: "Start Kit",
-    glitchBadge: "Active Glitches",
-    questBadge: "Quest Loop",
-    energyBadge: "Energy",
-    accessBadge: "Access",
-    nextWarn: "Next:",
-    nextText: "we’ll replace all terms with your game language (dictionary), add levels/ranks, and a “Buy” page.",
-    modeAdmin: "ADMIN (potential)",
-    modePlayer: "PLAYER",
-    modeFreeze: "PLAYER (freeze)",
-    modeRush: "PLAYER (rush)"
-  }
-};
-
-let LANG = "ru";
-
-/* --------- Dictionaries (you will replace later) --------- */
-const CORE_BY_LIFEPATH = {
-  1: { ru: {title:"Инициатор", bullets:["выбираешь сам(а) — двигаешься быстро","лучше работаешь без внешнего разрешения","тень: контроль вместо выбора"]},
-       en: {title:"Initiator", bullets:["you move fast once you choose","works best without external permission","shadow: control instead of choice"]}},
-  2: { ru: {title:"Синхронизатор", bullets:["чувствуешь людей и контекст","сила в союзах и точных связях","тень: уступки ради мира"]},
-       en: {title:"Synchronizer", bullets:["reads people and context","strength: alliances and ties","shadow: self-betrayal to keep peace"]}},
-  3: { ru: {title:"Искра", bullets:["двигатель — выражение","идеи приходят быстро","тень: распыление и самокритика"]},
-       en: {title:"Spark", bullets:["expression fuels you","ideas come fast","shadow: scattering + self-criticism"]}},
-  4: { ru: {title:"Архитектор", bullets:["строишь опоры и правила","сила — дисциплина и база","тень: страх хаоса"]},
-       en: {title:"Architect", bullets:["builds structure and rules","strength: discipline + foundation","shadow: fear of chaos"]}},
-  5: { ru: {title:"Драйвер перемен", bullets:["нужны движение и свобода","сила — адаптация","тень: бегство от глубины"]},
-       en: {title:"Change Driver", bullets:["needs motion and freedom","strength: adaptability","shadow: running from depth"]}},
-  6: { ru: {title:"Хранитель", bullets:["улучшаешь и защищаешь","сила — качество","тень: спасательство"]},
-       en: {title:"Guardian", bullets:["protects and improves","strength: quality","shadow: rescuing"]}},
-  7: { ru: {title:"Аналитик", bullets:["видишь глубже поверхности","сила — точная диагностика","тень: изоляция"]},
-       en: {title:"Analyst", bullets:["sees beneath the surface","strength: precise diagnosis","shadow: isolation"]}},
-  8: { ru: {title:"Админ", bullets:["язык — ресурсы и влияние","сила — стратегия и масштаб","тень: контроль ради безопасности"]},
-       en: {title:"Admin", bullets:["language: resources and influence","strength: strategy and scale","shadow: control for safety"]}},
-  9: { ru: {title:"Завершатель", bullets:["закрываешь циклы","сила — смысл и целостность","тень: выгорание от нагрузки"]},
-       en: {title:"Finisher", bullets:["closes cycles","strength: meaning + wholeness","shadow: burnout from load"]}},
-};
-
-const MONTH_KIT = {
-  1: {ru:["перк: первый шаг","пассивка: прямота","инструмент: старт"], en:["perk: first step","passive: directness","tool: start"]},
-  2: {ru:["перк: эмпатия","пассивка: дипломатия","инструмент: связь"], en:["perk: empathy","passive: diplomacy","tool: connection"]},
-  3: {ru:["перк: речь","пассивка: креатив","инструмент: влияние"], en:["perk: voice","passive: creativity","tool: influence"]},
-  4: {ru:["перк: дисциплина","пассивка: выдержка","инструмент: структура"], en:["perk: discipline","passive: endurance","tool: structure"]},
-  5: {ru:["перк: свобода","пассивка: адаптация","инструмент: поворот"], en:["perk: freedom","passive: adaptation","tool: pivot"]},
-  6: {ru:["перк: забота","пассивка: качество","инструмент: защита"], en:["perk: care","passive: quality","tool: shield"]},
-  7: {ru:["перк: анализ","пассивка: глубина","инструмент: сканер"], en:["perk: analysis","passive: depth","tool: scanner"]},
-  8: {ru:["перк: власть","пассивка: стратегия","инструмент: ресурсы"], en:["perk: power","passive: strategy","tool: resources"]},
-  9: {ru:["перк: смысл","пассивка: масштаб","инструмент: завершение"], en:["perk: meaning","passive: scale","tool: closure"]},
-  10:{ru:["перк: точность","пассивка: порядок","инструмент: правило"], en:["perk: precision","passive: order","tool: rule"]},
-  11:{ru:["перк: видение","пассивка: интуиция","инструмент: курс"], en:["perk: vision","passive: intuition","tool: direction"]},
-  12:{ru:["перк: гибкость","пассивка: принятие","инструмент: перепрошивка"], en:["perk: flexibility","passive: acceptance","tool: reframe"]},
-};
-
-const GLITCH_PACKS = {
-  low: {
-    ru:["баг: замирание (страх шага)","баг: тишина (не говоришь, что хочешь)","баг: самослив (сдаёшь позиции слишком быстро)"],
-    en:["glitch: freeze (fear of the step)","glitch: silence (you don’t state what you want)","glitch: self-drop (you give up too fast)"]
-  },
-  mid: {
-    ru:["баг: автопилот (привычка рулит)","баг: сравнение (ворует ресурс)","баг: отложенный старт (вечно готовишься)"],
-    en:["glitch: autopilot (habit drives)","glitch: comparison (steals energy)","glitch: delayed start (always preparing)"]
-  },
-  high: {
-    ru:["баг: разрешение (ждёшь подтверждения)","баг: перегрев (рывок → падение)","баг: жёсткий контроль (если не ты — никто)"],
-    en:["glitch: permission (waiting for approval)","glitch: overheating (sprint → crash)","glitch: hard control (if not you — nobody)"]
-  }
-};
-
-const QUEST_BY_LIFEPATH = {
-  1:{ru:["квест: выбирать без доказательств","босс: зависимость от контроля"], en:["quest: choose without proving","boss: control addiction"]},
-  2:{ru:["квест: выйти из “удобно всем”","босс: страх конфликта"], en:["quest: exit “good for everyone”","boss: fear of conflict"]},
-  3:{ru:["квест: говорить ясно","босс: страх быть увиденным"], en:["quest: speak clearly","boss: fear of being seen"]},
-  4:{ru:["квест: строить свою систему","босс: страх ошибки"], en:["quest: build your own system","boss: fear of mistakes"]},
-  5:{ru:["квест: свобода без разрушения себя","босс: импульсивность"], en:["quest: freedom without self-destruction","boss: impulsiveness"]},
-  6:{ru:["квест: помогать без спасательства","босс: вина"], en:["quest: help without rescuing","boss: guilt"]},
-  7:{ru:["квест: действовать, а не наблюдать","босс: изоляция"], en:["quest: act, not just observe","boss: isolation"]},
-  8:{ru:["квест: власть на своих условиях","босс: контроль ради безопасности"], en:["quest: power on your terms","boss: control for safety"]},
-  9:{ru:["квест: завершать циклы без выгорания","босс: роль спасателя"], en:["quest: close cycles without burnout","boss: savior role"]},
-};
-
-const ENERGY_BY_MONTH = {
-  8:{ru:["реген: стратегия и масштаб","утечка: чужие правила ограничивают","аптечка: один жёсткий выбор в день"],
-     en:["regen: strategy and scale","leak: чужие правила ограничивают","medkit: one hard choice per day"]},
-  1:{ru:["реген: старт и движение","утечка: ожидание","аптечка: действие до сомнений"],
-     en:["regen: starting and moving","leak: waiting","medkit: act before doubt"]},
-  2:{ru:["реген: связь и доверие","утечка: подавленный конфликт","аптечка: честный разговор"],
-     en:["regen: connection and trust","leak: suppressed conflict","medkit: one honest talk"]},
-  3:{ru:["реген: самовыражение","утечка: самокритика","аптечка: выпуск текста/голоса"],
-     en:["regen: self-expression","leak: self-criticism","medkit: publish words/voice"]},
-  4:{ru:["реген: порядок","утечка: хаос","аптечка: список 3 дел"],
-     en:["regen: order","leak: chaos","medkit: list 3 tasks"]},
-  5:{ru:["реген: смена среды","утечка: рутина","аптечка: новый маршрут"],
-     en:["regen: change of environment","leak: routine","medkit: new route"]},
-  6:{ru:["реген: забота с границами","утечка: спасательство","аптечка: “нет” без объяснений"],
-     en:["regen: care with boundaries","leak: rescuing","medkit: say “no” once"]},
-  7:{ru:["реген: тишина и глубина","утечка: шум","аптечка: 30 минут одиночества"],
-     en:["regen: silence and depth","leak: noise","medkit: 30 minutes alone"]},
-  9:{ru:["реген: смысл","утечка: суета","аптечка: закрыть один хвост"],
-     en:["regen: meaning","leak: busywork","medkit: close one loose end"]},
-  10:{ru:["реген: точность","утечка: расплывчатость","аптечка: одно правило на день"],
-      en:["regen: precision","leak: vagueness","medkit: one rule for today"]},
-  11:{ru:["реген: видение","утечка: сомнение","аптечка: решение без обсуждений"],
-      en:["regen: vision","leak: doubt","medkit: decide without debate"]},
-  12:{ru:["реген: гибкость","утечка: вина","аптечка: отпусти одно “надо”"],
-      en:["regen: flexibility","leak: guilt","medkit: drop one “must”"]},
-};
-
-/* ------------------ Engine (date -> codes) ------------------ */
-function sumDigits(str){ return str.replace(/\D/g,'').split('').reduce((a,c)=>a+Number(c),0); }
-function reduce1to9(n){ while(n>9){ n = String(n).split('').reduce((a,c)=>a+Number(c),0); } return n; }
-function pad2(n){ return String(n).padStart(2,'0'); }
-
-function computeMap(dateStr){
-  const [Y,M,D] = dateStr.split('-').map(Number);
-  const idPlayer = `${pad2(D)}-${pad2(M)}-${Y}`;
-
-  const lifePath = reduce1to9(sumDigits(`${Y}${pad2(M)}${pad2(D)}`)); // 1..9
-  const dayCode = reduce1to9(sumDigits(String(D)));
-  const monthCode = M;
-
-  // Mode
-  let mode = I18N[LANG].modePlayer;
-  if(lifePath === 8 || lifePath === 1) mode = I18N[LANG].modeAdmin;
-  if(dayCode <= 3) mode = I18N[LANG].modeFreeze;
-  if(dayCode >= 7) mode = I18N[LANG].modeRush;
-
-  // Glitch pack by day range
-  let pack = "mid";
-  if(D <= 10) pack = "low";
-  if(D >= 21) pack = "high";
-
-  const core = CORE_BY_LIFEPATH[lifePath] || CORE_BY_LIFEPATH[7];
-  const kit = MONTH_KIT[monthCode] || MONTH_KIT[7];
-  const glitches = GLITCH_PACKS[pack];
-  const quest = QUEST_BY_LIFEPATH[lifePath] || QUEST_BY_LIFEPATH[7];
-  const energy = ENERGY_BY_MONTH[monthCode] || ENERGY_BY_MONTH[7];
-
-  // Access text
-  const accessTitle = (mode.includes("ADMIN") || mode.includes("potential")) ?
-    (LANG==="ru" ? "доступ близко" : "access is close") :
-    (LANG==="ru" ? "доступ ограничен" : "access limited");
-
-  const accessList = (mode.includes("ADMIN") || mode.includes("potential")) ? {
-    ru:["правило: фиксируй решение письменно","команда: “делаю на своих условиях”","запрет: не торговаться с собой"],
-    en:["rule: write the decision down","command: “I do it on my terms”","ban: stop bargaining with yourself"]
-  } : {
-    ru:["правило: 1 ручной ввод в день","команда: “я выбираю”","запрет: не ждать разрешения"],
-    en:["rule: one manual input per day","command: “I choose”","ban: stop waiting for permission"]
+  // ====== bilingual texts (simple) ======
+  const TXT = {
+    ru: {
+      title:"ADM MODE",
+      sub:"PLAYER MAP — игровой интерфейс самодиагностики по дате рождения. Не терапия. Не гадание. Это “скан”: где ты отдал управление и как забрать.",
+      pill:"<b>INPUT:</b> дата рождения • <b>OUTPUT:</b> CORE / KIT / GLITCHES / QUEST / ENERGY / ACCESS",
+      label:"Введи дату рождения",
+      hint:"Это демо-движок. Дальше мы заменим термины на твой игровой словарь и сделаем “AAA UI”.",
+      session:"СЕССИЯ",
+      id:"ID игрока:",
+      mode:"Режим:",
+      scan:"СКАНИРОВАТЬ",
+      core:"Ядро персонажа",
+      kit:"Стартовый набор",
+      gl:"Активные баги",
+      q:"Квест-линия",
+      e:"Ресурс",
+      a:"Доступ к управлению"
+    },
+    en: {
+      title:"ADM MODE",
+      sub:"PLAYER MAP — a game-style self-scan based on your birth date. Not therapy. Not fortune-telling. A scan: where you lost control and how to take it back.",
+      pill:"<b>INPUT:</b> birth date • <b>OUTPUT:</b> CORE / KIT / GLITCHES / QUEST / ENERGY / ACCESS",
+      label:"Enter your birth date",
+      hint:"This is a demo engine. Next we’ll replace terms with your game glossary and build an “AAA UI”.",
+      session:"SESSION",
+      id:"Player ID:",
+      mode:"Mode:",
+      scan:"SCAN",
+      core:"Character core",
+      kit:"Start kit",
+      gl:"Active glitches",
+      q:"Quest line",
+      e:"Energy",
+      a:"Control access"
+    }
   };
 
-  const oneLine = (LANG==="ru")
-    ? `Скан: CORE=${lifePath} • день=${D} • месяц=${M}. Режим: ${mode}.`
-    : `Scan: CORE=${lifePath} • day=${D} • month=${M}. Mode: ${mode}.`;
+  function setLang(lang){
+    document.getElementById("t_title").textContent = TXT[lang].title;
+    document.getElementById("t_sub").textContent = TXT[lang].sub;
+    document.getElementById("t_pill").innerHTML = TXT[lang].pill;
+    document.getElementById("t_label").textContent = TXT[lang].label;
+    document.getElementById("t_hint").textContent = TXT[lang].hint;
+    document.getElementById("t_session").textContent = TXT[lang].session;
+    document.getElementById("t_id").textContent = TXT[lang].id;
+    document.getElementById("t_mode").textContent = TXT[lang].mode;
+    document.getElementById("go").textContent = TXT[lang].scan;
+    document.getElementById("t_core").textContent = TXT[lang].core;
+    document.getElementById("t_kit").textContent = TXT[lang].kit;
+    document.getElementById("t_gl").textContent = TXT[lang].gl;
+    document.getElementById("t_q").textContent = TXT[lang].q;
+    document.getElementById("t_e").textContent = TXT[lang].e;
+    document.getElementById("t_a").textContent = TXT[lang].a;
 
-  return {
-    idPlayer, mode, lifePath, dayCode, monthCode,
-    oneLine,
-    core: core[LANG],
-    kit: kit[LANG],
-    glitches: glitches[LANG],
-    quest: quest[LANG],
-    energy: energy[LANG],
-    accessTitle,
-    accessList: accessList[LANG]
+    document.getElementById("ruBtn").classList.toggle("active", lang==="ru");
+    document.getElementById("enBtn").classList.toggle("active", lang==="en");
+    localStorage.setItem("adm_lang", lang);
+  }
+
+  document.getElementById("ruBtn").addEventListener("click",(e)=>{e.preventDefault();setLang("ru");});
+  document.getElementById("enBtn").addEventListener("click",(e)=>{e.preventDefault();setLang("en");});
+
+  // ====== small demo engine ======
+  const CORE = {
+    1:{t:"Инициатор",b:["нужен первый шаг","сила: выбор","тень: контроль"]},
+    2:{t:"Синхронизатор",b:["нужны связи","сила: союз","тень: угождение"]},
+    3:{t:"Искра",b:["нужно выражение","сила: голос","тень: распыление"]},
+    4:{t:"Архитектор",b:["нужна структура","сила: база","тень: жесткость"]},
+    5:{t:"Драйвер",b:["нужно движение","сила: перемены","тень: бегство"]},
+    6:{t:"Хранитель",b:["нужна забота","сила: качество","тень: спасательство"]},
+    7:{t:"Аналитик",b:["нужна глубина","сила: точность","тень: изоляция"]},
+    8:{t:"Админ",b:["нужен масштаб","сила: ресурсы","тень: власть ради власти"]},
+    9:{t:"Катализатор",b:["нужен смысл","сила: завершение","тень: выгорание"]}
   };
-}
 
-/* ------------------ Render ------------------ */
-function setText(id, v){ document.getElementById(id).textContent = v; }
-function fillList(id, items){
-  const ul = document.getElementById(id);
-  ul.innerHTML = "";
-  items.forEach(t => {
-    const li = document.createElement("li");
-    li.textContent = t;
-    ul.appendChild(li);
+  const KIT = {
+    8:["перк: власть","пассивка: стратегия","оружие: ресурсы"],
+    1:["перк: старт","пассивка: прямота","оружие: шаг"],
+    2:["перк: эмпатия","пассивка: дипломатия","оружие: связь"],
+    3:["перк: креатив","пассивка: речь","оружие: влияние"]
+  };
+
+  function sumDigits(s){return s.replace(/\D/g,"").split("").reduce((a,c)=>a+Number(c),0);}
+  function reduce9(n){while(n>9){n=String(n).split("").reduce((a,c)=>a+Number(c),0);}return n;}
+  function pad2(n){return String(n).padStart(2,"0");}
+
+  function compute(dateStr){
+    const [Y,M,D]=dateStr.split("-").map(Number);
+    const id=`${pad2(D)}-${pad2(M)}-${Y}`;
+    const lp=reduce9(sumDigits(`${Y}${pad2(M)}${pad2(D)}`));
+    const core=CORE[lp]||CORE[7];
+    const mode=(lp===8||lp===1)?"ADMIN (potential)":"PLAYER";
+    return {
+      id, mode,
+      one:`Scan: CORE ${lp} • day=${D} • month=${M} • access=${mode}`,
+      core,
+      kit: KIT[M] || ["перк: адаптация","пассивка: наблюдение","оружие: ввод"],
+      gl:["баг: разрешение","баг: сравнение","баг: замирание"],
+      q:["квест: вернуть управление","босс: автопилот"],
+      e:["реген: честный шаг","утечка: сомнения","аптечка: 1 решение в день"],
+      aTitle: mode.includes("ADMIN") ? "доступ близко" : "доступ ограничен",
+      a:["правило: 1 ручной ввод в день","команда: «я выбираю»","запрет: не ждать разрешения"]
+    };
+  }
+
+  function fillList(id, arr){
+    const el=document.getElementById(id);
+    el.innerHTML="";
+    arr.forEach(x=>{const li=document.createElement("li");li.textContent=x;el.appendChild(li);});
+  }
+
+  function render(m){
+    document.getElementById("out").style.display="grid";
+    document.getElementById("idPlayer").textContent=m.id;
+    document.getElementById("mode").textContent=m.mode;
+    document.getElementById("oneLine").textContent=m.one;
+    document.getElementById("coreTitle").textContent=m.core.t;
+    fillList("coreList", m.core.b);
+    fillList("kitList", m.kit);
+    fillList("glitchList", m.gl);
+    fillList("questList", m.q);
+    fillList("energyList", m.e);
+    document.getElementById("adminTitle").textContent=m.aTitle;
+    fillList("adminList", m.a);
+  }
+
+  document.getElementById("go").addEventListener("click",()=>{
+    const dob=document.getElementById("dob").value;
+    if(!dob){alert("Введи дату рождения");return;}
+    render(compute(dob));
   });
-}
 
-function applyLang(){
-  const T = I18N[LANG];
-  setText("pillState", T.pill);
-  setText("hTitle", T.title);
-  setText("hSub", T.sub);
-  setText("chip1", T.chip1);
-  setText("chip2", T.chip2);
-  setText("chip3", T.chip3);
-  setText("howTitle", T.howTitle);
-  setText("howText", T.howText);
-  setText("scanTitle", T.scanTitle);
-  setText("dobLabel", T.dobLabel);
-  setText("go", T.btn);
-  setText("scanHint", T.scanHint);
-  setText("resTitle", T.resTitle);
-  setText("sessionTitle", T.session);
-  setText("idLabel", T.idLabel);
-  setText("modeLabel", T.modeLabel);
-  setText("disclaimer", T.disclaimer);
-  setText("coreBadge", T.coreBadge);
-  setText("kitBadge", T.kitBadge);
-  setText("glitchBadge", T.glitchBadge);
-  setText("questBadge", T.questBadge);
-  setText("energyBadge", T.energyBadge);
-  setText("accessBadge", T.accessBadge);
-  setText("nextWarn", T.nextWarn);
-  setText("nextText", T.nextText);
-}
-
-function render(dateStr){
-  const map = computeMap(dateStr);
-
-  document.getElementById("out").style.display = "grid";
-  document.getElementById("resTitle").style.display = "block";
-
-  setText("idPlayer", map.idPlayer);
-  setText("mode", map.mode);
-  setText("codes", `CORE:${map.lifePath} • DAY:${map.dayCode} • MON:${map.monthCode}`);
-  setText("oneLine", map.oneLine);
-
-  setText("coreTitle", map.core.title);
-  fillList("coreList", map.core.bullets);
-
-  fillList("kitList", map.kit);
-  fillList("glitchList", map.glitches);
-  fillList("questList", map.quest);
-  fillList("energyList", map.energy);
-
-  setText("accessTitle", map.accessTitle);
-  fillList("accessList", map.accessList);
-}
-
-/* ------------------ Events ------------------ */
-document.getElementById("go").addEventListener("click", () => {
-  const dob = document.getElementById("dob").value;
-  if(!dob){
-    alert(LANG==="ru" ? "Введи дату рождения." : "Enter your birth date.");
-    return;
-  }
-  render(dob);
-});
-
-document.getElementById("langBtn").addEventListener("click", () => {
-  LANG = (LANG === "ru") ? "en" : "ru";
-  document.getElementById("langBtn").textContent = (LANG === "ru") ? "EN" : "RU";
-  applyLang();
-
-  // if already rendered — re-render with current date
-  const dob = document.getElementById("dob").value;
-  if(dob) render(dob);
-});
-
-/* ------------------ Init ------------------ */
-applyLang();
-
-// demo on your date (you can delete this line later)
-document.getElementById("dob").value = "1996-08-01";
-render("1996-08-01");
+  // init
+  document.getElementById("dob").value="1996-08-01";
+  render(compute("1996-08-01"));
+  setLang(localStorage.getItem("adm_lang") || "ru");
 </script>
 </body>
 </html>
