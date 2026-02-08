@@ -1,1 +1,128 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ADM MODE — Метагалактический Скан</title>
+  <meta name="description" content="ADM MODE — игровая система самодиагностики: дата рождения → протокол → карта управления." />
 
+  <style>
+    :root{
+      --bg:#060812;
+      --ink:#EAF6FF;
+      --muted: rgba(234,246,255,.72);
+      --glass: rgba(10, 14, 28, .62);
+      --glass2: rgba(14, 18, 33, .72);
+      --stroke: rgba(120,255,240,.25);
+      --stroke2: rgba(255,179,92,.18);
+
+      --a:#76FFF0;   /* неон-циан */
+      --b:#FFB35C;   /* неон-оранж */
+      --c:#B86BFF;   /* неон-фиолет */
+      --d:#FF5C8A;   /* неон-розовый */
+
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+      --radius: 22px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1100px 600px at 18% 12%, rgba(118,255,240,.14), transparent 60%),
+        radial-gradient(900px 520px at 82% 22%, rgba(255,179,92,.12), transparent 62%),
+        radial-gradient(1000px 700px at 60% 86%, rgba(184,107,255,.12), transparent 65%),
+        radial-gradient(700px 600px at 40% 70%, rgba(255,92,138,.08), transparent 62%),
+        linear-gradient(180deg, #050712 0%, #070A16 45%, #050712 100%);
+      overflow-x:hidden;
+    }
+
+    /* “звёздная пыль” поверх */
+    .noise{
+      position:fixed; inset:0;
+      pointer-events:none;
+      opacity:.35;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.35) 50%, transparent 52%),
+        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.25) 50%, transparent 52%),
+        radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,.22) 50%, transparent 52%),
+        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,.18) 50%, transparent 52%),
+        radial-gradient(1px 1px at 55% 10%, rgba(255,255,255,.20) 50%, transparent 52%),
+        radial-gradient(1px 1px at 15% 65%, rgba(255,255,255,.14) 50%, transparent 52%);
+      mix-blend-mode: screen;
+      filter: blur(.2px);
+    }
+
+    .wrap{
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 34px 18px 72px;
+    }
+
+    /* верхняя “панель” */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
+    }
+    .logo{
+      display:flex; align-items:center; gap:12px;
+      user-select:none;
+    }
+    .sig{
+      width:34px; height:34px; border-radius:10px;
+      border:1px solid var(--stroke);
+      background:
+        radial-gradient(22px 18px at 30% 30%, rgba(118,255,240,.35), transparent 60%),
+        radial-gradient(22px 18px at 70% 70%, rgba(255,179,92,.22), transparent 60%),
+        rgba(0,0,0,.22);
+      box-shadow: 0 0 18px rgba(118,255,240,.18);
+    }
+    .logo b{
+      letter-spacing:.12em;
+      font-weight:900;
+    }
+    .chip{
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid rgba(120,255,240,.18);
+      border-radius:999px;
+      padding:6px 10px;
+      background: rgba(0,0,0,.20);
+    }
+
+    /* главный блок */
+    .hero{
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(14,18,33,.72), rgba(10,14,28,.58));
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(520px 240px at 12% 0%, rgba(118,255,240,.18), transparent 60%),
+        radial-gradient(520px 240px at 88% 0%, rgba(255,179,92,.14), transparent 60%),
+        radial-gradient(520px 240px at 50% 100%, rgba(184,107,255,.12), transparent 62%);
+      pointer-events:none;
+      filter: blur(1px);
+    }
+
+    .heroInner{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+      padding: 20px;
+    }
+
+    @media (max-width: 920px){
+      .
