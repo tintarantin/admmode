@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ADM mode: off script.</title>
-  <meta name="description" content="ADM mode: off script. Игровой метод: протокол → генерация MULTIPASS → квест → билд." />
+  <meta name="description" content="ADM mode: off script. Протокол → MULTIPASS → билд." />
 
   <style>
     :root{
@@ -111,12 +111,12 @@
       padding:0 18px;
     }
 
+    /* hero */
     .hero{
       position:relative;
-      padding:64px 0 22px;
+      padding:64px 0 18px;
       isolation:isolate;
     }
-
     .iridescent-bg{
       position:absolute;
       inset:-30% -20%;
@@ -142,7 +142,7 @@
     .title{
       font-size: clamp(40px, 5.3vw, 84px);
       line-height: .98;
-      margin:0 0 14px;
+      margin:0 0 12px;
       letter-spacing:-.03em;
       font-weight:950;
     }
@@ -155,8 +155,7 @@
           rgba(255,255,255,.98) 40%,
           rgba(15,14,35,1) 52%,
           rgba(15,14,35,1) 100%),
-        conic-gradient(from 140deg,
-          var(--p-1), var(--p-2), var(--p-3), var(--p-4), var(--p-1));
+        conic-gradient(from 140deg, var(--p-1), var(--p-2), var(--p-3), var(--p-4), var(--p-1));
       -webkit-background-clip:text;
       background-clip:text;
       color:transparent;
@@ -172,46 +171,17 @@
     }
 
     .lead{
-      max-width: 900px;
+      max-width: 880px;
       font-size: clamp(16px, 1.55vw, 19px);
       line-height:1.6;
       color:var(--muted);
       margin: 0 0 14px;
-      font-weight:700;
-    }
-
-    .methodMini{
-      max-width: 920px;
-      margin: 0 0 18px;
-      display:grid;
-      gap:10px;
-    }
-    .miniRow{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
-    .miniPill{
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.75);
-      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.44));
-      backdrop-filter: blur(14px);
-      box-shadow: 0 14px 44px rgba(12,10,30,.10);
-      font-weight:950;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      font-size:11px;
-      opacity:.92;
-      user-select:none;
-    }
-    .miniText{
-      color: rgba(11,12,20,.72);
       font-weight:750;
-      line-height:1.5;
     }
 
     .chips{
       display:flex; flex-wrap:wrap; gap:10px;
-      margin: 0 0 18px;
+      margin: 0 0 16px;
     }
     .chip{
       padding:10px 12px;
@@ -247,7 +217,7 @@
     .ctaRow{
       display:flex; gap:12px; flex-wrap:wrap;
       align-items:center;
-      margin: 12px 0 10px;
+      margin: 10px 0 6px;
     }
     .btn{
       display:inline-flex; align-items:center; gap:10px;
@@ -293,18 +263,14 @@
     .btn span{ position:relative; z-index:1; }
     .btn.ghost{ opacity:.78; }
     .btn.ghost:hover{ opacity:1; }
-    .btn:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-      transform:none !important;
-    }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none !important; }
 
-    /* layout */
+    /* cards / layout */
     .grid{
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
+      grid-template-columns: 1.05fr .95fr;
       gap:18px;
-      margin: 26px 0 26px;
+      margin: 18px 0 22px;
     }
     @media (max-width: 940px){
       .grid{ grid-template-columns: 1fr; }
@@ -342,12 +308,12 @@
       50%{ transform: rotate(26deg); }
       100%{ transform: rotate(0deg); }
     }
-
     .card > .inner{
       position:relative;
       padding: 22px 22px 18px;
       z-index:1;
     }
+
     .h2{
       margin:0 0 10px;
       font-size: 12px;
@@ -356,13 +322,14 @@
       opacity:.78;
       font-weight:950;
     }
+
     .manifest{
       margin: 0;
       font-size: clamp(18px, 1.85vw, 22px);
       line-height: 1.55;
       letter-spacing: -.01em;
       color: rgba(11,12,20,.92);
-      font-weight:750;
+      font-weight:800;
     }
 
     .list{
@@ -380,25 +347,6 @@
       position:relative;
       overflow:hidden;
     }
-    .item::after{
-      content:"";
-      position:absolute; inset:-40% -20%;
-      background:
-        radial-gradient(400px 240px at 20% 40%, rgba(185,240,255,.55), transparent 60%),
-        radial-gradient(380px 220px at 80% 60%, rgba(255,214,247,.50), transparent 62%);
-      opacity:.55;
-      filter: blur(18px);
-      transform: translate3d(0,0,0);
-      animation: mist 9s ease-in-out infinite;
-      pointer-events:none;
-      mix-blend-mode: soft-light;
-    }
-    @keyframes mist{
-      0%{ transform: translate(-2%, -2%) scale(1); }
-      50%{ transform: translate(2%, 2%) scale(1.04); }
-      100%{ transform: translate(-2%, -2%) scale(1); }
-    }
-
     .item b{
       display:flex; align-items:center; justify-content:space-between;
       font-size:12px;
@@ -419,7 +367,7 @@
       text-transform:uppercase;
       font-weight:900;
     }
-    .item p{ margin:0; color:var(--muted); line-height:1.45; font-weight:650; }
+    .item p{ margin:0; color:var(--muted); line-height:1.45; font-weight:700; }
 
     /* reveal */
     .reveal{ opacity:0; transform: translateY(16px); transition: opacity .7s ease, transform .7s ease; }
@@ -438,11 +386,7 @@
     .console::before{
       content:"";
       position:absolute; inset:-1px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(185,240,255,.25) 35%,
-        rgba(255,214,247,.22) 55%,
-        transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, rgba(185,240,255,.25) 35%, rgba(255,214,247,.22) 55%, transparent 100%);
       transform: translateX(-60%);
       animation: scan 4.2s ease-in-out infinite;
       opacity:.55;
@@ -505,7 +449,7 @@
     }
     .sigHint{
       color:var(--muted);
-      font-weight:650;
+      font-weight:700;
       font-size:13px;
     }
     canvas#sig{
@@ -563,174 +507,7 @@
       pointer-events:auto;
     }
 
-    /* ---------- QUEST + METERS ---------- */
-    .questTop{
-      display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-    .meterRow{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
-    .meter{
-      display:flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.65);
-      background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.32));
-      font-weight:950;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      font-size:11px;
-      opacity:.95;
-      user-select:none;
-    }
-    .bar{
-      width:140px; height:8px;
-      border-radius:999px;
-      background: rgba(11,12,20,.10);
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.55);
-    }
-    .fill{
-      height:100%;
-      width:0%;
-      border-radius:999px;
-      background: linear-gradient(90deg, rgba(201,182,255,.9), rgba(185,240,255,.85), rgba(255,214,247,.85));
-      transition: width .45s ease;
-    }
-
-    .questCard{
-      border-radius: 22px;
-      border:1px solid rgba(255,255,255,.70);
-      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.34));
-      padding: 14px;
-      position:relative;
-      overflow:hidden;
-    }
-    .questCard::before{
-      content:"";
-      position:absolute; inset:-1px;
-      background: radial-gradient(600px 240px at 20% 30%, rgba(185,240,255,.22), transparent 60%),
-                  radial-gradient(560px 240px at 80% 60%, rgba(255,214,247,.18), transparent 62%);
-      filter: blur(18px);
-      opacity:.8;
-      pointer-events:none;
-      mix-blend-mode: soft-light;
-    }
-    .questCard > *{ position:relative; z-index:1; }
-
-    .questHeader{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px; flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-    .qTitle{
-      font-weight:1000;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-size:12px;
-      opacity:.78;
-    }
-    .qStep{
-      font-weight:1000;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-size:11px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.65);
-      background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.30));
-      opacity:.95;
-      user-select:none;
-    }
-    .qText{
-      margin:0 0 12px;
-      font-size: clamp(16px, 1.5vw, 19px);
-      line-height:1.45;
-      color: rgba(11,12,20,.90);
-      font-weight:800;
-      letter-spacing:-.01em;
-    }
-
-    .choices{
-      display:grid;
-      gap:10px;
-      margin: 10px 0 0;
-    }
-    .choice{
-      text-align:left;
-      padding:12px 12px;
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.70);
-      background: linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,.34));
-      cursor:pointer;
-      font-weight:900;
-      letter-spacing:.02em;
-      color: rgba(11,12,20,.88);
-      transition: transform .12s ease, box-shadow .2s ease, opacity .2s ease;
-      position:relative;
-      overflow:hidden;
-      user-select:none;
-    }
-    .choice:hover{
-      transform: translateY(-1px);
-      box-shadow: 0 22px 60px rgba(12,10,30,.12);
-    }
-    .choice:active{ transform: translateY(0px) scale(.99); }
-    .choice::after{
-      content:"";
-      position:absolute; inset:-2px -35%;
-      background: linear-gradient(90deg, transparent, rgba(185,240,255,.28), rgba(255,214,247,.25), transparent);
-      transform: translateX(-55%);
-      animation: choiceScan 3.6s ease-in-out infinite;
-      opacity:.65;
-      pointer-events:none;
-      mix-blend-mode: soft-light;
-    }
-    @keyframes choiceScan{
-      0%{ transform: translateX(-55%); }
-      55%{ transform: translateX(55%); }
-      100%{ transform: translateX(-55%); }
-    }
-    .choice small{
-      display:block;
-      margin-top:6px;
-      color: var(--muted);
-      font-weight:750;
-      letter-spacing:0;
-      text-transform:none;
-      line-height:1.35;
-    }
-
-    .result{
-      margin-top:12px;
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.65);
-      background: rgba(255,255,255,.55);
-      padding: 12px;
-      color: rgba(11,12,20,.88);
-      font-weight:800;
-      line-height:1.45;
-      display:none;
-    }
-    .result.on{ display:block; animation: pop .25s ease-out both; }
-    @keyframes pop{
-      from{ transform: translateY(6px); opacity:0; }
-      to{ transform: translateY(0); opacity:1; }
-    }
-
-    .nextRow{
-      display:flex; gap:12px; flex-wrap:wrap; align-items:center;
-      margin-top:12px;
-    }
-    .tiny{
-      font-size:12px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      opacity:.7;
-      font-weight:950;
-    }
-
-    /* ---------- MULTIPASS (output) ---------- */
+    /* ---------- MULTIPASS GENERATOR + OUTPUT ---------- */
     .formGrid{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -761,31 +538,53 @@
     }
     .field input::placeholder{ color: rgba(11,12,20,.45); }
 
-    .termList{
-      list-style:none;
-      margin:0;
-      padding:0;
-      display:grid;
-      gap:10px;
+    .meterRow{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-top:12px;
     }
-    .termList li{
-      padding:12px 12px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.68);
-      background: linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,.34));
-      font-weight:900;
-      letter-spacing:.06em;
+    .meter{
+      display:flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.65);
+      background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.32));
+      font-weight:950;
+      letter-spacing:.16em;
       text-transform:uppercase;
-      font-size:12px;
+      font-size:11px;
+      opacity:.95;
+      user-select:none;
     }
-    .termList li small{
-      display:block;
-      margin-top:6px;
-      color: rgba(11,12,20,.62);
-      font-weight:750;
-      letter-spacing:0;
-      text-transform:none;
-      line-height:1.35;
+    .bar{
+      width:160px; height:8px;
+      border-radius:999px;
+      background: rgba(11,12,20,.10);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.55);
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(201,182,255,.9), rgba(185,240,255,.85), rgba(255,214,247,.85));
+      transition: width .45s ease;
+    }
+
+    .result{
+      margin-top:12px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.65);
+      background: rgba(255,255,255,.55);
+      padding: 12px;
+      color: rgba(11,12,20,.88);
+      font-weight:800;
+      line-height:1.45;
+      display:none;
+    }
+    .result.on{ display:block; animation: pop .25s ease-out both; }
+    @keyframes pop{
+      from{ transform: translateY(6px); opacity:0; }
+      to{ transform: translateY(0); opacity:1; }
     }
 
     .multipass{
@@ -800,11 +599,7 @@
       content:"";
       position:absolute; inset:-2px;
       background:
-        linear-gradient(90deg,
-          transparent 0%,
-          rgba(185,240,255,.22) 35%,
-          rgba(255,214,247,.20) 55%,
-          transparent 100%);
+        linear-gradient(90deg, transparent 0%, rgba(185,240,255,.22) 35%, rgba(255,214,247,.20) 55%, transparent 100%);
       transform: translateX(-60%);
       animation: multipassScan 3.6s ease-in-out infinite;
       opacity:.7;
@@ -871,6 +666,63 @@
       line-height:1.45;
     }
 
+    /* MULTIPASS SEAL */
+    .mpSeal{
+      position:absolute;
+      right:16px;
+      bottom:16px;
+      transform: rotate(-12deg) scale(.92);
+      padding:12px 14px;
+      border-radius: 18px;
+      border:2px solid rgba(11,12,20,.78);
+      background: rgba(255,255,255,.72);
+      filter: drop-shadow(0 18px 40px rgba(12,10,30,.14));
+      opacity:0;
+      pointer-events:none;
+      z-index:2;
+    }
+    .mpSeal.on{
+      opacity:1;
+      animation: sealIn .34s ease-out both, sealGlitch .9s ease-in-out .22s 2;
+    }
+    .mpSealTop{
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      font-weight:1000;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      font-size:11px;
+      opacity:.9;
+    }
+    .mpSealMid{
+      margin-top:6px;
+      font-weight:1000;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-size:12px;
+    }
+    .mpSealBot{
+      margin-top:6px;
+      font-weight:900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      font-size:10px;
+      opacity:.75;
+    }
+    @keyframes sealIn{
+      0%{ transform: rotate(-18deg) scale(1.18); opacity:0; }
+      100%{ transform: rotate(-12deg) scale(.92); opacity:1; }
+    }
+    @keyframes sealGlitch{
+      0%{ transform: rotate(-12deg) translate(0,0) scale(.92); }
+      20%{ transform: rotate(-12deg) translate(-2px,1px) scale(.92); }
+      40%{ transform: rotate(-12deg) translate(2px,-1px) scale(.92); }
+      60%{ transform: rotate(-12deg) translate(-1px,-2px) scale(.92); }
+      80%{ transform: rotate(-12deg) translate(1px,2px) scale(.92); }
+      100%{ transform: rotate(-12deg) translate(0,0) scale(.92); }
+    }
+
     footer{
       padding: 26px 0 40px;
       color: rgba(11,12,20,.55);
@@ -890,19 +742,19 @@
     <div class="wrap">
       <div class="brand">
         <div>ADM mode: <span style="opacity:.88">off script.</span></div>
-        <small>game protocol</small>
+        <small>new method</small>
       </div>
 
       <nav class="links">
         <a href="#manifest">manifest</a>
         <a href="#protocol">protocol</a>
-        <a href="#generator">multipass</a>
-        <a href="#quest">quest</a>
+        <a href="#multipassGate">multipass</a>
       </nav>
     </div>
   </header>
 
   <main class="wrap">
+    <!-- HERO (LIGHT, CLEAR) -->
     <section class="hero">
       <div class="iridescent-bg" aria-hidden="true"></div>
 
@@ -911,45 +763,26 @@
         <span class="shimmer">off script.</span>
       </h1>
 
-      <!-- кратко и жёстко: что это за метод -->
       <p class="lead reveal">
-        это не «саморазвитие». это <b>игровой метод перепрошивки</b>:
-        <b>подписываешь протокол</b> → <b>генерируешь MULTIPASS</b> по дате рождения →
-        <b>проходишь квест</b> → <b>собираешь билд</b> и фиксируешь правила.
+        новый игровой метод сборки личности.<br/>
+        <b>протокол</b> → <b>multipass</b> → <b>билд</b>.
       </p>
 
-      <div class="methodMini reveal">
-        <div class="miniRow">
-          <div class="miniPill">engine</div>
-          <div class="miniText">
-            <b>ADM CORE ENGINE</b> объединяет разные школы в один интерфейс и переводит всё на язык игры:
-            STAR MAP / BUILD BLUEPRINT / DESTINY GRID / ARCHETYPE LOADOUT / BEHAVIOR SCRIPT / PROBABILITY FIELD.
-          </div>
-        </div>
-        <div class="miniRow">
-          <div class="miniPill">output</div>
-          <div class="miniText">
-            ты получаешь <b>MULTIPASS</b>, шкалу заполненности билда и маршрут миссий на 7 дней.
-          </div>
-        </div>
-      </div>
-
-      <div class="chips reveal" aria-label="tags">
-        <div class="chip">tutorial: skipped</div>
-        <div class="chip">anti-sys</div>
+      <div class="chips reveal">
         <div class="chip">protocol</div>
         <div class="chip">multipass</div>
-        <div class="chip">quest</div>
+        <div class="chip">build</div>
+        <div class="chip">access</div>
+        <div class="chip">off script</div>
       </div>
 
       <div class="ctaRow reveal">
         <a class="btn primary" href="#protocol"><span>sign protocol →</span></a>
-        <a class="btn ghost" href="#generator"><span>generate multipass</span></a>
-        <a class="btn ghost" href="#quest"><span>start quest</span></a>
+        <a class="btn ghost" href="#multipassGate"><span>generate multipass</span></a>
       </div>
     </section>
 
-    <!-- MANIFEST (SHORTENED AS REQUESTED) -->
+    <!-- MANIFEST -->
     <section class="grid" id="manifest">
       <article class="card reveal">
         <div class="inner">
@@ -965,23 +798,23 @@
 
       <aside class="card reveal">
         <div class="inner">
-          <div class="h2">game rules</div>
+          <div class="h2">rules</div>
           <ul class="list">
             <li class="item">
-              <b>role <span class="tag">you = admin</span></b>
-              <p>ты не NPC. ты владелец протокола. ты выбираешь правила.</p>
+              <b>you <span class="tag">admin</span></b>
+              <p>ты не NPC. ты — автор правил.</p>
             </li>
             <li class="item">
-              <b>enemy <span class="tag">system</span></b>
+              <b>system <span class="tag">environment</span></b>
               <p>система — окружение. ты не обязан(а) ей соответствовать.</p>
             </li>
             <li class="item">
-              <b>currency <span class="tag">pressure → fuel</span></b>
-              <p>давление — ресурс. при правильной конвертации оно строит броню.</p>
+              <b>pressure <span class="tag">fuel</span></b>
+              <p>давление конвертируется в броню и действие.</p>
             </li>
             <li class="item">
               <b>gates <span class="tag">protocol → multipass</span></b>
-              <p>сначала подпись, потом генерация MULTIPASS, потом квест.</p>
+              <p>сначала подпись. потом доступ к генерации.</p>
             </li>
           </ul>
         </div>
@@ -999,8 +832,8 @@
               <div class="kv"><span class="statusDot" id="dot"></span> access: <span id="accessTxt">locked</span></div>
               <div class="pill">adm mode: off script</div>
             </div>
-            <div style="margin-top:8px; color:var(--muted); font-weight:700; line-height:1.5;">
-              нарисуй подпись → нажми <b>confirm</b> → откроются MULTIPASS генератор и квест.
+            <div style="margin-top:8px; color:var(--muted); font-weight:750; line-height:1.5;">
+              нарисуй подпись → нажми <b>confirm</b> → откроется MULTIPASS генерация.
             </div>
           </div>
 
@@ -1022,160 +855,101 @@
       </div>
     </section>
 
-    <!-- MULTIPASS GENERATOR (CALENDAR + GENERATE BUTTON) -->
-    <section class="card reveal locked" id="generator" style="margin-bottom:18px;">
+    <!-- MULTIPASS GATE -->
+    <section class="card reveal locked" id="multipassGate" style="margin-bottom:18px;">
       <div class="inner">
-        <div class="questTop">
-          <div>
-            <div class="h2">multipass generator</div>
-            <div class="tiny">date + time + city → generate multipass → build meter fills.</div>
-          </div>
+        <div class="h2">multipass generator</div>
 
-          <div class="meterRow">
-            <div class="meter">engine: <span id="engineStatus">standby</span></div>
-            <div class="meter">build meter
-              <span class="bar"><span class="fill" id="buildFill"></span></span>
-              <span id="buildPct">0%</span>
-            </div>
+        <p class="lead" style="margin:0 0 10px;">
+          вводишь дату рождения → система собирает билд → печать MULTIPASS выдаёт доступ.
+        </p>
+
+        <div class="formGrid">
+          <label class="field">
+            <span>date (calendar)</span>
+            <input id="birthDate" type="date" />
+          </label>
+
+          <label class="field">
+            <span>time</span>
+            <input id="birthTime" type="time" value="01:30" />
+          </label>
+
+          <label class="field" style="grid-column: 1 / -1;">
+            <span>origin (city)</span>
+            <input id="birthCity" type="text" placeholder="например: Нальчик, Россия" />
+          </label>
+
+          <label class="field" style="grid-column: 1 / -1;">
+            <span>scan mode</span>
+            <select id="engineMode">
+              <option value="strict">strict scan</option>
+              <option value="myth">myth scan</option>
+              <option value="hard">hardcore off-script</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="ctaRow" style="margin:12px 0 0;">
+          <button class="btn" id="prefillMe" type="button"><span>load my data</span></button>
+          <button class="btn primary" id="genMultipassBtn" type="button"><span>generate multipass</span></button>
+        </div>
+
+        <div class="meterRow">
+          <div class="meter">engine: <span id="engineStatus">standby</span></div>
+          <div class="meter">build meter
+            <span class="bar"><span class="fill" id="buildFill"></span></span>
+            <span id="buildPct">0%</span>
           </div>
         </div>
 
-        <div class="grid" style="margin:0; grid-template-columns: 1fr 1fr;">
-          <div class="questCard">
-            <div class="questHeader">
-              <div class="qTitle">input panel</div>
-              <div class="qStep">birth data</div>
-            </div>
-
-            <div class="formGrid">
-              <label class="field">
-                <span>date (calendar)</span>
-                <input id="birthDate" type="date" />
-              </label>
-
-              <label class="field">
-                <span>time</span>
-                <input id="birthTime" type="time" value="01:30" />
-              </label>
-
-              <label class="field" style="grid-column: 1 / -1;">
-                <span>location (city)</span>
-                <input id="birthCity" type="text" placeholder="например: Нальчик, Россия" />
-              </label>
-
-              <label class="field" style="grid-column: 1 / -1;">
-                <span>scan mode</span>
-                <select id="engineMode">
-                  <option value="strict">strict scan</option>
-                  <option value="myth">myth scan</option>
-                  <option value="hard">hardcore off-script</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="ctaRow" style="margin:12px 0 0;">
-              <button class="btn" id="prefillMe" type="button"><span>load my birth data</span></button>
-              <button class="btn primary" id="genMultipassBtn" type="button"><span>generate multipass</span></button>
-            </div>
-
-            <div class="result" id="genLog"></div>
-          </div>
-
-          <div class="questCard">
-            <div class="questHeader">
-              <div class="qTitle">translator</div>
-              <div class="qStep">system → game</div>
-            </div>
-
-            <ul class="termList" id="termList"></ul>
-
-            <div class="tiny" style="margin-top:10px;">
-              “PROBABILITY FIELD” — метафора языка выбора, не научное обещание.
-            </div>
-          </div>
-        </div>
+        <div class="result" id="genLog"></div>
 
         <!-- MULTIPASS OUTPUT -->
-        <div class="questCard" style="margin-top:14px;">
-          <div class="questHeader">
-            <div class="qTitle">multipass • adm id</div>
-            <div class="qStep" id="multipassStatus">status: not generated</div>
+        <div class="multipass locked" id="multipass" style="margin-top:14px;">
+          <div class="multipassTop">
+            <div class="pill" id="mpId">ID: ADM-0000</div>
+            <div class="pill" id="mpClearance">CLEARANCE: UNKNOWN</div>
+            <div class="pill" id="mpOrigin">ORIGIN: —</div>
+            <div class="pill" id="mpSeed">SEED: —</div>
           </div>
 
-          <div class="multipass locked" id="multipass">
-            <div class="multipassTop">
-              <div class="pill" id="mpId">ID: ADM-0000</div>
-              <div class="pill" id="mpTag">clearance: unknown</div>
+          <div class="multipassGrid">
+            <div class="mBlock">
+              <b>core stats</b>
+              <div class="mRows" id="statRows"></div>
             </div>
 
-            <div class="multipassGrid">
-              <div class="mBlock">
-                <b>core stats</b>
-                <div class="mRows" id="statRows"></div>
-              </div>
+            <div class="mBlock">
+              <b>loadout</b>
+              <div class="mText" id="loadoutText"></div>
+            </div>
 
-              <div class="mBlock">
-                <b>archetype loadout</b>
-                <div class="mText" id="archetypeText"></div>
-              </div>
+            <div class="mBlock">
+              <b>main directive</b>
+              <div class="mText" id="directiveText"></div>
+            </div>
 
-              <div class="mBlock">
-                <b>main quest</b>
-                <div class="mText" id="mainQuestText"></div>
-              </div>
-
-              <div class="mBlock">
-                <b>quest route (7 days)</b>
-                <div class="mRows" id="routeRows"></div>
-              </div>
+            <div class="mBlock">
+              <b>route (7 days)</b>
+              <div class="mRows" id="routeRows"></div>
             </div>
           </div>
-        </div>
 
-      </div>
-    </section>
-
-    <!-- QUEST (LOCKED UNTIL SIGNED) -->
-    <section class="card locked reveal" id="quest" style="margin-bottom:18px;">
-      <div class="inner">
-        <div class="questTop">
-          <div>
-            <div class="h2">quest: deep scan</div>
-            <div class="tiny">выбирай ответы → билд собирается → шкала заполненности растёт.</div>
-          </div>
-
-          <div class="meterRow">
-            <div class="meter">progress
-              <span class="bar"><span class="fill" id="progressFill"></span></span>
-              <span id="questPct">0%</span>
+          <div class="mpSeal" id="mpSeal">
+            <div class="mpSealTop">
+              <span class="mpSealWord">MULTIPASS</span>
+              <span class="mpSealWord">AUTH</span>
             </div>
-            <div class="meter">build: <span id="buildName">unknown</span></div>
-          </div>
-        </div>
-
-        <div class="questCard">
-          <div class="questHeader">
-            <div class="qTitle" id="qTitle">mission</div>
-            <div class="qStep" id="qStep">step 1/5</div>
-          </div>
-
-          <p class="qText" id="qText">...</p>
-
-          <div class="choices" id="choices"></div>
-
-          <div class="result" id="result"></div>
-
-          <div class="nextRow">
-            <button class="btn ghost" id="backBtn" type="button"><span>back</span></button>
-            <button class="btn primary" id="nextBtn" type="button"><span>next</span></button>
-            <span class="tiny" id="hint">choose to unlock next</span>
+            <div class="mpSealMid">ACCESS GRANTED</div>
+            <div class="mpSealBot" id="mpSealLine">SEAL: PENDING</div>
           </div>
         </div>
       </div>
     </section>
 
     <footer class="reveal">
-      ADM MODE: OFF SCRIPT • PROTOCOL → MULTIPASS → QUEST → BUILD
+      ADM MODE: OFF SCRIPT • PROTOCOL → MULTIPASS → BUILD
     </footer>
   </main>
 
@@ -1261,8 +1035,7 @@
     const dot = document.getElementById('dot');
     const accessTxt = document.getElementById('accessTxt');
 
-    const questSection = document.getElementById('quest');
-    const generatorSection = document.getElementById('generator');
+    const multipassGate = document.getElementById('multipassGate');
     const engineStatus = document.getElementById('engineStatus');
 
     function lockSection(section, lock){
@@ -1275,12 +1048,10 @@
         section.classList.remove('locked');
       }
     }
-    lockSection(questSection, true);
-    lockSection(generatorSection, true);
+    lockSection(multipassGate, true);
 
     function onProtocolSigned(){
-      lockSection(generatorSection, false);
-      lockSection(questSection, false);
+      lockSection(multipassGate, false);
       if(engineStatus) engineStatus.textContent = "online";
     }
 
@@ -1289,8 +1060,7 @@
       stamp.classList.remove('on');
       dot.classList.remove('on');
       accessTxt.textContent = 'locked';
-      lockSection(generatorSection, true);
-      lockSection(questSection, true);
+      lockSection(multipassGate, true);
       if(engineStatus) engineStatus.textContent = "standby";
       hasInk = false;
     });
@@ -1309,27 +1079,8 @@
       dot.classList.add('on');
       accessTxt.textContent = 'granted';
       onProtocolSigned();
-
-      setTimeout(()=> generatorSection.scrollIntoView({ behavior:'smooth', block:'start' }), 420);
+      setTimeout(()=> multipassGate.scrollIntoView({ behavior:'smooth', block:'start' }), 380);
     });
-
-    // ---------- TERM TRANSLATOR ----------
-    const TERM_MAP = [
-      { sys:"натальная карта / астрология", game:"STAR MAP / SKY SEED", note:"ритмы, сезоны силы, окна действия" },
-      { sys:"дизайн человека", game:"BUILD BLUEPRINT", note:"как работает энергия: тип движка и стиль действий" },
-      { sys:"матрица судьбы", game:"DESTINY GRID", note:"повторяющиеся уровни и паттерны сюжета" },
-      { sys:"нумерология", game:"CODE NUMBERS", note:"числовые ключи входа и триггеры решений" },
-      { sys:"архетипы Юнга", game:"ARCHETYPE LOADOUT", note:"ролевая матрица: маски и управление тенью" },
-      { sys:"психология", game:"BEHAVIOR SCRIPT", note:"скрипты, триггеры, петли" },
-      { sys:"эзотерика", game:"HIDDEN LAYER", note:"символика, интуиция, тень" },
-      { sys:"квантовый язык (метафора)", game:"PROBABILITY FIELD", note:"поле вероятностей: выбор меняет траекторию" },
-    ];
-    const termList = document.getElementById('termList');
-    if(termList){
-      termList.innerHTML = TERM_MAP.map(t =>
-        `<li>${t.game}<small>${t.sys} → ${t.note}</small></li>`
-      ).join("");
-    }
 
     // ---------- MULTIPASS GENERATOR ----------
     const birthDate = document.getElementById('birthDate');
@@ -1345,14 +1096,18 @@
     const buildPct = document.getElementById('buildPct');
 
     const multipass = document.getElementById('multipass');
-    const multipassStatus = document.getElementById('multipassStatus');
     const mpId = document.getElementById('mpId');
-    const mpTag = document.getElementById('mpTag');
+    const mpClearance = document.getElementById('mpClearance');
+    const mpOrigin = document.getElementById('mpOrigin');
+    const mpSeed = document.getElementById('mpSeed');
 
     const statRows = document.getElementById('statRows');
-    const archetypeText = document.getElementById('archetypeText');
-    const mainQuestText = document.getElementById('mainQuestText');
+    const loadoutText = document.getElementById('loadoutText');
+    const directiveText = document.getElementById('directiveText');
     const routeRows = document.getElementById('routeRows');
+
+    const mpSeal = document.getElementById('mpSeal');
+    const mpSealLine = document.getElementById('mpSealLine');
 
     function showLog(text){
       if(!genLog) return;
@@ -1360,12 +1115,12 @@
       genLog.classList.add('on');
     }
 
-    // load your birth data
+    // your birth data prefill
     prefillMe?.addEventListener('click', ()=>{
       if(birthDate) birthDate.value = "1996-08-01";
       if(birthTime) birthTime.value = "01:30";
       if(birthCity) birthCity.value = "Нальчик, Россия";
-      showLog("SYSTEM: template loaded (your birth data).");
+      showLog("SYSTEM: input loaded.");
     });
 
     function sumDigits(str){
@@ -1376,8 +1131,7 @@
     function computeBuildMeter(stats){
       // 4 stats, each 1..15 => max 60
       const total = stats.autonomy + stats.rage + stats.clarity + stats.armor;
-      const pct = Math.round((total / 60) * 100);
-      return clamp(pct, 0, 100);
+      return clamp(Math.round((total / 60) * 100), 0, 100);
     }
 
     function generateMultipass({dateStr, timeStr, cityStr, mode}){
@@ -1400,29 +1154,29 @@
       clarity = clamp(clarity, 1, 15);
       armor = clamp(armor, 1, 15);
 
-      const archetypes = [
-        { name:"ADM: OFF-SCRIPT ARCHITECT", line:"ты переписываешь карту. не ждёшь сигналов — создаёшь правила." },
-        { name:"ADM: BERSERK SHIELD", line:"давление → броня. контроль со стороны → твоя сила включается." },
-        { name:"ADM: COLD OPERATOR", line:"ты выигрываешь тишиной. видишь механику, а не драму." },
-        { name:"ADM: WRAITH ADMIN", line:"ты исчезаешь из сценариев и входишь только там, где у тебя контроль." },
+      const loadouts = [
+        { name:"LOADOUT: ARCHITECT", line:"ты переписываешь карту. правила создаются тобой." },
+        { name:"LOADOUT: SHIELD", line:"давление → броня. контроль снаружи включает твою силу." },
+        { name:"LOADOUT: OPERATOR", line:"ты выигрываешь тишиной. точность выше эмоций." },
+        { name:"LOADOUT: WRAITH", line:"ты исчезаешь из чужих сценариев и входишь только по своим условиям." },
       ];
-      const arch = archetypes[seed % archetypes.length];
+      const lo = loadouts[seed % loadouts.length];
 
-      const quests = [
-        "выйти из чужого скрипта и собрать свой протокол автономности.",
-        "конвертировать давление в топливо: без роли «удобной» версии.",
-        "закрыть доступ системе к твоему времени и голосу.",
-        "собрать броню свободы: границы, правила, дисциплина без бытовухи.",
+      const directives = [
+        "MAIN DIRECTIVE: собрать протокол автономности и держать его без отката.",
+        "MAIN DIRECTIVE: конвертировать давление в действие и границы.",
+        "MAIN DIRECTIVE: закрыть доступ системе к твоему времени и голосу.",
+        "MAIN DIRECTIVE: собрать броню свободы: правило, граница, дисциплина.",
       ];
-      const mq = quests[(seed + 1) % quests.length];
+      const directive = directives[(seed + 1) % directives.length];
 
       const route = [
         { k:"DAY 1", v:"SCAN: damage log → 3 скрипта, которые тебя выключают." },
         { k:"DAY 2", v:"PURGE: 1 триггер → удалить контакт/привычку/шум." },
         { k:"DAY 3", v:"ARMOR: 1 граница → держать 24h без отката." },
         { k:"DAY 4", v:"OFF SCRIPT: 1 действие → поступок вне старой роли." },
-        { k:"DAY 5", v:"PROBABILITY FIELD: выбор → один риск ради результата." },
-        { k:"DAY 6", v:"PATCH NOTES: фиксация → что стало сильнее/чище." },
+        { k:"DAY 5", v:"CHOICE: один риск ради результата." },
+        { k:"DAY 6", v:"PATCH: фиксация → что стало сильнее/чище." },
         { k:"DAY 7", v:"BOSS CHECK: тест → там, где раньше сдавал(а) позиции." },
       ];
 
@@ -1435,21 +1189,22 @@
         seed,
         id,
         clearance,
+        origin: cityStr,
         stats: { autonomy, rage, clarity, armor },
-        arch,
-        mq,
+        loadout: lo,
+        directive,
         route
       };
     }
 
     function renderMultipass(mp){
-      // unlock
       multipass.classList.remove('locked');
       multipass.classList.add('unlock');
 
-      multipassStatus.textContent = "status: generated";
       mpId.textContent = mp.id;
-      mpTag.textContent = mp.clearance;
+      mpClearance.textContent = mp.clearance;
+      mpOrigin.textContent = `ORIGIN: ${mp.origin}`;
+      mpSeed.textContent = `SEED: ${mp.seed}`;
 
       statRows.innerHTML = [
         {k:"autonomy", v: mp.stats.autonomy},
@@ -1458,8 +1213,8 @@
         {k:"armor", v: mp.stats.armor},
       ].map(s => `<div class="mRow"><span>${s.k}</span><i>${s.v}/15</i></div>`).join("");
 
-      archetypeText.textContent = `${mp.arch.name}: ${mp.arch.line}`;
-      mainQuestText.textContent = mp.mq;
+      loadoutText.textContent = `${mp.loadout.name}: ${mp.loadout.line}`;
+      directiveText.textContent = mp.directive;
 
       routeRows.innerHTML = mp.route.map(r =>
         `<div class="mRow"><span>${r.k}</span><i>${r.v}</i></div>`
@@ -1469,6 +1224,14 @@
       const pct = computeBuildMeter(mp.stats);
       buildFill.style.width = `${pct}%`;
       buildPct.textContent = `${pct}%`;
+
+      // SEAL / STAMP
+      if(mpSealLine) mpSealLine.textContent = `SEAL: ${mp.id.replace('ID: ','')} • ${mp.clearance.replace('CLEARANCE: ','')}`;
+      if(mpSeal){
+        mpSeal.classList.remove('on');
+        void mpSeal.offsetWidth; // re-trigger animation
+        mpSeal.classList.add('on');
+      }
     }
 
     genBtn?.addEventListener('click', ()=>{
@@ -1478,192 +1241,17 @@
       const mode = engineMode?.value || "strict";
 
       if(!ds || !ts || !cs){
-        showLog("ERROR: date + time + city required.");
+        showLog("ERROR: date + time + origin required.");
         genBtn.animate([{transform:'translateX(0)'},{transform:'translateX(-3px)'},{transform:'translateX(3px)'},{transform:'translateX(0)'}],{duration:240});
         return;
       }
 
       const mp = generateMultipass({dateStr: ds, timeStr: ts, cityStr: cs, mode});
-      showLog(`SYSTEM: MULTIPASS generated. seed=${mp.seed}.`);
+      showLog("SYSTEM: MULTIPASS generated. access granted.");
       renderMultipass(mp);
 
-      // jump to multipass output
-      setTimeout(()=> multipass.scrollIntoView({behavior:'smooth', block:'start'}), 180);
+      setTimeout(()=> multipass.scrollIntoView({behavior:'smooth', block:'start'}), 220);
     });
-
-    // ---------- QUEST ENGINE ----------
-    const qTitle = document.getElementById('qTitle');
-    const qStep  = document.getElementById('qStep');
-    const qText  = document.getElementById('qText');
-    const choicesEl = document.getElementById('choices');
-    const resultEl = document.getElementById('result');
-    const nextBtn = document.getElementById('nextBtn');
-    const backBtn = document.getElementById('backBtn');
-    const hint = document.getElementById('hint');
-    const progressFill = document.getElementById('progressFill');
-    const questPct = document.getElementById('questPct');
-    const buildNameEl = document.getElementById('buildName');
-
-    const stats = { autonomy: 0, rage: 0, clarity: 0, armor: 0 };
-
-    const QUEST = [
-      {
-        code: "scan: origin",
-        title: "deep scan: точка сбоя",
-        text: "какой момент стал твоей точкой «я больше не играю по их правилам»?",
-        options: [
-          { label:"меня ограничили / упаковали", sub:"рамки включили злость. ты выбрал(а) свободу.", add:{autonomy:2, armor:1} },
-          { label:"меня унизили / обесценили", sub:"ты перестал(а) просить. ты начал(а) действовать.", add:{rage:2, armor:1} },
-          { label:"я устал(а) от чужого сценария", sub:"тишина. ясность. решение.", add:{clarity:2, autonomy:1} },
-        ]
-      },
-      {
-        code: "scan: borders",
-        title: "deep scan: что забирают",
-        text: "что система чаще всего пытается у тебя забрать прямо сейчас?",
-        options: [
-          { label:"время", sub:"тебя держат в шуме задач и чужих ожиданий.", add:{clarity:1, autonomy:2} },
-          { label:"голос", sub:"ты сдерживаешься, чтобы «не спровоцировать».", add:{rage:1, autonomy:2, armor:1} },
-          { label:"свободу действий", sub:"контроль через правила/страх/вину.", add:{armor:2, autonomy:1} },
-        ]
-      },
-      {
-        code: "scan: mask",
-        title: "deep scan: маска",
-        text: "какую роль ты носишь, чтобы тебя «принимали»?",
-        options: [
-          { label:"удобный(ая)", sub:"ты режешь себя, чтобы влезть.", add:{autonomy:2, armor:1} },
-          { label:"сильный(ая) всегда", sub:"фасад держит. внутри перегрев.", add:{armor:2, clarity:1} },
-          { label:"хороший(ая)", sub:"мораль как броня безопасности.", add:{clarity:2, autonomy:1} },
-        ]
-      },
-      {
-        code: "scan: boss",
-        title: "deep scan: босс",
-        text: "какой «босс» держит твою силу выключенной?",
-        options: [
-          { label:"страх осуждения", sub:"тебя держит толпа, не враг.", add:{autonomy:2, clarity:1} },
-          { label:"страх потери", sub:"зависимость от того, что дают.", add:{armor:2, autonomy:1} },
-          { label:"страх ошибки", sub:"перфекционизм как клетка.", add:{clarity:2, armor:1} },
-        ]
-      },
-      {
-        code: "scan: fuel",
-        title: "deep scan: топливо",
-        text: "что реально заряжает тебя до состояния «могу всё»?",
-        options: [
-          { label:"риск", sub:"нужна высота напряжения, чтобы включиться.", add:{rage:2, armor:1} },
-          { label:"тишина", sub:"когда шум выключен — ты становишься точным.", add:{clarity:2, autonomy:1} },
-          { label:"результат", sub:"тебя заводит факт: «я сделал(а)».", add:{autonomy:2, clarity:1} },
-        ]
-      }
-    ];
-
-    let step = 0;
-    let selected = Array(QUEST.length).fill(null);
-
-    function calcBuildName(){
-      const entries = [
-        ["ADM: OFF-SCRIPT ARCHITECT", stats.autonomy],
-        ["ADM: RAGE ENGINE", stats.rage],
-        ["ADM: COLD OPERATOR", stats.clarity],
-        ["ADM: ARMOR BUILDER", stats.armor],
-      ].sort((a,b)=>b[1]-a[1]);
-      const top = entries[0][0];
-      const score = entries[0][1];
-      let name = top;
-      if(score <= 2) name = "UNLOCKING...";
-      if(top === "ADM: OFF-SCRIPT ARCHITECT" && stats.clarity >= 3) name = "ADM: STRATEGIST";
-      if(top === "ADM: RAGE ENGINE" && stats.armor >= 3) name = "ADM: BERSERK SHIELD";
-      if(top === "ADM: COLD OPERATOR" && stats.autonomy >= 3) name = "ADM: ARCHITECT";
-      if(top === "ADM: ARMOR BUILDER" && stats.clarity >= 3) name = "ADM: FORTRESS MIND";
-      buildNameEl.textContent = name;
-    }
-
-    function renderQuest(){
-      const q = QUEST[step];
-      qTitle.textContent = q.title;
-      qStep.textContent = `step ${step+1}/${QUEST.length}`;
-      qText.textContent = q.text;
-
-      const answered = selected.filter(x => x !== null).length;
-      const pct = Math.round((answered / QUEST.length) * 100);
-      progressFill.style.width = `${pct}%`;
-      questPct.textContent = `${pct}%`;
-
-      backBtn.style.display = step === 0 ? "none" : "inline-flex";
-      nextBtn.querySelector('span').textContent = (step === QUEST.length - 1) ? "finish" : "next";
-      nextBtn.disabled = (selected[step] === null);
-      hint.textContent = selected[step] === null ? "choose to unlock next" : "confirmed. move.";
-
-      choicesEl.innerHTML = "";
-      resultEl.classList.remove("on");
-      resultEl.textContent = "";
-
-      q.options.forEach((opt, idx) => {
-        const btn = document.createElement("button");
-        btn.className = "choice";
-        btn.type = "button";
-        btn.innerHTML = `${opt.label}<small>${opt.sub}</small>`;
-
-        if(selected[step] === idx){
-          btn.style.borderColor = "rgba(11,12,20,.35)";
-          btn.style.opacity = "1";
-        }else{
-          btn.style.opacity = "0.95";
-        }
-
-        btn.addEventListener("click", () => {
-          if(selected[step] === idx) return;
-
-          const prevIdx = selected[step];
-          if(prevIdx !== null){
-            const prevAdd = q.options[prevIdx].add;
-            Object.keys(prevAdd).forEach(k => stats[k] -= prevAdd[k]);
-          }
-
-          selected[step] = idx;
-          const add = opt.add;
-          Object.keys(add).forEach(k => stats[k] += add[k]);
-
-          calcBuildName();
-
-          resultEl.textContent =
-            `SYSTEM LOG: [${q.code}] accepted → ` +
-            Object.entries(add).map(([k,v]) => `+${k}:${v}`).join(" ") +
-            ` | build updated.`;
-          resultEl.classList.add("on");
-
-          renderQuest();
-        });
-
-        choicesEl.appendChild(btn);
-      });
-
-      calcBuildName();
-    }
-
-    backBtn.addEventListener("click", ()=>{
-      if(step === 0) return;
-      step -= 1;
-      renderQuest();
-    });
-
-    nextBtn.addEventListener("click", ()=>{
-      if(selected[step] === null) return;
-
-      if(step === QUEST.length - 1){
-        resultEl.textContent = `QUEST COMPLETE: build locked → ${buildNameEl.textContent}.`;
-        resultEl.classList.add("on");
-        nextBtn.animate([{ transform:'translateY(0)' },{ transform:'translateY(-2px)' },{ transform:'translateY(0)' }], { duration: 260 });
-        return;
-      }
-
-      step += 1;
-      renderQuest();
-    });
-
-    renderQuest();
   </script>
 </body>
 </html>
