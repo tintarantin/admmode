@@ -3,52 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ADM MODE — Protocol</title>
-  <meta name="description" content="ADM MODE — протокол. Сканируй MULTIPASS по дате рождения." />
+  <title>ADM MODE — скан</title>
+  <meta name="description" content="ADM MODE — скан персонажа по дате рождения." />
   <style>
     :root{
       --bg0:#f7fbff;
       --bg1:#eef6ff;
-      --glass: rgba(255,255,255,.62);
-      --glass2: rgba(255,255,255,.40);
+      --glass: rgba(255,255,255,.66);
+      --glass2: rgba(255,255,255,.42);
       --stroke: rgba(20, 60, 90, .10);
       --ink: #0c1b2a;
       --muted: rgba(12,27,42,.68);
       --brand: #19d3ff;
       --brand2:#7c5cff;
-      --halo: rgba(25,211,255,.24);
-      --shadow: 0 30px 80px rgba(6, 22, 44, .18);
-      --shadow2: 0 18px 50px rgba(6, 22, 44, .14);
+      --shadow: 0 28px 90px rgba(6,22,44,.18);
+      --shadow2: 0 18px 55px rgba(6,22,44,.14);
       --r: 22px;
       --r2: 28px;
       --ease: cubic-bezier(.2,.9,.2,1);
     }
-
-    *{ box-sizing: border-box; }
+    *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       color:var(--ink);
       background:
-        radial-gradient(1200px 800px at 15% 10%, rgba(25,211,255,.22), transparent 60%),
-        radial-gradient(900px 700px at 90% 0%, rgba(124,92,255,.16), transparent 55%),
-        radial-gradient(900px 700px at 70% 90%, rgba(25,211,255,.14), transparent 60%),
+        radial-gradient(1200px 800px at 15% 10%, rgba(25,211,255,.20), transparent 60%),
+        radial-gradient(900px 700px at 90% 0%, rgba(124,92,255,.14), transparent 55%),
+        radial-gradient(900px 700px at 70% 90%, rgba(25,211,255,.12), transparent 60%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
-
-    /* subtle film grain */
     body::before{
       content:"";
       position:fixed; inset:0;
       pointer-events:none;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.13'/%3E%3C/svg%3E");
-      mix-blend-mode: multiply;
-      opacity:.35;
+      mix-blend-mode:multiply;
+      opacity:.30;
       z-index:0;
     }
-
     a{ color:inherit; text-decoration:none; }
     .wrap{ position:relative; z-index:1; }
 
@@ -58,7 +53,7 @@
       z-index:50;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      background: linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,.40));
+      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.40));
       border-bottom: 1px solid var(--stroke);
     }
     .topbar .inner{
@@ -68,38 +63,30 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
+      gap:12px;
     }
     .brand{
       display:flex; align-items:center; gap:10px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      font-weight:700;
-      font-size:12px;
+      letter-spacing:.12em; text-transform:uppercase;
+      font-weight:800; font-size:12px;
       color: rgba(12,27,42,.82);
     }
     .dot{
       width:10px; height:10px; border-radius:999px;
-      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.2) 35%),
-                  linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: 0 0 0 6px rgba(25,211,255,.14);
+      background:
+        radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.2) 35%),
+        linear-gradient(135deg, var(--brand), var(--brand2));
+      box-shadow: 0 0 0 6px rgba(25,211,255,.12);
       animation: pulse 2.6s var(--ease) infinite;
     }
     @keyframes pulse{
-      0%,100%{ transform:scale(1); box-shadow:0 0 0 6px rgba(25,211,255,.14); }
-      50%{ transform:scale(1.08); box-shadow:0 0 0 10px rgba(25,211,255,.10); }
+      0%,100%{ transform:scale(1); box-shadow:0 0 0 6px rgba(25,211,255,.12); }
+      50%{ transform:scale(1.08); box-shadow:0 0 0 10px rgba(25,211,255,.08); }
     }
-    .nav{
-      display:flex; align-items:center; gap:14px;
-      font-size:13px;
-      color: rgba(12,27,42,.72);
-    }
-    .nav a{ padding:8px 10px; border-radius:999px; }
-    .nav a:hover{ background: rgba(255,255,255,.55); }
 
     .btn{
       border:1px solid rgba(25,211,255,.28);
-      background: linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.35));
+      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.35));
       border-radius:999px;
       padding:10px 14px;
       font-size:13px;
@@ -107,9 +94,10 @@
       align-items:center;
       gap:10px;
       box-shadow: 0 14px 40px rgba(6,22,44,.10);
-      transition: transform .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease);
+      transition: transform .25s var(--ease), box-shadow .25s var(--ease);
       cursor:pointer;
       user-select:none;
+      white-space:nowrap;
     }
     .btn:hover{ transform: translateY(-1px); box-shadow: 0 18px 55px rgba(6,22,44,.14); }
     .btn:active{ transform: translateY(0px) scale(.99); }
@@ -117,23 +105,22 @@
       border:1px solid rgba(25,211,255,.42);
       background:
         radial-gradient(140px 80px at 25% 25%, rgba(25,211,255,.30), transparent 60%),
-        linear-gradient(135deg, rgba(25,211,255,.22), rgba(124,92,255,.18)),
-        linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.30));
+        linear-gradient(135deg, rgba(25,211,255,.18), rgba(124,92,255,.14)),
+        linear-gradient(180deg, rgba(255,255,255,.76), rgba(255,255,255,.30));
     }
 
-    /* Hero */
+    /* Hero layout */
     .hero{
       max-width:1120px;
       margin:0 auto;
-      padding:56px 18px 34px;
+      padding:52px 18px 36px;
       display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:26px;
+      grid-template-columns: 1.25fr .75fr;
+      gap:18px;
       align-items:stretch;
     }
     @media (max-width: 980px){
-      .hero{ grid-template-columns: 1fr; padding-top:34px; }
-      .nav{ display:none; }
+      .hero{ grid-template-columns:1fr; padding-top:32px; }
     }
 
     .card{
@@ -150,20 +137,21 @@
       content:"";
       position:absolute; inset:-2px;
       background:
-        radial-gradient(800px 240px at 20% 0%, rgba(25,211,255,.18), transparent 60%),
-        radial-gradient(700px 250px at 80% 15%, rgba(124,92,255,.12), transparent 55%),
+        radial-gradient(800px 240px at 20% 0%, rgba(25,211,255,.16), transparent 60%),
+        radial-gradient(700px 250px at 80% 15%, rgba(124,92,255,.10), transparent 55%),
         linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,0));
       pointer-events:none;
     }
-    .heroMain{ padding:28px 26px; }
+
+    .heroMain{ padding:26px 24px; }
     .kicker{
       font-size:12px;
       letter-spacing:.18em;
       text-transform:uppercase;
       color: rgba(12,27,42,.56);
-      display:flex; align-items:center; gap:10px;
+      display:flex; flex-wrap:wrap; gap:8px;
     }
-    .kicker .chip{
+    .chip{
       padding:6px 10px;
       border-radius:999px;
       border:1px solid rgba(12,27,42,.10);
@@ -172,7 +160,7 @@
 
     .title{
       margin:14px 0 8px;
-      font-size: clamp(38px, 4.3vw, 64px);
+      font-size: clamp(36px, 4.2vw, 62px);
       line-height:1.02;
       letter-spacing:-.03em;
     }
@@ -183,11 +171,11 @@
       margin-left:-10px;
       border-radius: 16px;
       background:
-        radial-gradient(220px 90px at 20% 30%, rgba(25,211,255,.32), transparent 60%),
-        radial-gradient(240px 90px at 80% 30%, rgba(124,92,255,.18), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.25));
-      border: 1px solid rgba(25,211,255,.26);
-      box-shadow: 0 18px 50px rgba(6,22,44,.12);
+        radial-gradient(220px 90px at 20% 30%, rgba(25,211,255,.28), transparent 60%),
+        radial-gradient(240px 90px at 80% 30%, rgba(124,92,255,.14), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.68), rgba(255,255,255,.25));
+      border: 1px solid rgba(25,211,255,.24);
+      box-shadow: 0 18px 50px rgba(6,22,44,.10);
       overflow:hidden;
     }
     .adm::after{
@@ -212,11 +200,11 @@
     }
 
     .sub{
-      margin: 0 0 18px;
+      margin: 0 0 14px;
       font-size: 15px;
       line-height:1.55;
       color: var(--muted);
-      max-width: 60ch;
+      max-width: 62ch;
     }
 
     .manifest{
@@ -238,36 +226,24 @@
       color: rgba(12,27,42,.52);
       margin-bottom:8px;
       display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
     }
     .manifest .sig{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
       font-size:11px;
       color: rgba(12,27,42,.55);
+      white-space:nowrap;
     }
 
-    .actions{
-      margin-top:18px;
-      display:flex; flex-wrap:wrap;
-      gap:10px;
-      align-items:center;
-    }
-    .hint{
-      margin-top:12px;
-      font-size:12px;
-      color: rgba(12,27,42,.56);
-      display:flex; gap:10px; align-items:flex-start;
-    }
-    .hint svg{ flex:0 0 auto; margin-top:2px; opacity:.8; }
-
-    /* Right side: scanner card */
-    .scanner{ padding:18px; display:flex; flex-direction:column; gap:14px; }
+    /* Scanner */
+    .scanner{ padding:18px; display:flex; flex-direction:column; gap:12px; }
     .scannerTop{
       display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
     }
     .scannerTop h3{
       margin:0;
-      font-size:14px;
-      letter-spacing:.12em;
+      font-size:12px;
+      letter-spacing:.18em;
       text-transform:uppercase;
       color: rgba(12,27,42,.68);
     }
@@ -275,6 +251,7 @@
       font-size:12px;
       color: rgba(12,27,42,.56);
       display:flex; gap:8px; align-items:center;
+      white-space:nowrap;
     }
     .led{
       width:8px; height:8px; border-radius:999px;
@@ -282,12 +259,13 @@
       box-shadow: 0 0 0 4px rgba(12,27,42,.06);
     }
     .led.live{
-      background: radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.25) 35%),
-                  linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: 0 0 0 6px rgba(25,211,255,.12), 0 0 22px rgba(25,211,255,.32);
+      background:
+        radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.25) 35%),
+        linear-gradient(135deg, var(--brand), var(--brand2));
+      box-shadow: 0 0 0 6px rgba(25,211,255,.10), 0 0 22px rgba(25,211,255,.28);
       animation: blink 1.4s var(--ease) infinite;
     }
-    @keyframes blink{ 0%,100%{ filter:saturate(1); } 50%{ filter:saturate(1.25) brightness(1.05); } }
+    @keyframes blink{ 0%,100%{ filter:saturate(1); } 50%{ filter:saturate(1.25) brightness(1.04); } }
 
     .fieldRow{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
     @media (max-width: 520px){ .fieldRow{ grid-template-columns:1fr; } }
@@ -306,14 +284,12 @@
       color: rgba(12,27,42,.52);
     }
     .field input{
-      border:none;
-      outline:none;
+      border:none; outline:none;
       font-size:14px;
       background:transparent;
       color: rgba(12,27,42,.92);
       padding:0;
     }
-    .field input::placeholder{ color: rgba(12,27,42,.35); }
 
     .scanPane{
       position:relative;
@@ -324,7 +300,7 @@
         radial-gradient(420px 180px at 85% 20%, rgba(124,92,255,.14), transparent 60%),
         rgba(255,255,255,.52);
       overflow:hidden;
-      height: 160px;
+      height: 150px;
     }
     .scanGrid{
       position:absolute; inset:0;
@@ -333,7 +309,6 @@
         linear-gradient(to bottom, rgba(12,27,42,.06) 1px, transparent 1px);
       background-size: 22px 22px;
       opacity:.55;
-      transform: translateZ(0);
       mask-image: radial-gradient(circle at 30% 40%, black 0 55%, transparent 75%);
     }
     .scanLine{
@@ -341,13 +316,13 @@
       height:2px;
       top:-10%;
       background: linear-gradient(90deg, transparent, rgba(25,211,255,.95), transparent);
-      box-shadow: 0 0 18px rgba(25,211,255,.55);
+      box-shadow: 0 0 18px rgba(25,211,255,.50);
       opacity:0;
       transform: rotate(-7deg);
     }
     .scanPulse{
       position:absolute; inset:-40px;
-      background: radial-gradient(circle at 30% 40%, rgba(25,211,255,.20), transparent 62%);
+      background: radial-gradient(circle at 30% 40%, rgba(25,211,255,.18), transparent 62%);
       opacity:.85;
       filter: blur(2px);
       animation: float 6.5s var(--ease) infinite;
@@ -356,80 +331,20 @@
       0%,100%{ transform: translate3d(0,0,0) scale(1); }
       50%{ transform: translate3d(8px,-10px,0) scale(1.02); }
     }
+    .scanning .scanLine{ opacity:1; animation: scan 1.35s var(--ease) infinite; }
+    @keyframes scan{
+      0%{ top:-20%; opacity:0; }
+      12%{ opacity:1; }
+      50%{ top:55%; opacity:1; }
+      88%{ opacity:1; }
+      100%{ top:120%; opacity:0; }
+    }
 
-    /* Sections below */
-    .section{
-      max-width:1120px;
-      margin:0 auto;
-      padding: 10px 18px 56px;
-    }
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:18px;
-    }
-    @media (max-width: 980px){ .grid2{ grid-template-columns:1fr; } }
-
-    .gallery{
-      padding:16px;
-    }
-    .galleryHeader{
-      display:flex; justify-content:space-between; align-items:flex-end; gap:10px;
-      margin-bottom:10px;
-    }
-    .galleryHeader h3{
-      margin:0;
-      font-size:14px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color: rgba(12,27,42,.68);
-    }
-    .galleryHeader .small{
-      font-size:12px; color: rgba(12,27,42,.56);
-    }
-    .shots{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 520px){ .shots{ grid-template-columns:1fr; } }
-    .shot{
-      position:relative;
-      border-radius:18px;
-      overflow:hidden;
-      border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.50);
-      min-height: 220px;
-    }
-    .shot img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-      transform: scale(1.02);
-      filter: saturate(1.02) contrast(1.02);
-      transition: transform .8s var(--ease), filter .8s var(--ease);
-    }
-    .shot:hover img{ transform: scale(1.06); filter: saturate(1.05) contrast(1.05); }
-    .shot::after{
-      content:"";
-      position:absolute; inset:0;
-      background: radial-gradient(600px 240px at 30% 10%, rgba(255,255,255,.28), transparent 55%),
-                  linear-gradient(180deg, transparent, rgba(0,0,0,.10));
-      pointer-events:none;
-      opacity:.9;
-    }
-    .shotTag{
-      position:absolute;
-      left:12px; bottom:12px;
-      padding:8px 10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.62);
-      border:1px solid rgba(12,27,42,.10);
+    .miniHint{
       font-size:12px;
-      color: rgba(12,27,42,.72);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      color: rgba(12,27,42,.56);
+      line-height:1.45;
+      margin-top:2px;
     }
 
     /* Modal */
@@ -447,13 +362,13 @@
     .modalBack.show{ display:flex; }
 
     .modal{
-      width:min(980px, 100%);
+      width:min(1100px, 100%);
       border-radius: 28px;
       border:1px solid rgba(255,255,255,.30);
       background:
         radial-gradient(1000px 500px at 20% 0%, rgba(25,211,255,.20), transparent 60%),
         radial-gradient(1000px 500px at 90% 10%, rgba(124,92,255,.18), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.45));
+        linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.45));
       box-shadow: 0 55px 140px rgba(6,22,44,.35);
       overflow:hidden;
       position:relative;
@@ -467,7 +382,7 @@
       display:flex; align-items:center; gap:10px;
       font-size:12px; letter-spacing:.18em; text-transform:uppercase;
       color: rgba(12,27,42,.70);
-      font-weight:700;
+      font-weight:800;
     }
     .close{
       border:1px solid rgba(12,27,42,.12);
@@ -476,28 +391,29 @@
       padding:8px 10px;
       cursor:pointer;
       font-size:13px;
+      white-space:nowrap;
     }
 
     .modalBody{
       padding:16px;
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: .9fr 1.1fr;
       gap:14px;
     }
     @media (max-width: 980px){ .modalBody{ grid-template-columns:1fr; } }
 
-    /* Multipass card */
+    /* PASS cards */
+    .stack{ display:grid; gap:12px; }
     .pass{
       border-radius: 26px;
       border:1px solid rgba(12,27,42,.10);
       background:
-        linear-gradient(135deg, rgba(255,255,255,.78), rgba(255,255,255,.40)),
+        linear-gradient(135deg, rgba(255,255,255,.80), rgba(255,255,255,.40)),
         radial-gradient(900px 360px at 20% 0%, rgba(25,211,255,.18), transparent 60%),
         radial-gradient(900px 360px at 80% 10%, rgba(124,92,255,.14), transparent 60%);
       box-shadow: var(--shadow2);
       overflow:hidden;
       position:relative;
-      min-height: 380px;
     }
     .pass::before{
       content:"";
@@ -506,39 +422,19 @@
         linear-gradient(90deg, rgba(12,27,42,.06) 1px, transparent 1px),
         linear-gradient(0deg, rgba(12,27,42,.06) 1px, transparent 1px);
       background-size: 26px 26px;
-      opacity:.35;
+      opacity:.28;
       mask-image: radial-gradient(circle at 30% 30%, black 0 55%, transparent 78%);
       pointer-events:none;
     }
-    .passInner{ position:relative; padding:18px; }
-    .passTop{
-      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
-      margin-bottom:14px;
-    }
-    .passTitle{
-      display:flex; flex-direction:column; gap:6px;
-    }
-    .passTitle .t1{
-      font-weight:800;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      font-size:12px;
-      color: rgba(12,27,42,.70);
-    }
-    .passTitle .t2{
-      font-size: 22px;
-      letter-spacing:-.02em;
-      font-weight:750;
-    }
 
     .seal{
-      width:96px; height:96px;
+      width:84px; height:84px;
       border-radius:999px;
       position:relative;
       background:
         radial-gradient(circle at 30% 25%, rgba(255,255,255,.9), rgba(255,255,255,.25) 35%, rgba(255,255,255,.0) 65%),
         conic-gradient(from 120deg, rgba(25,211,255,.55), rgba(124,92,255,.40), rgba(25,211,255,.55));
-      box-shadow: 0 18px 55px rgba(6,22,44,.18), 0 0 0 10px rgba(25,211,255,.08);
+      box-shadow: 0 18px 55px rgba(6,22,44,.16), 0 0 0 10px rgba(25,211,255,.08);
       filter: saturate(1.05);
     }
     .seal::before{
@@ -554,24 +450,69 @@
       display:grid; place-items:center;
       font-size:11px;
       letter-spacing:.20em;
-      font-weight:800;
+      font-weight:900;
       color: rgba(12,27,42,.72);
       text-transform:uppercase;
-      text-shadow: 0 1px 0 rgba(255,255,255,.55);
       transform: rotate(-12deg);
+      text-shadow: 0 1px 0 rgba(255,255,255,.55);
     }
 
-    .passMeta{
+    /* Mini ID (как права) */
+    .mini{
+      padding:14px;
+      display:grid;
+      grid-template-columns: 92px 1fr;
+      gap:12px;
+      align-items:stretch;
+      min-height: 170px;
+    }
+    .miniHead{
+      grid-column: 1 / -1;
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+      margin-bottom:2px;
+    }
+    .miniHead .t{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .miniHead .t1{
+      font-size:12px; font-weight:900;
+      letter-spacing:.18em; text-transform:uppercase;
+      color: rgba(12,27,42,.70);
+    }
+    .miniHead .t2{
+      font-size:12px; color: rgba(12,27,42,.58);
+      letter-spacing:.12em; text-transform:uppercase;
+    }
+
+    .avatarFace{
+      width:92px; height:110px;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(12,27,42,.12);
+      background: rgba(255,255,255,.60);
+      position:relative;
+    }
+    .avatarFace img{
+      width:100%; height:100%;
+      object-fit:cover;
+      /* делаем "фото лица" из одной картинки */
+      object-position: 50% 18%;
+      transform: scale(1.08);
+      display:block;
+      filter: saturate(1.02) contrast(1.02);
+    }
+
+    .miniInfo{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:10px;
-      margin-top:10px;
+      align-content:start;
     }
     .kv{
-      padding:12px 12px;
+      padding:10px 10px;
       border-radius: 16px;
       border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.56);
     }
     .kv .k{
       font-size:10px;
@@ -583,57 +524,124 @@
     .kv .v{
       font-size:14px;
       color: rgba(12,27,42,.90);
-      font-weight:650;
+      font-weight:700;
       word-break:break-word;
     }
 
-    .passFooter{
-      margin-top:12px;
-      padding-top:12px;
-      border-top:1px solid rgba(12,27,42,.10);
+    .miniFoot{
+      grid-column: 1 / -1;
       display:flex; justify-content:space-between; align-items:center; gap:10px;
-      color: rgba(12,27,42,.60);
+      border-top:1px solid rgba(12,27,42,.10);
+      padding-top:10px;
+      margin-top:2px;
       font-size:12px;
+      color: rgba(12,27,42,.62);
     }
     .protoSig{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
       letter-spacing:.06em;
+      white-space:nowrap;
     }
 
-    /* Terminal panel */
-    .terminal{
+    /* Full card (в полный рост + подробная характеристика) */
+    .full{
+      padding:14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:12px;
+    }
+    .fullTop{
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+    }
+    .fullTop .ttl{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .fullTop .ttl .t1{
+      font-size:12px; font-weight:900;
+      letter-spacing:.18em; text-transform:uppercase;
+      color: rgba(12,27,42,.70);
+    }
+    .fullTop .ttl .t2{
+      font-size:22px; letter-spacing:-.02em;
+      font-weight:850;
+      color: rgba(12,27,42,.92);
+    }
+
+    .fullBody{
+      display:grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap:12px;
+      align-items:stretch;
+    }
+    @media (max-width: 520px){
+      .fullBody{ grid-template-columns:1fr; }
+    }
+
+    .avatarFull{
+      border-radius: 22px;
+      overflow:hidden;
+      border:1px solid rgba(12,27,42,.12);
+      background: rgba(255,255,255,.60);
+      min-height: 320px;
+      position:relative;
+    }
+    .avatarFull img{
+      width:100%; height:100%;
+      object-fit:cover;
+      object-position: 50% 45%;
+      display:block;
+      transform: scale(1.02);
+      filter: saturate(1.02) contrast(1.02);
+    }
+    .stats{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+      align-content:start;
+    }
+    .line{
+      padding:12px 12px;
+      border-radius: 18px;
+      border:1px solid rgba(12,27,42,.10);
+      background: rgba(255,255,255,.56);
+      color: rgba(12,27,42,.86);
+      font-size:14px;
+      line-height:1.45;
+    }
+    .line b{ color: rgba(12,27,42,.92); }
+
+    /* Right panel (Terminal / upsell) */
+    .panel{
       border-radius: 26px;
       border:1px solid rgba(12,27,42,.10);
       background: rgba(255,255,255,.52);
       box-shadow: var(--shadow2);
       overflow:hidden;
       position:relative;
+      min-height: 520px;
     }
-    .terminalHead{
+    .panelHead{
       padding:14px 14px;
       display:flex; justify-content:space-between; align-items:center; gap:10px;
       border-bottom: 1px solid rgba(12,27,42,.10);
     }
-    .termTitle{
+    .panelTitle{
       font-size:12px;
       letter-spacing:.18em;
       text-transform:uppercase;
-      font-weight:800;
+      font-weight:900;
       color: rgba(12,27,42,.70);
       display:flex; align-items:center; gap:10px;
     }
     .lights{ display:flex; gap:8px; }
-    .lights span{
-      width:10px; height:10px; border-radius:999px;
-      background: rgba(12,27,42,.14);
-    }
+    .lights span{ width:10px; height:10px; border-radius:999px; background: rgba(12,27,42,.14); }
     .lights span:nth-child(1){ background: rgba(25,211,255,.35); }
     .lights span:nth-child(2){ background: rgba(124,92,255,.25); }
     .lights span:nth-child(3){ background: rgba(12,27,42,.14); }
 
-    .termBody{ padding:14px; }
+    .panelBody{ padding:14px; }
     .log{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
       font-size:12px;
       line-height:1.6;
       color: rgba(12,27,42,.78);
@@ -644,17 +652,27 @@
     .log .ok{ color: rgba(0,120,120,.85); }
     .log .warn{ color: rgba(124,92,255,.85); }
 
-    /* scanning state */
-    .scanning .scanLine{ opacity:1; animation: scan 1.35s var(--ease) infinite; }
-    @keyframes scan{
-      0%{ top:-20%; opacity:0; }
-      12%{ opacity:1; }
-      50%{ top:55%; opacity:1; }
-      88%{ opacity:1; }
-      100%{ top:120%; opacity:0; }
+    .paybox{
+      margin-top:12px;
+      padding:12px 12px;
+      border-radius: 18px;
+      border:1px solid rgba(25,211,255,.20);
+      background:
+        radial-gradient(260px 120px at 20% 20%, rgba(25,211,255,.18), transparent 60%),
+        radial-gradient(260px 120px at 80% 25%, rgba(124,92,255,.12), transparent 60%),
+        rgba(255,255,255,.56);
     }
-
-    /* Footer */
+    .paybox h4{
+      margin:0 0 6px;
+      font-size:14px;
+      letter-spacing:-.01em;
+    }
+    .paybox p{
+      margin:0 0 10px;
+      font-size:12px;
+      color: rgba(12,27,42,.62);
+      line-height:1.45;
+    }
     .footer{
       max-width:1120px;
       margin:0 auto;
@@ -666,7 +684,7 @@
     .footer .p{
       letter-spacing:.14em;
       text-transform:uppercase;
-      font-weight:800;
+      font-weight:900;
       color: rgba(12,27,42,.62);
     }
   </style>
@@ -678,84 +696,72 @@
       <div class="inner">
         <div class="brand">
           <span class="dot"></span>
-          <span>PROTOCOL</span>
+          <span>protocol</span>
           <span style="opacity:.65">/</span>
           <span style="opacity:.85">ADM MODE</span>
         </div>
 
-        <nav class="nav" aria-label="Навигация">
-          <a href="#how">как работает</a>
-          <a href="#terminal">terminal</a>
-          <a href="#visual">визуал</a>
-        </nav>
-
-        <button class="btn primary" id="openScanTop">
-          <span>сканировать multipass</span>
-          <span style="opacity:.65">↳</span>
+        <button class="btn primary" id="scanTopBtn">
+          сканировать multipass <span style="opacity:.65">↳</span>
         </button>
       </div>
     </header>
 
-    <!-- HERO (минимально, точно) -->
     <main class="hero" id="top">
+      <!-- Minimal hero -->
       <section class="card heroMain">
         <div class="kicker">
-          <span class="chip">минимум слов</span>
-          <span class="chip">максимум сигнала</span>
+          <span class="chip">быстро</span>
+          <span class="chip">понятно</span>
+          <span class="chip">по делу</span>
         </div>
 
         <h1 class="title">
-          <span class="adm" aria-label="ADM MODE">ADM MODE</span>
-          <span style="display:block; margin-top:6px;">протокол</span>
+          <span class="adm">ADM MODE</span>
+          <span style="display:block; margin-top:6px;">скан персонажа</span>
         </h1>
 
         <p class="sub">
-          Введи дату рождения (и время, если знаешь). Система соберёт твой MULTIPASS и откроет Terminal.
-          <br/>Без лишнего. Только то, что важно.
+          Введи дату рождения (время — если знаешь). Получишь базовые характеристики.
+          Полная карточка откроет подробную расшифровку.
         </p>
 
         <div class="manifest" aria-live="polite">
           <div class="label">
-            <span>манифест</span>
-            <span class="sig">protocol signature</span>
+            <span>фраза протокола</span>
+            <span class="sig">protocol // signed</span>
           </div>
-          <div id="manifestText">
-            Если система закрывает двери — я становлюсь дверью. Если система ставит границы — я становлюсь линией разрыва.
-          </div>
+          <div id="manifestText">Я не ищу объяснений. Я собираю свой билд.</div>
         </div>
 
-        <div class="actions">
-          <button class="btn primary" id="openScanMain">сканировать multipass</button>
-          <a class="btn" href="#how">как это работает</a>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" id="scanMainBtn">сканировать multipass</button>
+          <button class="btn" id="shuffleManifest">обновить фразу</button>
         </div>
 
-        <div class="hint">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
-            <path d="M12 7v6l4 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Время рождения — опционально. Если не знаешь, оставь пустым: MULTIPASS всё равно сгенерируется.</span>
+        <div class="miniHint">
+          Время рождения — не обязательно. Если нет — оставь пустым.
         </div>
       </section>
 
-      <!-- Scanner UI -->
-      <aside class="card scanner" aria-label="Сканер">
+      <!-- Scanner -->
+      <aside class="card scanner">
         <div class="scannerTop">
           <h3>сканер</h3>
           <div class="status">
             <span class="led" id="led"></span>
-            <span id="statusText">ожидание данных</span>
+            <span id="statusText">жду дату</span>
           </div>
         </div>
 
         <div class="fieldRow">
           <div class="field">
             <label for="dob">дата рождения</label>
-            <input id="dob" type="date" placeholder="YYYY-MM-DD" />
+            <input id="dob" type="date" />
           </div>
           <div class="field">
             <label for="tob">время (если знаешь)</label>
-            <input id="tob" type="time" placeholder="HH:MM" />
+            <input id="tob" type="time" />
           </div>
         </div>
 
@@ -766,76 +772,31 @@
         </div>
 
         <button class="btn primary" id="scanBtn">start scan</button>
-        <button class="btn" id="randomizeBtn">обновить манифест</button>
+        <div class="miniHint">
+          После скана появятся 2 MULTIPASS: маленький (как права) и полный (в рост).
+        </div>
       </aside>
     </main>
 
-    <!-- HOW (точно и коротко) -->
-    <section class="section grid2" id="how">
-      <div class="card" style="padding:18px 18px;">
-        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
-          <div>
-            <div style="font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:rgba(12,27,42,.62); font-weight:800;">
-              как работает
-            </div>
-            <h2 style="margin:10px 0 0; font-size:22px; letter-spacing:-.02em;">
-              Ты вводишь минимум → система выдаёт максимум структуры.
-            </h2>
-          </div>
-          <div class="seal" aria-hidden="true" style="transform: scale(.88) rotate(6deg); opacity:.92;"></div>
-        </div>
-
-        <div style="margin-top:14px; color:rgba(12,27,42,.70); line-height:1.65; font-size:14px;">
-          <div style="display:grid; gap:10px;">
-            <div>1) <b>Дата</b> (и <b>время</b>, если есть) → запускает скан.</div>
-            <div>2) Генерируется <b>MULTIPASS</b>: ID, Clearance, Origin, Seed.</div>
-            <div>3) Открывается <b>Terminal</b> с результатом + штампом + подписью протокола.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="terminal" id="terminal" aria-label="Terminal">
-        <div class="terminalHead">
-          <div class="termTitle">terminal</div>
+    <section class="hero" style="padding-top:0; grid-template-columns: 1fr; gap:16px;">
+      <div class="panel">
+        <div class="panelHead">
+          <div class="panelTitle">terminal</div>
           <div class="lights" aria-hidden="true"><span></span><span></span><span></span></div>
         </div>
-        <div class="termBody">
+        <div class="panelBody">
 <pre class="log" id="termLog"><span class="muted">[system]</span> ready
 <span class="muted">[hint]</span> scan starts after date input
 <span class="muted">[protocol]</span> signature embedded</pre>
-        </div>
-      </div>
-    </section>
 
-    <!-- VISUAL (тут твои изображения, не на первой) -->
-    <section class="section" id="visual">
-      <div class="card gallery">
-        <div class="galleryHeader">
-          <h3>визуальный слой</h3>
-          <div class="small">светлый sci-fi / стекло / неон — на всём сайте</div>
-        </div>
-
-        <div class="shots">
-          <div class="shot">
-            <img src="assets/scene-1.jpg" alt="ADM Visual 1">
-            <div class="shotTag">halo / altitude</div>
+          <div class="paybox">
+            <h4>полная карточка игрока</h4>
+            <p>
+              В базовом скане ты видишь характеристики. В полной карточке — что с этим делать:
+              сильные стороны, слабые места, триггеры и понятные шаги.
+            </p>
+            <button class="btn primary" id="buyBtn">открыть полный доступ</button>
           </div>
-          <div class="shot">
-            <img src="assets/scene-2.jpg" alt="ADM Visual 2">
-            <div class="shotTag">liquid light</div>
-          </div>
-          <div class="shot">
-            <img src="assets/scene-3.jpg" alt="ADM Visual 3">
-            <div class="shotTag">blade / sky</div>
-          </div>
-          <div class="shot">
-            <img src="assets/scene-4.jpg" alt="ADM Visual 4">
-            <div class="shotTag">storm / pursuit</div>
-          </div>
-        </div>
-
-        <div style="margin-top:10px; font-size:12px; color:rgba(12,27,42,.56);">
-          Пятая картинка используется внутри MULTIPASS (в терминале) как “identity backdrop”.
         </div>
       </div>
     </section>
@@ -846,7 +807,7 @@
     </footer>
   </div>
 
-  <!-- MODAL: Multipass -->
+  <!-- MODAL with 2 images: mini (face) + full (full body) -->
   <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-label="MULTIPASS">
     <div class="modal">
       <div class="modalHead">
@@ -858,57 +819,106 @@
       </div>
 
       <div class="modalBody">
-        <div class="pass" id="passCard">
-          <div class="passInner">
-            <div class="passTop">
-              <div class="passTitle">
-                <div class="t1">MULTIPASS</div>
-                <div class="t2">ADM MODE</div>
+        <div class="stack">
+          <!-- MINI ID (face photo) -->
+          <div class="pass">
+            <div class="mini">
+              <div class="miniHead">
+                <div class="t">
+                  <div class="t1">MULTIPASS</div>
+                  <div class="t2">ADM MODE</div>
+                </div>
+                <div class="seal" aria-hidden="true" title="STAMP"></div>
               </div>
-              <div class="seal" aria-hidden="true" title="STAMP"></div>
-            </div>
 
-            <div class="passMeta">
-              <div class="kv">
-                <div class="k">id</div>
-                <div class="v" id="p_id">—</div>
+              <div class="avatarFace" title="Фото лица">
+                <!-- ВАЖНО:
+                  Положи картинку персонажа в assets/character-full.jpg
+                  Это будет и "фото лица" (автокроп), и "в полный рост" ниже.
+                -->
+                <img id="faceImg" src="assets/character-full.jpg" alt="Фото лица">
               </div>
-              <div class="kv">
-                <div class="k">clearance</div>
-                <div class="v" id="p_clear">—</div>
+
+              <div class="miniInfo">
+                <div class="kv">
+                  <div class="k">id</div>
+                  <div class="v" id="p_id">—</div>
+                </div>
+                <div class="kv">
+                  <div class="k">доступ</div>
+                  <div class="v" id="p_access">BASIC</div>
+                </div>
+                <div class="kv">
+                  <div class="k">роль</div>
+                  <div class="v" id="p_role">—</div>
+                </div>
+                <div class="kv">
+                  <div class="k">энергия</div>
+                  <div class="v" id="p_energy">—</div>
+                </div>
               </div>
-              <div class="kv">
-                <div class="k">origin</div>
-                <div class="v" id="p_origin">—</div>
-              </div>
-              <div class="kv">
-                <div class="k">seed</div>
-                <div class="v" id="p_seed">—</div>
+
+              <div class="miniFoot">
+                <div class="protoSig" id="p_sig">protocol // signed</div>
+                <div id="p_time">—</div>
               </div>
             </div>
+          </div>
 
-            <div class="passFooter">
-              <div class="protoSig" id="p_sig">protocol // signature</div>
-              <div id="p_time" style="opacity:.9;">—</div>
+          <!-- FULL CARD (full body + detailed stats) -->
+          <div class="pass">
+            <div class="full">
+              <div class="fullTop">
+                <div class="ttl">
+                  <div class="t1">FULL PLAYER CARD</div>
+                  <div class="t2">характеристики</div>
+                </div>
+                <div class="seal" aria-hidden="true" style="transform:scale(.92) rotate(6deg);"></div>
+              </div>
+
+              <div class="fullBody">
+                <div class="avatarFull" title="Фото в полный рост">
+                  <img id="fullImg" src="assets/character-full.jpg" alt="Фото в полный рост">
+                </div>
+
+                <div class="stats">
+                  <div class="line"><b>Роль:</b> <span id="d_role">—</span></div>
+                  <div class="line"><b>Как действуешь:</b> <span id="d_action">—</span></div>
+                  <div class="line"><b>Общение:</b> <span id="d_social">—</span></div>
+                  <div class="line"><b>Сильная сторона:</b> <span id="d_strong">—</span></div>
+                  <div class="line"><b>Слабое место:</b> <span id="d_weak">—</span></div>
+                  <div class="line"><b>Триггер:</b> <span id="d_trigger">—</span></div>
+                  <div class="line"><b>Навык:</b> <span id="d_skill">—</span></div>
+                  <div class="line"><b>Бонус:</b> <span id="d_bonus">—</span></div>
+                  <div class="line"><b>Задача сейчас:</b> <span id="d_quest">—</span></div>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn primary" id="copyBtn">копировать</button>
+                <button class="btn" id="regenBtn">пересканировать</button>
+              </div>
+
+              <div class="miniHint">
+                Базовый скан показывает характеристики. Полный доступ — расшифровка и пошаговые действия.
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="terminal" style="min-height:380px;">
-          <div class="terminalHead">
-            <div class="termTitle">terminal / output</div>
+        <!-- Right: output / upsell -->
+        <div class="panel" style="min-height: 540px;">
+          <div class="panelHead">
+            <div class="panelTitle">terminal / output</div>
             <div class="lights" aria-hidden="true"><span></span><span></span><span></span></div>
           </div>
-          <div class="termBody">
+          <div class="panelBody">
 <pre class="log" id="termOut"><span class="muted">[scan]</span> waiting...</pre>
 
-            <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-              <button class="btn primary" id="copyBtn">копировать данные</button>
-              <button class="btn" id="regenBtn">перегенерировать</button>
-            </div>
-
-            <div style="margin-top:10px; font-size:12px; color:rgba(12,27,42,.56); line-height:1.55;">
-              Штамп и подпись — всегда на MULTIPASS. Ввод времени рождения меняет “SEED” и “CLEARANCE”.
+            <div class="paybox" style="margin-top:12px;">
+              <h4>unlock: полный доступ</h4>
+              <p>Откроем подробную карточку: “почему так”, “что с этим делать” и “как качаться”.</p>
+              <button class="btn primary" id="buyBtn2">открыть полный доступ</button>
             </div>
           </div>
         </div>
@@ -917,96 +927,89 @@
   </div>
 
   <script>
-    // ====== Core vibe: rotating manifesto (changes each load + button) ======
-    const manifesto = [
-      "Если система закрывает двери — я становлюсь дверью. Если система ставит границы — я становлюсь линией разрыва.",
-      "Я не прошу разрешения. Я создаю протокол.",
-      "Меня нельзя исправить — можно только признать: я живое исключение.",
-      "Система любит правила. Я люблю выход.",
-      "Я не ломаюсь. Я обновляюсь."
-    ];
-    const manifestEl = document.getElementById("manifestText");
-    function setManifest(random=true){
-      const txt = random ? manifesto[Math.floor(Math.random()*manifesto.length)] : manifesto[0];
-      manifestEl.style.opacity = 0;
-      setTimeout(()=>{
-        manifestEl.textContent = txt;
-        manifestEl.style.opacity = 1;
-      }, 140);
-    }
-    setManifest(true);
-    document.getElementById("randomizeBtn").addEventListener("click", ()=> setManifest(true));
+    // ==========================
+    // НАСТРОЙКА ФОТО ДЛЯ MULTIPASS
+    // ==========================
+    // Положи один файл с персонажем в полный рост:
+    //   assets/character-full.jpg
+    // Он будет автоматически:
+    // - использован как "фото лица" (кроп сверху)
+    // - и как "в полный рост" (без кропа)
+    //
+    // Если хочешь разные файлы:
+    //   assets/character-face.jpg
+    //   assets/character-full.jpg
+    // Тогда просто поменяй src у faceImg ниже.
+    //
+    // document.getElementById("faceImg").src = "assets/character-face.jpg";
 
-    // ====== Helpers ======
+    // ==========================
+    // Простые игровые термины (без пафоса)
+    // ==========================
+    const phrases = [
+      "я не ищу объяснений. я собираю свой билд.",
+      "мне не нужен знак. мне нужна ясность.",
+      "меньше шума. больше точности.",
+      "я выбираю то, что работает.",
+      "я не ломаюсь. я настраиваюсь."
+    ];
+
+    const ROLES = ["исследователь", "сборщик", "стратег", "наблюдатель", "проводник", "ускоритель"];
+    const ENERGY = ["ровная", "рывками", "высокая", "бережная", "творческая", "боевой режим"];
+    const ACTION = ["сначала думаю, потом делаю", "делаю быстро, потом правлю", "делаю только когда ясно", "делаю через вдохновение"];
+    const SOCIAL = ["узкий круг", "легко знакомлюсь", "мне нужна дистанция", "я лидер в общении", "я мягко веду"];
+    const STRONG = ["ясность", "скорость", "интуиция", "выдержка", "влияние", "честность"];
+    const WEAK = ["перегруз", "самокритика", "откладывание", "резкость", "усталость", "эмо-качели"];
+    const TRIGGER = ["давление", "контроль", "неопределённость", "несправедливость", "хаос", "обесценивание"];
+    const SKILL = ["держать границы", "видеть суть", "резать лишнее", "собирать план", "поднимать себя", "вести людей"];
+    const BONUS = ["чувство правды", "быстрое обучение", "сильный фокус", "высокая чувствительность", "холодная голова"];
+    const QUEST = ["настроить режим", "почистить окружение", "собрать цель", "усилить тело", "выстроить деньги", "сделать шаг в новое"];
+
     const $ = (id)=>document.getElementById(id);
+
     const led = $("led");
     const statusText = $("statusText");
     const scanPane = $("scanPane");
-    const modalBack = $("modalBack");
     const termLog = $("termLog");
     const termOut = $("termOut");
+    const modalBack = $("modalBack");
 
     function pad2(n){ return String(n).padStart(2,"0"); }
     function nowStamp(){
       const d = new Date();
       return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
     }
+
+    // лёгкий детерминизм от даты/времени (чтобы "похоже на тебя")
     function hashLike(str){
-      // deterministic-ish from input (not crypto, just identity feel)
       let h = 2166136261;
       for(let i=0;i<str.length;i++){
         h ^= str.charCodeAt(i);
         h = Math.imul(h, 16777619);
       }
-      return (h>>>0).toString(16).toUpperCase().padStart(8,"0");
+      return (h>>>0);
     }
     function pick(list, seed){
-      const n = parseInt(hashLike(seed).slice(0,6), 16);
-      return list[n % list.length];
+      return list[seed % list.length];
     }
 
-    // ====== Multipass generation logic ======
-    const ORIGINS = ["NOWHERE", "BORDERLESS", "NULL ZONE", "CLOUD RIDGE", "OFFGRID"];
-    const CLEAR = ["C0", "C1", "C2", "C3", "CΩ"];
-    const SEEDS = ["AURORA", "HALO", "GLASS", "NEON", "SHIFT", "WHITE NOISE", "VECTOR"];
-    const SIGS  = ["protocol // v1.0", "protocol // ADM", "protocol // signed", "protocol // core"];
-
-    let lastPayload = null;
-
-    function buildPayload(){
-      const dob = $("dob").value.trim();
-      const tob = $("tob").value.trim(); // optional
-      const base = (dob || "unknown") + "|" + (tob || "00:00") + "|ADM";
-      const id = "ADM-" + hashLike(base).slice(0,10);
-      const origin = pick(ORIGINS, base + "|O");
-      const clearance = pick(CLEAR, base + "|C");
-      const seed = pick(SEEDS, base + "|S") + "-" + hashLike(base).slice(0,4);
-      const sig = pick(SIGS, base + "|P");
-      const time = nowStamp();
-
-      return { dob, tob, id, origin, clearance, seed, sig, time };
+    function canScan(){
+      return $("dob").value.trim().length > 0;
     }
 
-    function renderPass(p){
-      $("p_id").textContent = p.id;
-      $("p_origin").textContent = p.origin;
-      $("p_clear").textContent = p.clearance;
-      $("p_seed").textContent = p.seed;
-      $("p_sig").textContent = p.sig;
-      $("p_time").textContent = p.time;
+    function setReadyState(){
+      if(canScan()){
+        led.classList.add("live");
+        statusText.textContent = "готово";
+      } else {
+        led.classList.remove("live");
+        statusText.textContent = "жду дату";
+      }
+    }
 
-      const readableDob = p.dob ? p.dob : "unknown";
-      const readableTob = p.tob ? p.tob : "—";
-      termOut.innerHTML =
-`<span class="muted">[scan]</span> <span class="ok">complete</span>
-<span class="muted">[input]</span> dob=${readableDob}  tob=${readableTob}
-<span class="muted">[multipass]</span> id=${p.id}
-<span class="muted">[clearance]</span> ${p.clearance}
-<span class="muted">[origin]</span> ${p.origin}
-<span class="muted">[seed]</span> ${p.seed}
-<span class="muted">[stamp]</span> embedded
-<span class="muted">[protocol]</span> ${p.sig}
-<span class="muted">[time]</span> ${p.time}`;
+    function logLine(text){
+      termLog.textContent += "\n" + text;
+      termLog.parentElement.scrollTop = termLog.parentElement.scrollHeight;
     }
 
     function openModal(){
@@ -1017,104 +1020,165 @@
       modalBack.classList.remove("show");
       document.body.style.overflow = "";
     }
-    $("closeModal").addEventListener("click", closeModal);
-    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
 
-    // ====== Scan animation and flow ======
-    function setReadyState(ready){
-      if(ready){
-        led.classList.add("live");
-        statusText.textContent = "готов к скану";
-      } else {
-        led.classList.remove("live");
-        statusText.textContent = "ожидание данных";
-      }
+    function buildPayload(){
+      const dob = $("dob").value.trim();
+      const tob = $("tob").value.trim() || "00:00";
+      const seed = hashLike(`${dob}|${tob}|ADM`);
+      const id = "ADM-" + String(seed).slice(0,10);
+
+      const role = pick(ROLES, seed);
+      const energy = pick(ENERGY, seed >>> 1);
+      const action = pick(ACTION, seed >>> 2);
+      const social = pick(SOCIAL, seed >>> 3);
+      const strong = pick(STRONG, seed >>> 4);
+      const weak = pick(WEAK, seed >>> 5);
+      const trigger = pick(TRIGGER, seed >>> 6);
+      const skill = pick(SKILL, seed >>> 7);
+      const bonus = pick(BONUS, seed >>> 8);
+      const quest = pick(QUEST, seed >>> 9);
+
+      return {
+        dob, tob, id,
+        access: "BASIC",
+        sig: "protocol // signed",
+        time: nowStamp(),
+        role, energy, action, social, strong, weak, trigger, skill, bonus, quest
+      };
     }
 
-    function canScan(){
-      return $("dob").value.trim().length > 0; // time optional
+    function render(p){
+      // MINI
+      $("p_id").textContent = p.id;
+      $("p_access").textContent = p.access;
+      $("p_role").textContent = p.role;
+      $("p_energy").textContent = p.energy;
+      $("p_sig").textContent = p.sig;
+      $("p_time").textContent = p.time;
+
+      // FULL
+      $("d_role").textContent = p.role;
+      $("d_action").textContent = p.action;
+      $("d_social").textContent = p.social;
+      $("d_strong").textContent = p.strong;
+      $("d_weak").textContent = p.weak;
+      $("d_trigger").textContent = p.trigger;
+      $("d_skill").textContent = p.skill;
+      $("d_bonus").textContent = p.bonus;
+      $("d_quest").textContent = p.quest;
+
+      termOut.innerHTML =
+`<span class="muted">[scan]</span> <span class="ok">complete</span>
+<span class="muted">[input]</span> dob=${p.dob}  tob=${(p.tob==="00:00" ? "—" : p.tob)}
+<span class="muted">[id]</span> ${p.id}
+<span class="muted">[basic]</span> роль=${p.role} | энергия=${p.energy}
+<span class="muted">[traits]</span> сильное=${p.strong} | слабое=${p.weak}
+<span class="muted">[trigger]</span> ${p.trigger}
+<span class="muted">[skill]</span> ${p.skill}  (+${p.bonus})
+<span class="muted">[quest]</span> ${p.quest}
+<span class="muted">[stamp]</span> embedded
+<span class="muted">[protocol]</span> ${p.sig}
+<span class="muted">[time]</span> ${p.time}`;
     }
 
-    function logLine(text){
-      termLog.textContent += "\n" + text;
-      termLog.parentElement.scrollTop = termLog.parentElement.scrollHeight;
-    }
+    let lastPayload = null;
 
     function startScan(){
       if(!canScan()){
-        // micro feedback
         logLine("[warn] add: date of birth");
-        statusText.textContent = "нужна дата рождения";
+        statusText.textContent = "нужна дата";
         return;
       }
 
-      // UI state
+      // UI scan feel
       scanPane.classList.add("scanning");
-      statusText.textContent = "scan in progress";
+      statusText.textContent = "сканирую...";
       led.classList.add("live");
 
-      // Terminal theatrics
-      logLine("[scan] initializing...");
+      logLine("[scan] init...");
       logLine("[scan] reading input...");
-      logLine("[scan] synthesizing multipass...");
+      logLine("[scan] building multipass...");
 
-      // "Apple" feel: staged reveal
-      setTimeout(()=> logLine("[protocol] signature imprint..."), 420);
-      setTimeout(()=> logLine("[stamp] seal applied..."), 720);
+      setTimeout(()=> logLine("[stamp] applied"), 520);
+      setTimeout(()=> logLine("[protocol] signed"), 820);
 
       setTimeout(()=>{
         scanPane.classList.remove("scanning");
-        statusText.textContent = "scan complete";
-        const payload = buildPayload();
-        lastPayload = payload;
-        renderPass(payload);
+        statusText.textContent = "готово";
+        const p = buildPayload();
+        lastPayload = p;
+        render(p);
         openModal();
       }, 1450);
     }
 
+    // Manifest rotation
+    function shufflePhrase(){
+      const txt = phrases[Math.floor(Math.random() * phrases.length)];
+      const el = $("manifestText");
+      el.style.opacity = 0;
+      setTimeout(()=>{
+        el.textContent = txt;
+        el.style.opacity = 1;
+      }, 140);
+    }
+
+    // Events
     $("scanBtn").addEventListener("click", startScan);
-    $("openScanMain").addEventListener("click", startScan);
-    $("openScanTop").addEventListener("click", startScan);
+    $("scanMainBtn").addEventListener("click", startScan);
+    $("scanTopBtn").addEventListener("click", startScan);
 
-    // Inputs -> ready state
+    $("closeModal").addEventListener("click", closeModal);
+    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
+
+    $("shuffleManifest").addEventListener("click", shufflePhrase);
+    shufflePhrase();
+
     ["dob","tob"].forEach(id=>{
-      $(id).addEventListener("input", ()=>{
-        setReadyState(canScan());
-        if(canScan()) statusText.textContent = "готов к скану";
-      });
+      $(id).addEventListener("input", setReadyState);
     });
+    setReadyState();
 
-    // Regenerate (inside modal)
     $("regenBtn").addEventListener("click", ()=>{
+      if(!canScan()) return;
       const p = buildPayload();
       lastPayload = p;
-      renderPass(p);
+      render(p);
     });
 
-    // Copy
     $("copyBtn").addEventListener("click", async ()=>{
       if(!lastPayload) return;
-      const text =
+      const t =
 `MULTIPASS / ADM MODE
 ID: ${lastPayload.id}
-CLEARANCE: ${lastPayload.clearance}
-ORIGIN: ${lastPayload.origin}
-SEED: ${lastPayload.seed}
-PROTOCOL: ${lastPayload.sig}
-TIME: ${lastPayload.time}`;
+Роль: ${lastPayload.role}
+Энергия: ${lastPayload.energy}
+Как действуешь: ${lastPayload.action}
+Общение: ${lastPayload.social}
+Сильная сторона: ${lastPayload.strong}
+Слабое место: ${lastPayload.weak}
+Триггер: ${lastPayload.trigger}
+Навык: ${lastPayload.skill}
+Бонус: ${lastPayload.bonus}
+Задача сейчас: ${lastPayload.quest}
+Подпись: ${lastPayload.sig}
+Время: ${lastPayload.time}`;
       try{
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(t);
         termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="ok">copied</span>`;
       }catch(e){
         termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="warn">blocked</span>`;
       }
     });
 
-    // Year
-    $("year").textContent = new Date().getFullYear();
+    function fakeBuy(){
+      // сюда позже подключим оплату/страницу тарифа
+      alert("Здесь будет оплата и выдача полной расшифровки.");
+    }
+    $("buyBtn").addEventListener("click", fakeBuy);
+    $("buyBtn2").addEventListener("click", fakeBuy);
 
-    // Initial states
-    setReadyState(false);
+    $("year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
