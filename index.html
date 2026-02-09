@@ -1,1411 +1,213 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>ADM mode — Protocol Interface</title>
-  <meta name="description" content="ADM mode — высокотехнологичный протокол. Терминал выдачи доступа: карта допуска + профиль персонажа. Мобильный, футуристичный, оригинальный." />
-  <meta name="theme-color" content="#070813" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADM MODE</title>
 
-  <style>
-    :root{
-      /* core */
-      --bg0:#05060a;
-      --bg1:#070813;
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.70);
-      --muted2: rgba(255,255,255,.52);
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
-      /* pearl-lavender "middle" palette */
-      --a1:#d7c9ff; /* pearl lavender */
-      --a2:#ffe0ff; /* pearl pink */
-      --a3:#c8f7ff; /* icy pearl */
-      --danger:#ff4d6d;
+:root{
+  --bg:#0b0c10;
+  --glow:#c9b8ff;
+  --soft:#eae6ff;
+  --line:rgba(255,255,255,0.15);
+}
 
-      /* glass */
-      --glass: rgba(255,255,255,.085);
-      --glass2: rgba(255,255,255,.13);
-      --stroke: rgba(255,255,255,.18);
-      --stroke2: rgba(255,255,255,.12);
+*{box-sizing:border-box;margin:0;padding:0}
 
-      --shadow: 0 30px 90px rgba(0,0,0,.55);
-      --r1: 18px;
-      --r2: 26px;
-      --r3: 32px;
+body{
+  font-family:'Inter',sans-serif;
+  background:
+    radial-gradient(1200px 600px at 50% -200px, rgba(201,184,255,0.15), transparent),
+    url("bg1.jpg") center/cover no-repeat,
+    var(--bg);
+  color:var(--soft);
+  min-height:100vh;
+  overflow-x:hidden;
+}
 
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, "Segoe UI", Roboto, Arial;
+.overlay{
+  position:fixed;
+  inset:0;
+  background:url("noise.png");
+  opacity:.05;
+  pointer-events:none;
+}
 
-      --max: 1180px;
-    }
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:80px 20px;
+}
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: var(--sans);
-      color: var(--text);
-      background:
-        radial-gradient(1200px 900px at 18% 10%, rgba(215,201,255,.18), transparent 55%),
-        radial-gradient(1100px 800px at 82% 22%, rgba(255,224,255,.14), transparent 55%),
-        radial-gradient(1000px 800px at 58% 86%, rgba(200,247,255,.12), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-      overflow-x:hidden;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+h1{
+  font-size:clamp(42px,8vw,96px);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  background:linear-gradient(120deg,#fff,var(--glow),#fff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:20px;
+}
 
-    /* ambient layers */
-    .aurora{
-      position:fixed; inset:-30%;
-      z-index:0; pointer-events:none;
-      filter: blur(34px);
-      opacity:.9;
-      background:
-        radial-gradient(closest-side at 20% 40%, rgba(215,201,255,.20), transparent 60%),
-        radial-gradient(closest-side at 80% 25%, rgba(255,224,255,.16), transparent 60%),
-        radial-gradient(closest-side at 55% 85%, rgba(200,247,255,.14), transparent 60%);
-      animation: drift 14s ease-in-out infinite alternate;
-      transform: translateZ(0);
-    }
-    @keyframes drift{
-      0%{ transform: translate3d(-1.8%,-1.2%,0) scale(1.02); }
-      100%{ transform: translate3d(1.8%,1.2%,0) scale(1.06); }
-    }
+.subtitle{
+  font-size:18px;
+  opacity:.8;
+  max-width:500px;
+}
 
-    /* subtle grain */
-    body:before{
-      content:"";
-      position:fixed; inset:0;
-      pointer-events:none;
-      z-index:0;
-      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%25" height="100%25" filter="url(%23n)" opacity=".35"/></svg>');
-      mix-blend-mode: overlay;
-      opacity:.06;
-    }
+.terminal{
+  margin-top:80px;
+  border:1px solid var(--line);
+  backdrop-filter:blur(10px);
+  padding:30px;
+  border-radius:16px;
+  background:rgba(10,10,20,.55);
+  box-shadow:0 0 40px rgba(201,184,255,.1);
+}
 
-    /* container */
-    .wrap{position:relative; z-index:1}
+.terminal h2{
+  font-size:20px;
+  letter-spacing:.2em;
+  opacity:.9;
+  margin-bottom:25px;
+}
 
-    /* nav */
-    .nav{
-      position:sticky; top:0; z-index:30;
-      backdrop-filter: blur(16px);
-      background: linear-gradient(180deg, rgba(5,6,10,.72), rgba(5,6,10,.22));
-      border-bottom: 1px solid rgba(255,255,255,.10);
-    }
-    .navin{
-      max-width: var(--max);
-      margin:0 auto;
-      padding: 12px 16px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
-    .brand{display:flex; align-items:center; gap:12px; user-select:none}
-    .sig{
-      width:38px; height:38px; border-radius: 14px;
-      border:1px solid rgba(255,255,255,.16);
-      box-shadow: 0 18px 50px rgba(0,0,0,.35);
-      background:
-        radial-gradient(circle at 30% 30%, rgba(255,255,255,.36), transparent 55%),
-        linear-gradient(135deg, rgba(215,201,255,.90), rgba(255,224,255,.55), rgba(200,247,255,.55));
-      position:relative; overflow:hidden;
-    }
-    .sig:after{
-      content:"";
-      position:absolute; inset:-65%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
-      transform: rotate(22deg);
-      animation: shimmer 3.1s ease-in-out infinite;
-      opacity:.65;
-    }
-    @keyframes shimmer{
-      0%{ transform: translateX(-30%) rotate(22deg); opacity:.18;}
-      50%{ transform: translateX(38%) rotate(22deg); opacity:.85;}
-      100%{ transform: translateX(88%) rotate(22deg); opacity:.14;}
-    }
-    .brand .t{
-      margin:0;
-      font-weight: 820;
-      letter-spacing: .02em;
-      font-size: 13px;
-      color: rgba(255,255,255,.86);
-    }
-    .brand .s{
-      margin-top:2px;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: rgba(255,255,255,.52);
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
+.field{
+  margin-bottom:18px;
+}
 
-    .navlinks{
-      display:flex; align-items:center; gap:2px; flex-wrap:wrap;
-    }
-    .navlinks a{
-      text-decoration:none;
-      color: rgba(255,255,255,.78);
-      font-size: 13px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      border: 1px solid transparent;
-      transition: .18s ease;
-    }
-    .navlinks a:hover{
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.12);
-    }
+label{
+  font-size:12px;
+  opacity:.6;
+  letter-spacing:.15em;
+}
 
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center; gap:10px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.92);
-      text-decoration:none;
-      font-weight: 760;
-      transition: .18s ease;
-      box-shadow: 0 18px 50px rgba(0,0,0,.28);
-      cursor:pointer;
-      position:relative;
-      overflow:hidden;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.085); border-color: rgba(255,255,255,.22); }
-    .btn:active{ transform: translateY(0px) scale(.99); }
-    .btn.primary{
-      background: linear-gradient(135deg, rgba(215,201,255,.32), rgba(255,224,255,.20), rgba(200,247,255,.18));
-      border-color: rgba(255,255,255,.20);
-    }
-    .btn.primary:after{
-      content:"";
-      position:absolute; inset:-65%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.48), transparent);
-      transform: rotate(22deg);
-      animation: shimmer 2.9s ease-in-out infinite;
-      opacity:.55;
-    }
+input{
+  width:100%;
+  margin-top:6px;
+  padding:14px;
+  background:transparent;
+  border:1px solid var(--line);
+  border-radius:10px;
+  color:#fff;
+  font-size:14px;
+}
 
-    /* cards */
-    .card{
-      border-radius: var(--r3);
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.055));
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-      position:relative;
-      overflow:hidden;
-    }
-    .card:before{
-      content:"";
-      position:absolute; inset:-2px;
-      pointer-events:none;
-      background:
-        radial-gradient(900px 320px at 20% 10%, rgba(215,201,255,.16), transparent 55%),
-        radial-gradient(820px 320px at 86% 22%, rgba(255,224,255,.12), transparent 55%),
-        radial-gradient(760px 320px at 55% 92%, rgba(200,247,255,.10), transparent 55%);
-      opacity:.85;
-    }
+input:focus{
+  outline:none;
+  border-color:var(--glow);
+}
 
-    /* hero */
-    .hero{
-      max-width: var(--max);
-      margin:0 auto;
-      padding: 44px 16px 18px;
-      display:grid;
-      grid-template-columns: 1.12fr .88fr;
-      gap: 16px;
-      align-items: stretch;
-    }
-    @media (max-width: 980px){
-      .hero{ grid-template-columns: 1fr; padding-top: 28px; }
-    }
+button{
+  margin-top:20px;
+  width:100%;
+  padding:16px;
+  background:linear-gradient(120deg,var(--glow),#ffffff);
+  color:#000;
+  font-weight:600;
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+}
 
-    .left{ padding: 24px 22px; }
-    .right{ padding: 18px; display:flex; flex-direction:column; gap:12px; }
+.scan{
+  margin-top:30px;
+  display:none;
+}
 
-    .kicker{
-      display:inline-flex; align-items:center; gap:10px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(255,255,255,.76);
-      letter-spacing:.02em;
-    }
-    .dot{
-      width:8px; height:8px; border-radius: 99px;
-      background: linear-gradient(135deg, rgba(215,201,255,1), rgba(255,224,255,1));
-      box-shadow: 0 0 20px rgba(215,201,255,.55);
-    }
+.scan-line{
+  height:2px;
+  background:var(--glow);
+  animation:scan 2s infinite;
+}
 
-    /* ADM mode centerpiece */
-    .admWrap{
-      margin-top: 14px;
-      padding: 18px 14px;
-      border-radius: 26px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      position: relative;
-      overflow:hidden;
-      text-align:center;
-    }
-    .admScan{
-      position:absolute; inset:-45%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.38), transparent);
-      transform: rotate(18deg);
-      animation: admScan 2.7s ease-in-out infinite;
-      opacity:.55;
-    }
-    @keyframes admScan{
-      0%{ transform: translateX(-38%) rotate(18deg); opacity:.12;}
-      45%{ opacity:.86;}
-      100%{ transform: translateX(56%) rotate(18deg); opacity:.10;}
-    }
-    .admTitle{
-      font-size: 46px;
-      line-height:1;
-      font-weight: 880;
-      letter-spacing: -.035em;
-      position:relative;
-      margin: 2px 0 0;
-    }
-    .admGlow{
-      background: linear-gradient(90deg, rgba(255,255,255,.92), rgba(215,201,255,.92), rgba(255,224,255,.92), rgba(200,247,255,.92), rgba(255,255,255,.92));
-      background-size: 240% 100%;
-      -webkit-background-clip:text;
-      background-clip:text;
-      color: transparent;
-      animation: textShine 3.2s ease-in-out infinite;
-      text-shadow: 0 0 34px rgba(215,201,255,.20);
-    }
-    @keyframes textShine{
-      0%{ background-position: 0% 50%; }
-      50%{ background-position: 100% 50%; }
-      100%{ background-position: 0% 50%; }
-    }
-    .admSub{
-      margin-top: 8px;
-      font-family: var(--mono);
-      font-size: 12px;
-      letter-spacing:.10em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.60);
-    }
-    @media (max-width:520px){
-      .admTitle{ font-size: 38px; }
-    }
+@keyframes scan{
+  0%{transform:translateY(0)}
+  100%{transform:translateY(120px)}
+}
 
-    .title{
-      margin: 14px 0 0;
-      font-size: 50px;
-      line-height:1.03;
-      letter-spacing: -.03em;
-      font-weight: 860;
-    }
-    @media (max-width:520px){ .title{ font-size: 40px; } }
+.pass{
+  margin-top:25px;
+  border:1px solid var(--line);
+  padding:20px;
+  border-radius:14px;
+  display:none;
+  font-size:14px;
+  line-height:1.6;
+}
 
-    .lead{
-      margin: 12px 0 0;
-      color: rgba(255,255,255,.72);
-      font-size: 15.5px;
-      line-height: 1.6;
-      max-width: 62ch;
-    }
-
-    .actions{
-      margin-top: 16px;
-      display:flex; gap:10px; flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .pills{
-      margin-top: 14px;
-      display:flex; gap:10px; flex-wrap:wrap;
-    }
-    .pill{
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      color: rgba(255,255,255,.76);
-      font-size: 12px;
-      font-family: var(--mono);
-      letter-spacing:.02em;
-    }
-
-    /* right panels */
-    .panel{
-      border-radius: var(--r2);
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(5,6,10,.30);
-      padding: 14px 14px;
-      position:relative;
-      overflow:hidden;
-    }
-    .panel h3{
-      margin:0;
-      font-size: 12px;
-      letter-spacing:.10em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.74);
-      font-family: var(--mono);
-    }
-    .panel p{
-      margin:10px 0 0;
-      color: rgba(255,255,255,.70);
-      font-size: 13.5px;
-      line-height:1.55;
-    }
-    .list{ margin:10px 0 0; padding:0; list-style:none; display:grid; gap:10px; }
-    .li{
-      display:flex; gap:10px; align-items:flex-start;
-      padding: 10px 10px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
-    }
-    .tag{
-      font-family: var(--mono);
-      font-size: 11px;
-      padding: 6px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-      white-space:nowrap;
-      color: rgba(255,255,255,.76);
-      letter-spacing:.02em;
-    }
-    .li strong{
-      display:block;
-      font-size: 13px;
-      color: rgba(255,255,255,.90);
-      font-weight: 820;
-      margin-bottom: 2px;
-    }
-    .li span{
-      color: rgba(255,255,255,.66);
-      font-size: 12.8px;
-      line-height: 1.45;
-      display:block;
-    }
-
-    /* sections */
-    section{
-      max-width: var(--max);
-      margin:0 auto;
-      padding: 16px 16px 0;
-    }
-    .secTitle{
-      margin: 22px 0 10px;
-      font-size: 18px;
-      letter-spacing: -.01em;
-      font-weight: 860;
-      color: rgba(255,255,255,.90);
-    }
-    .secSub{
-      margin: 0 0 14px;
-      color: rgba(255,255,255,.66);
-      line-height:1.6;
-      font-size: 14px;
-      max-width: 86ch;
-    }
-    .grid3{
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    @media (max-width: 980px){ .grid3{ grid-template-columns: 1fr; } }
-
-    .mini{ padding: 16px 16px; }
-    .mini h4{
-      margin:0;
-      font-size: 12px;
-      letter-spacing:.10em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.72);
-      font-family: var(--mono);
-    }
-    .mini .big{
-      margin-top:10px;
-      font-size: 15px;
-      color: rgba(255,255,255,.90);
-      font-weight: 860;
-      letter-spacing: -.01em;
-    }
-    .mini .txt{
-      margin-top:8px;
-      color: rgba(255,255,255,.66);
-      line-height: 1.6;
-      font-size: 13.8px;
-    }
-
-    .divider{
-      height:1px;
-      margin: 18px 0 0;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
-      border:0;
-    }
-
-    /* TERMINAL */
-    .terminalWrap{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      align-items:start;
-      padding-bottom: 22px;
-    }
-    @media (max-width: 980px){ .terminalWrap{ grid-template-columns: 1fr; } }
-
-    .form{ padding: 18px 18px; }
-    .formRow{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    @media (max-width: 520px){ .formRow{ grid-template-columns: 1fr; } }
-
-    label{
-      display:block;
-      font-size: 12px;
-      color: rgba(255,255,255,.70);
-      margin-bottom:6px;
-      font-family: var(--mono);
-      letter-spacing:.02em;
-    }
-    input, select, textarea{
-      width:100%;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.90);
-      padding: 12px 12px;
-      outline:none;
-      font-size: 14px;
-      font-family: var(--sans);
-    }
-    input::placeholder, textarea::placeholder{ color: rgba(255,255,255,.45); }
-    textarea{ min-height: 90px; resize: vertical; }
-
-    .formActions{
-      display:flex; gap:10px; flex-wrap:wrap;
-      margin-top: 12px;
-      align-items:center;
-    }
-
-    .preview{ padding: 18px 18px; }
-    .canvGrid{ display:grid; grid-template-columns: 1fr; gap:12px; }
-    .canvBox{
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(5,6,10,.32);
-      padding: 12px;
-      overflow:hidden;
-    }
-    canvas{
-      width:100%;
-      height:auto;
-      display:block;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-    }
-    .dlRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-    .hint{
-      margin-top: 10px;
-      color: rgba(255,255,255,.56);
-      font-size: 12.8px;
-      line-height: 1.55;
-    }
-
-    /* FAQ */
-    details{
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      padding: 14px 14px;
-    }
-    details summary{
-      cursor:pointer;
-      list-style:none;
-      font-weight: 860;
-      color: rgba(255,255,255,.88);
-      -webkit-tap-highlight-color: transparent;
-    }
-    details summary::-webkit-details-marker{ display:none; }
-    details p{
-      margin: 10px 0 0;
-      color: rgba(255,255,255,.66);
-      line-height: 1.6;
-      font-size: 13.8px;
-    }
-    .faqGrid{ display:grid; gap:10px; }
-
-    /* CTA footer */
-    .cta{
-      margin-top: 18px;
-      padding: 20px 20px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-    }
-    .cta .t{
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing:-.01em;
-      margin:0;
-      color: rgba(255,255,255,.92);
-    }
-    .cta .s{
-      margin: 8px 0 0;
-      color: rgba(255,255,255,.68);
-      line-height:1.6;
-      font-size: 13.8px;
-      max-width: 74ch;
-    }
-
-    /* scroll reveal */
-    .reveal{
-      opacity:0;
-      transform: translateY(14px);
-      transition: .7s cubic-bezier(.2,.8,.2,1);
-    }
-    .reveal.on{ opacity:1; transform: translateY(0); }
-
-    /* HUD */
-    .hud{
-      position:fixed;
-      right:14px; bottom:14px;
-      z-index:40;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      align-items:flex-end;
-      pointer-events:none;
-    }
-    .hud .chip{
-      font-family: var(--mono);
-      font-size: 11px;
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: rgba(5,6,10,.48);
-      border: 1px solid rgba(255,255,255,.12);
-      color: rgba(255,255,255,.70);
-      backdrop-filter: blur(12px);
-      letter-spacing:.02em;
-    }
-
-    /* optional: reduce motion */
-    @media (prefers-reduced-motion: reduce){
-      .aurora, .sig:after, .btn.primary:after, .admScan, .admGlow{ animation: none !important; }
-      .reveal{ transition: none !important; opacity:1; transform:none; }
-    }
-  </style>
+.pass span{
+  opacity:.6;
+}
+</style>
 </head>
 
 <body>
-  <div class="aurora"></div>
+<div class="overlay"></div>
 
-  <div class="wrap">
-    <header class="nav">
-      <div class="navin">
-        <div class="brand">
-          <div class="sig" aria-hidden="true"></div>
-          <div>
-            <div class="t">ADM mode</div>
-            <div class="s">protocol interface / v1.0</div>
-          </div>
-        </div>
+<div class="container">
+  <h1>ADM MODE</h1>
+  <p class="subtitle">
+    протокол перепрошивки персонажа<br>
+    доступ разрешён только активным игрокам
+  </p>
 
-        <nav class="navlinks">
-          <a href="#method">метод</a>
-          <a href="#how">механика</a>
-          <a href="#terminal">terminal</a>
-          <a href="#faq">faq</a>
-          <a class="btn primary" href="#terminal" style="margin-left:6px;">войти</a>
-        </nav>
-      </div>
-    </header>
+  <div class="terminal">
+    <h2>TERMINAL</h2>
 
-    <!-- HERO -->
-    <div class="hero">
-      <div class="card left reveal">
-        <div class="kicker"><span class="dot"></span> СИСТЕМА: ЗАКРЫТО • ТЫ: ДОСТУП</div>
-
-        <div class="admWrap" aria-label="ADM mode center">
-          <div class="admScan"></div>
-          <div class="admTitle"><span class="admGlow">ADM mode</span></div>
-          <div class="admSub">доктрина из будущего • протокол действий</div>
-        </div>
-
-        <h2 class="title">протокол<br/>перепрошивки реальности</h2>
-
-        <p class="lead">
-          Это не “вдохновение”. Это <b>управление</b>:
-          ты перестаёшь быть реакцией и становишься причиной.
-          <br/><br/>
-          <b id="manifestLive">Я создаю протокол.</b>
-        </p>
-
-        <div class="actions">
-          <a class="btn primary" href="#terminal">открыть terminal</a>
-          <button class="btn" id="btnMechanics" type="button">показать механику</button>
-        </div>
-
-        <div class="pills">
-          <div class="pill">ясность → выбор → действие</div>
-          <div class="pill">без бытовухи • как в игре</div>
-          <div class="pill">внимание = валюта</div>
-        </div>
-      </div>
-
-      <div class="card right reveal">
-        <div class="panel">
-          <h3>что ты получаешь</h3>
-          <ul class="list">
-            <li class="li">
-              <div class="tag">01</div>
-              <div>
-                <strong>режим контроля</strong>
-                <span>не “успокоиться”, а <b>перенастроить</b> состояние и поведение.</span>
-              </div>
-            </li>
-            <li class="li">
-              <div class="tag">02</div>
-              <div>
-                <strong>результат через механику</strong>
-                <span>короткие циклы, точные миссии, проверяемые шаги.</span>
-              </div>
-            </li>
-            <li class="li">
-              <div class="tag">03</div>
-              <div>
-                <strong>роль главного игрока</strong>
-                <span>ты запускаешь события, а не наблюдаешь чужой сюжет.</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <div class="panel">
-          <h3>кому подходит</h3>
-          <p>
-            тем, кто устал “ждать знаки” и хочет <b>управлять</b>:
-            вниманием, выбором и действием. без воды. без оправданий.
-          </p>
-        </div>
-      </div>
+    <div class="field">
+      <label>ИМЯ ПЕРСОНАЖА</label>
+      <input id="name">
     </div>
 
-    <section id="method">
-      <h3 class="secTitle reveal">метод (коротко, чётко)</h3>
-      <p class="secSub reveal">
-        <b>ADM mode</b> — это протокол, который переводит тебя из режима “со мной случается”
-        в режим “я запускаю”. он устроен как интерфейс: вход → миссии → выход.
-        без мистики по умолчанию. только управляемая механика.
-      </p>
-
-      <div class="grid3">
-        <div class="card mini reveal">
-          <h4>уровень 1</h4>
-          <div class="big">ясность</div>
-          <div class="txt">ты видишь схему: что тебя запускает, что сбивает, что удерживает. прозрачность — это сила.</div>
-        </div>
-        <div class="card mini reveal">
-          <h4>уровень 2</h4>
-          <div class="big">выбор</div>
-          <div class="txt">не “мечта”, а решение. ты фиксируешь роль, цель и правила игры. точка, где реальность начинает слушаться.</div>
-        </div>
-        <div class="card mini reveal">
-          <h4>уровень 3</h4>
-          <div class="big">действие</div>
-          <div class="txt">малые точные шаги, которые создают цепную реакцию. не марафон. удары по системе — и она двигается.</div>
-        </div>
-      </div>
-
-      <hr class="divider" />
-    </section>
-
-    <section id="how">
-      <h3 class="secTitle reveal">механика (как в игре)</h3>
-      <p class="secSub reveal">
-        тут нет “расписаний”. тут есть <b>миссии</b>. ты выполняешь их, чтобы менять состояние и события.
-        всё как в интерфейсе: триггер → команда → результат.
-      </p>
-
-      <div class="grid3">
-        <div class="card mini reveal">
-          <h4>механика</h4>
-          <div class="big">триггеры</div>
-          <div class="txt">находим точки, где включается старый сюжет — и ставим новый скрипт. система любит повторять. мы используем это.</div>
-        </div>
-        <div class="card mini reveal">
-          <h4>механика</h4>
-          <div class="big">ставка</div>
-          <div class="txt">ты выбираешь одну цель и платишь ей вниманием. куда уходит внимание — туда уходит сила.</div>
-        </div>
-        <div class="card mini reveal">
-          <h4>механика</h4>
-          <div class="big">цепная реакция</div>
-          <div class="txt">не “план на год”. а серия точных шагов, после которых реальность вынуждена перестроиться.</div>
-        </div>
-      </div>
-
-      <hr class="divider" />
-    </section>
-
-    <section id="terminal">
-      <h3 class="secTitle reveal">terminal / выдача доступа</h3>
-      <p class="secSub reveal">
-        терминал создаёт “паспорт персонажа”: <b>карта допуска</b> + <b>профиль</b>.
-        после генерации ставится печать <b>ADM PROTOCOL</b>.
-      </p>
-
-      <div class="card terminalWrap reveal">
-        <!-- FORM -->
-        <div class="form">
-          <div class="panel" style="margin-bottom:12px;">
-            <h3>ввод данных</h3>
-            <p>заполни минимум — остальное терминал соберёт автоматически.</p>
-          </div>
-
-          <div class="formRow">
-            <div>
-              <label>имя / позывной</label>
-              <input id="fName" placeholder="например: MARTINA / VOID" value="MARTINA" />
-            </div>
-            <div>
-              <label>тип аватара</label>
-              <select id="fGender">
-                <option value="female" selected>девочка</option>
-                <option value="male">мальчик</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="formRow">
-            <div>
-              <label>сектор происхождения</label>
-              <input id="fOrigin" placeholder="например: ZERO DISTRICT" value="ZERO DISTRICT" />
-            </div>
-            <div>
-              <label>уровень допуска</label>
-              <select id="fClear">
-                <option>WHITE</option>
-                <option selected>PEARL</option>
-                <option>LAVENDER</option>
-                <option>VOID</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="formRow">
-            <div>
-              <label>ключ (seed)</label>
-              <input id="fSeed" placeholder="например: 108 / ADM" value="ADM" />
-            </div>
-            <div>
-              <label>режим</label>
-              <select id="fStatus">
-                <option selected>UNSTOPPABLE</option>
-                <option>ANTI-SYS</option>
-                <option>ADM CORE</option>
-                <option>RAGE MODE</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="margin-top:10px;">
-            <label>фраза протокола (меняется каждый раз)</label>
-            <textarea id="fManifest"></textarea>
-          </div>
-
-          <div class="formActions">
-            <button class="btn primary" id="btnGen" type="button">сгенерировать</button>
-            <button class="btn" id="btnRandom" type="button">рандом</button>
-            <button class="btn" id="btnNewManifest" type="button">новый манифест</button>
-          </div>
-
-          <div class="hint">
-            терминал генерирует характеристики, печать и карточки. можно скачать в PNG.
-          </div>
-        </div>
-
-        <!-- PREVIEW -->
-        <div class="preview">
-          <div class="panel" style="margin-bottom:12px;">
-            <h3>предпросмотр</h3>
-            <p>две карточки + полный профиль текстом.</p>
-          </div>
-
-          <div class="canvGrid">
-            <div class="canvBox">
-              <label style="margin:0 0 8px; font-family:var(--mono);">карта допуска (маленькая)</label>
-              <canvas id="cvSmall" width="980" height="620"></canvas>
-              <div class="dlRow">
-                <button class="btn" id="dlSmall" type="button">скачать png</button>
-              </div>
-            </div>
-
-            <div class="canvBox">
-              <label style="margin:0 0 8px; font-family:var(--mono);">профиль персонажа (full height)</label>
-              <canvas id="cvTall" width="980" height="1460"></canvas>
-              <div class="dlRow">
-                <button class="btn" id="dlTall" type="button">скачать png</button>
-              </div>
-            </div>
-
-            <div class="canvBox">
-              <label style="margin:0 0 8px; font-family:var(--mono);">характеристики (текст)</label>
-              <div id="traitsOut" style="font-family:var(--mono); font-size:12.5px; line-height:1.7; color:rgba(255,255,255,.75); white-space:pre-wrap;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <hr class="divider" />
-    </section>
-
-    <section id="faq">
-      <h3 class="secTitle reveal">faq</h3>
-      <div class="faqGrid reveal">
-        <details>
-          <summary>это психология или “духовность”?</summary>
-          <p>это протокол управления вниманием, выбором и действием. без религиозной обвязки. ты либо запускаешь изменения, либо нет.</p>
-        </details>
-        <details>
-          <summary>почему это работает?</summary>
-          <p>потому что реальность отвечает на <b>повторяемые действия</b>. протокол делает действия системными, а не случайными — и даёт предсказуемый эффект.</p>
-        </details>
-        <details>
-          <summary>можно ли сделать ещё “футуристичнее”?</summary>
-          <p>да: добавим интро-загрузку, голографический курсор, и “сканирование доступа” при открытии terminal.</p>
-        </details>
-      </div>
-
-      <hr class="divider" />
-    </section>
-
-    <section id="cta">
-      <div class="card cta reveal">
-        <div class="left">
-          <p class="t">готова войти в ADM mode?</p>
-          <p class="s">открой terminal, сгенерируй доступ и зафиксируй роль. ты не просишь — ты запускаешь.</p>
-        </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a class="btn primary" href="#terminal">открыть terminal</a>
-          <button class="btn" id="btnTop" type="button">наверх</button>
-        </div>
-      </div>
-
-      <div style="max-width:var(--max); margin:0 auto; padding: 16px 16px 30px; color: rgba(255,255,255,.45); font-family:var(--mono); font-size:11.5px;">
-        © ADM mode • PROTOCOL SIGNATURE • build: 2026-02-09
-      </div>
-    </section>
-
-    <div class="hud" aria-hidden="true">
-      <div class="chip" id="hudAccess">ACCESS: PEARL</div>
-      <div class="chip" id="hudSeed">SEED: ADM</div>
+    <div class="field">
+      <label>ТОЧКА ВХОДА</label>
+      <input id="origin">
     </div>
+
+    <div class="field">
+      <label>ТЕКУЩИЙ УРОВЕНЬ СОЗНАНИЯ</label>
+      <input id="level">
+    </div>
+
+    <button onclick="scan()">SCAN MULTIPASS</button>
+
+    <div class="scan" id="scan">
+      <div class="scan-line"></div>
+    </div>
+
+    <div class="pass" id="pass"></div>
   </div>
+</div>
+
+<script>
+function scan(){
+  const scanBlock=document.getElementById('scan');
+  const pass=document.getElementById('pass');
+  scanBlock.style.display='block';
+  pass.style.display='none';
+
+  setTimeout(()=>{
+    const id=Math.random().toString(36).substring(2,10).toUpperCase();
+    const seed=Math.floor(Math.random()*999999);
+    const classes=['ARCHITECT','OUTLAW','OBSERVER','NOMAD'];
+    const status=classes[Math.floor(Math.random()*classes.length)];
+
+    pass.innerHTML=`
+      <div><span>ID:</span> ADM-${id}</div>
+      <div><span>SEED:</span> ${seed}</div>
+      <div><span>CLASS:</span> ${status}</div>
+      <div><span>STATUS:</span> ACTIVE</div>
+    `;
+
+    scanBlock.style.display='none';
+    pass.style.display='block';
+  },2000);
+}
+</script>
 
-  <script>
-    const $ = (id) => document.getElementById(id);
-
-    // smooth scroll helpers
-    $("btnMechanics").addEventListener("click", () => {
-      document.querySelector("#how").scrollIntoView({behavior:"smooth", block:"start"});
-    });
-    $("btnTop").addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
-
-    // reveal on scroll
-    const io = new IntersectionObserver((entries)=>{
-      for(const e of entries){
-        if(e.isIntersecting) e.target.classList.add("on");
-      }
-    }, {threshold: 0.12});
-    document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
-
-    // manifesto (changes every time)
-    const manifestoPool = [
-      "если система закрывает двери — я становлюсь дверью.",
-      "если система ставит границы — я становлюсь линией разрыва.",
-      "я не прошу разрешения. я запускаю событие.",
-      "я не жду знаков. я создаю сигнал.",
-      "внимание — валюта. я выбираю, куда платить.",
-      "я не “исправляюсь”. я обновляюсь.",
-      "моя ярость — это топливо. мой фокус — это оружие.",
-      "я выбираю действие. остальное — шум.",
-      "я — протокол. я — запуск. я — результат.",
-      "когда мир давит — я становлюсь давлением в ответ."
-    ];
-
-    function pickManifest(){
-      const m = manifestoPool[Math.floor(Math.random() * manifestoPool.length)];
-      $("manifestLive").textContent = m;
-      $("fManifest").value = m;
-      return m;
-    }
-
-    // ===== TERMINAL GENERATOR =====
-    const vocab = {
-      archetype: ["FURY ENGINE","ORACLE UNIT","ARCHITECT","VOIDRUNNER","GLASS QUEEN","IRON SAINT","SIGNAL WITCH","NEON OPERATOR"],
-      drive: ["CONTROL","FREEDOM","POWER","TRUTH","RAGE","SOVEREIGNTY","ASCENT","RESET"],
-      weapon: ["VOICE","SILENCE","CHOICE","FOCUS","DISCIPLINE","CUT","PROTOCOL","SIGNAL"],
-      weakness: ["OVERHEAT","IMPATIENCE","TRUST BUG","SLEEP GLITCH","VOID HUNGER","HYPERFOCUS","DISSOCIATION","SAVIOR LOOP"],
-      perk: ["UNBREAKABLE CORE","SYSTEM-BREAK","COLD FIRE","HYPER CLARITY","MAGNETIC PRESENCE","SIGNAL CONTROL","REALITY SHIFT","NO MERCY MODE"]
-    };
-
-    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-    function r(min,max){ return Math.floor(min + Math.random()*(max-min+1)); }
-
-    function hashish(str){
-      let h = 2166136261;
-      for(let i=0;i<str.length;i++){
-        h ^= str.charCodeAt(i);
-        h = Math.imul(h, 16777619);
-      }
-      return (h>>>0).toString(16).toUpperCase().slice(0,8);
-    }
-
-    function makeID(name, seed){
-      const base = `${name}::${seed}::${Date.now()}::${Math.random()}`;
-      return `ADM-${hashish(base)}-${Math.floor(100 + Math.random()*900)}`;
-    }
-
-    function mkTraits(name, gender, origin, clear, seed, status, manifest){
-      const stats = {
-        "FOCUS": r(62, 97),
-        "WILL": r(58, 96),
-        "RAGE": r(55, 99),
-        "CHARISMA": r(50, 95),
-        "DISCIPLINE": r(48, 92),
-        "LUCK": r(40, 88),
-      };
-
-      const profile = {
-        ID: makeID(name, seed),
-        ACCESS: clear,
-        SECTOR: origin,
-        KEY: seed,
-        MODE: status,
-        ARCHETYPE: rand(vocab.archetype),
-        DRIVE: rand(vocab.drive),
-        WEAPON: rand(vocab.weapon),
-        PERK: rand(vocab.perk),
-        GLITCH: rand(vocab.weakness),
-      };
-
-      const lines = [];
-      lines.push(`TERMINAL OUTPUT :: ${profile.ID}`);
-      lines.push(`ИМЯ/ПОЗЫВНОЙ : ${name}`);
-      lines.push(`ТИП АВАТАРА  : ${gender === "female" ? "ДЕВОЧКА" : "МАЛЬЧИК"}`);
-      lines.push(`ДОПУСК       : ${profile.ACCESS}`);
-      lines.push(`СЕКТОР       : ${profile.SECTOR}`);
-      lines.push(`КЛЮЧ         : ${profile.KEY}`);
-      lines.push(`РЕЖИМ        : ${profile.MODE}`);
-      lines.push("");
-      lines.push(`АРХЕТИП      : ${profile.ARCHETYPE}`);
-      lines.push(`ДРАЙВ        : ${profile.DRIVE}`);
-      lines.push(`ОРУЖИЕ       : ${profile.WEAPON}`);
-      lines.push(`ПЕРК         : ${profile.PERK}`);
-      lines.push(`СБОЙ         : ${profile.GLITCH}`);
-      lines.push("");
-      lines.push("СТАТЫ");
-      for(const k of Object.keys(stats)){
-        lines.push(`- ${k.padEnd(12)}: ${String(stats[k]).padStart(3)} / 100`);
-      }
-      lines.push("");
-      lines.push("ФРАЗА ПРОТОКОЛА");
-      lines.push(manifest.trim());
-
-      return { profile, stats, text: lines.join("\n") };
-    }
-
-    function glassRect(ctx, x,y,w,h,r){
-      ctx.save();
-      ctx.beginPath();
-      const rr=r;
-      ctx.moveTo(x+rr,y);
-      ctx.arcTo(x+w,y,x+w,y+h,rr);
-      ctx.arcTo(x+w,y+h,x,y+h,rr);
-      ctx.arcTo(x,y+h,x,y,rr);
-      ctx.arcTo(x,y,x+w,y,rr);
-      ctx.closePath();
-
-      const g = ctx.createLinearGradient(x,y,x+w,y+h);
-      g.addColorStop(0,"rgba(255,255,255,.12)");
-      g.addColorStop(1,"rgba(255,255,255,.05)");
-      ctx.fillStyle = g;
-      ctx.fill();
-
-      ctx.strokeStyle = "rgba(255,255,255,.16)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function drawStamp(ctx, x, y, r, top, bottom){
-      ctx.save();
-      ctx.translate(x,y);
-
-      ctx.beginPath();
-      ctx.arc(0,0,r,0,Math.PI*2);
-      ctx.strokeStyle = "rgba(255,77,109,.85)";
-      ctx.lineWidth = 10;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(0,0,r-14,0,Math.PI*2);
-      ctx.strokeStyle = "rgba(255,255,255,.22)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.strokeStyle = "rgba(255,77,109,.60)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-r*0.65, 0); ctx.lineTo(r*0.65, 0);
-      ctx.moveTo(0,-r*0.65); ctx.lineTo(0,r*0.65);
-      ctx.stroke();
-
-      ctx.fillStyle = "rgba(255,77,109,.92)";
-      ctx.font = "800 16px " + getMono();
-      ctx.textAlign="center";
-      ctx.fillText(top, 0, -r*0.18);
-      ctx.font = "900 20px " + getMono();
-      ctx.fillText(bottom, 0, r*0.28);
-
-      ctx.restore();
-    }
-
-    function getMono(){
-      return "ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
-    }
-
-    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
-      const words = text.split(/\s+/);
-      let line = "";
-      for(let n=0;n<words.length;n++){
-        const testLine = line + words[n] + " ";
-        const w = ctx.measureText(testLine).width;
-        if(w > maxWidth && n > 0){
-          ctx.fillText(line, x, y);
-          line = words[n] + " ";
-          y += lineHeight;
-        }else{
-          line = testLine;
-        }
-      }
-      ctx.fillText(line, x, y);
-    }
-
-    function drawCardSmall(data){
-      const cv = $("cvSmall");
-      const ctx = cv.getContext("2d");
-
-      ctx.clearRect(0,0,cv.width,cv.height);
-
-      const bg = ctx.createLinearGradient(0,0,cv.width,cv.height);
-      bg.addColorStop(0,"#060612");
-      bg.addColorStop(.5,"#07081a");
-      bg.addColorStop(1,"#04040b");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0,0,cv.width,cv.height);
-
-      const blob = (x,y,rx,ry, c)=>{
-        ctx.save();
-        ctx.globalAlpha = .28;
-        const gr = ctx.createRadialGradient(x,y,10,x,y,Math.max(rx,ry));
-        gr.addColorStop(0,c);
-        gr.addColorStop(1,"rgba(0,0,0,0)");
-        ctx.fillStyle = gr;
-        ctx.beginPath();
-        ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
-        ctx.fill();
-        ctx.restore();
-      };
-      blob(220,160,240,190,"rgba(215,201,255,1)");
-      blob(780,160,260,220,"rgba(255,224,255,1)");
-      blob(620,520,280,240,"rgba(200,247,255,1)");
-
-      glassRect(ctx, 36, 36, cv.width-72, cv.height-72, 30);
-
-      ctx.fillStyle = "rgba(255,255,255,.92)";
-      ctx.font = "900 34px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
-      ctx.fillText("ACCESS CARD", 70, 98);
-
-      ctx.fillStyle = "rgba(255,255,255,.60)";
-      ctx.font = "700 14px " + getMono();
-      ctx.fillText("ADM MODE / TERMINAL DOCUMENT", 70, 122);
-
-      const px=70, py=160, pw=250, ph=330;
-      glassRect(ctx, px, py, pw, ph, 22);
-
-      ctx.save();
-      ctx.globalAlpha = .75;
-      const pg = ctx.createLinearGradient(px,py,px+pw,py+ph);
-      pg.addColorStop(0,"rgba(215,201,255,.55)");
-      pg.addColorStop(1,"rgba(200,247,255,.35)");
-      ctx.fillStyle = pg;
-      ctx.beginPath();
-      ctx.ellipse(px+pw*0.52, py+ph*0.46, pw*0.26, ph*0.34, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.restore();
-
-      ctx.fillStyle="rgba(255,255,255,.65)";
-      ctx.font="800 12px " + getMono();
-      ctx.fillText(data.gender === "female" ? "АВАТАР: ДЕВОЧКА" : "АВАТАР: МАЛЬЧИК", px+14, py+ph+26);
-
-      const ix=350, iy=160;
-      ctx.fillStyle="rgba(255,255,255,.90)";
-      ctx.font="900 30px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
-      ctx.fillText(data.name.toUpperCase(), ix, iy);
-
-      ctx.fillStyle="rgba(255,255,255,.66)";
-      ctx.font="800 13px " + getMono();
-      ctx.fillText(`ID: ${data.profile.ID}`, ix, iy+30);
-      ctx.fillText(`ДОПУСК: ${data.profile.ACCESS}`, ix, iy+52);
-      ctx.fillText(`СЕКТОР: ${data.profile.SECTOR}`, ix, iy+74);
-      ctx.fillText(`КЛЮЧ: ${data.profile.KEY}`, ix, iy+96);
-      ctx.fillText(`РЕЖИМ: ${data.profile.MODE}`, ix, iy+118);
-
-      let sy = iy+162;
-      const bar = (label, val)=>{
-        ctx.fillStyle="rgba(255,255,255,.70)";
-        ctx.font="800 12px " + getMono();
-        ctx.fillText(label, ix, sy);
-
-        const bx=ix+110, by=sy-10, bw=420, bh=12;
-        ctx.fillStyle="rgba(255,255,255,.10)";
-        ctx.fillRect(bx,by,bw,bh);
-
-        const grad = ctx.createLinearGradient(bx,by,bx+bw,by);
-        grad.addColorStop(0,"rgba(215,201,255,.85)");
-        grad.addColorStop(.5,"rgba(255,224,255,.65)");
-        grad.addColorStop(1,"rgba(200,247,255,.65)");
-        ctx.fillStyle=grad;
-        ctx.fillRect(bx,by,bw*(val/100),bh);
-
-        ctx.fillStyle="rgba(255,255,255,.55)";
-        ctx.fillText(String(val).padStart(3,"0"), bx+bw+10, sy);
-        sy += 26;
-      };
-      bar("FOCUS", data.stats.FOCUS);
-      bar("WILL", data.stats.WILL);
-      bar("RAGE", data.stats.RAGE);
-
-      drawStamp(ctx, cv.width-170, cv.height-170, 92, "ADM PROTOCOL", "AUTHORIZED");
-
-      ctx.fillStyle="rgba(255,255,255,.50)";
-      ctx.font="700 12px " + getMono();
-      ctx.fillText("PROTOCOL SIGNATURE • ADM MODE • TERMINAL", 70, cv.height-60);
-    }
-
-    function drawCardTall(data){
-      const cv = $("cvTall");
-      const ctx = cv.getContext("2d");
-      ctx.clearRect(0,0,cv.width,cv.height);
-
-      const bg = ctx.createLinearGradient(0,0,cv.width,cv.height);
-      bg.addColorStop(0,"#050511");
-      bg.addColorStop(.6,"#07081d");
-      bg.addColorStop(1,"#03030a");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0,0,cv.width,cv.height);
-
-      ctx.save();
-      ctx.globalAlpha = .22;
-      const gr = ctx.createRadialGradient(cv.width*0.55, cv.height*0.28, 10, cv.width*0.55, cv.height*0.28, 720);
-      gr.addColorStop(0,"rgba(215,201,255,1)");
-      gr.addColorStop(.5,"rgba(255,224,255,1)");
-      gr.addColorStop(1,"rgba(0,0,0,0)");
-      ctx.fillStyle = gr;
-      ctx.beginPath();
-      ctx.ellipse(cv.width*0.58, cv.height*0.33, 520, 600, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.restore();
-
-      glassRect(ctx, 46, 46, cv.width-92, cv.height-92, 34);
-
-      ctx.fillStyle="rgba(255,255,255,.92)";
-      ctx.font="900 44px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
-      ctx.fillText("ADM mode", 86, 120);
-
-      ctx.fillStyle="rgba(255,255,255,.60)";
-      ctx.font="800 14px " + getMono();
-      ctx.fillText("TERMINAL / FULL PROFILE", 86, 150);
-
-      const px=86, py=200, pw=360, ph=980;
-      glassRect(ctx, px, py, pw, ph, 26);
-
-      ctx.save();
-      const sg = ctx.createLinearGradient(px,py,px+pw,py+ph);
-      sg.addColorStop(0,"rgba(255,255,255,.12)");
-      sg.addColorStop(1,"rgba(255,255,255,.04)");
-      ctx.fillStyle=sg;
-      ctx.fillRect(px+16, py+16, pw-32, ph-32);
-
-      ctx.globalAlpha = .90;
-      const col = ctx.createLinearGradient(px,py,px+pw,py+ph);
-      col.addColorStop(0,"rgba(215,201,255,.65)");
-      col.addColorStop(.5,"rgba(255,224,255,.35)");
-      col.addColorStop(1,"rgba(200,247,255,.35)");
-      ctx.fillStyle = col;
-
-      ctx.beginPath();
-      ctx.ellipse(px+pw*0.50, py+ph*0.18, pw*0.12, pw*0.12, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.ellipse(px+pw*0.50, py+ph*0.42, pw*0.19, ph*0.20, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.ellipse(px+pw*0.46, py+ph*0.74, pw*0.13, ph*0.22, 0, 0, Math.PI*2);
-      ctx.ellipse(px+pw*0.56, py+ph*0.74, pw*0.13, ph*0.22, 0, 0, Math.PI*2);
-      ctx.fill();
-      ctx.restore();
-
-      const ix=480, iy=220;
-
-      ctx.fillStyle="rgba(255,255,255,.92)";
-      ctx.font="900 48px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
-      ctx.fillText(data.name.toUpperCase(), ix, iy);
-
-      ctx.fillStyle="rgba(255,255,255,.68)";
-      ctx.font="900 14px " + getMono();
-      ctx.fillText(`ID: ${data.profile.ID}`, ix, iy+36);
-      ctx.fillText(`ДОПУСК: ${data.profile.ACCESS}`, ix, iy+60);
-      ctx.fillText(`СЕКТОР: ${data.profile.SECTOR}`, ix, iy+84);
-      ctx.fillText(`КЛЮЧ: ${data.profile.KEY}`, ix, iy+108);
-      ctx.fillText(`РЕЖИМ: ${data.profile.MODE}`, ix, iy+132);
-
-      const box = (title, value, y)=>{
-        glassRect(ctx, ix, y, 420, 90, 20);
-        ctx.fillStyle="rgba(255,255,255,.74)";
-        ctx.font="900 12px " + getMono();
-        ctx.fillText(title, ix+16, y+30);
-        ctx.fillStyle="rgba(255,255,255,.92)";
-        ctx.font="900 22px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
-        ctx.fillText(value, ix+16, y+64);
-      };
-      box("АРХЕТИП", data.profile.ARCHETYPE, iy+170);
-      box("ДРАЙВ", data.profile.DRIVE, iy+270);
-      box("ОРУЖИЕ", data.profile.WEAPON, iy+370);
-      box("ПЕРК", data.profile.PERK, iy+470);
-      box("СБОЙ", data.profile.GLITCH, iy+570);
-
-      glassRect(ctx, ix, iy+690, 420, 240, 22);
-      ctx.fillStyle="rgba(255,255,255,.78)";
-      ctx.font="900 12px " + getMono();
-      ctx.fillText("СТАТЫ", ix+16, iy+720);
-
-      let sy = iy+750;
-      const drawStat=(k,val)=>{
-        ctx.fillStyle="rgba(255,255,255,.70)";
-        ctx.font="900 12px " + getMono();
-        ctx.fillText(k, ix+16, sy);
-
-        const bx=ix+140, by=sy-11, bw=250, bh=12;
-        ctx.fillStyle="rgba(255,255,255,.10)";
-        ctx.fillRect(bx,by,bw,bh);
-
-        const grad = ctx.createLinearGradient(bx,by,bx+bw,by);
-        grad.addColorStop(0,"rgba(215,201,255,.85)");
-        grad.addColorStop(.5,"rgba(255,224,255,.65)");
-        grad.addColorStop(1,"rgba(200,247,255,.65)");
-        ctx.fillStyle=grad;
-        ctx.fillRect(bx,by,bw*(val/100),bh);
-
-        ctx.fillStyle="rgba(255,255,255,.55)";
-        ctx.fillText(String(val).padStart(3,"0"), bx+bw+10, sy);
-        sy += 30;
-      };
-      for(const key of ["FOCUS","WILL","RAGE","CHARISMA","DISCIPLINE","LUCK"]){
-        drawStat(key, data.stats[key]);
-      }
-
-      glassRect(ctx, 86, 1205, cv.width-172, 210, 26);
-      ctx.fillStyle="rgba(255,255,255,.78)";
-      ctx.font="900 12px " + getMono();
-      ctx.fillText("ФРАЗА ПРОТОКОЛА", 106, 1240);
-
-      ctx.fillStyle="rgba(255,255,255,.86)";
-      ctx.font="850 18px -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui";
-      wrapText(ctx, data.manifest.trim(), 106, 1270, cv.width-220, 26);
-
-      drawStamp(ctx, cv.width-200, 310, 100, "ADM PROTOCOL", "SEALED");
-
-      ctx.fillStyle="rgba(255,255,255,.50)";
-      ctx.font="800 12px " + getMono();
-      ctx.fillText("PROTOCOL SIGNATURE • ADM MODE • TERMINAL", 86, cv.height-72);
-    }
-
-    function setHUD(clear, seed){
-      $("hudAccess").textContent = `ACCESS: ${clear}`;
-      $("hudSeed").textContent = `SEED: ${seed}`;
-    }
-
-    function gen(){
-      const name = $("fName").value.trim() || "VOID";
-      const gender = $("fGender").value;
-      const origin = $("fOrigin").value.trim() || "ZERO DISTRICT";
-      const clear = $("fClear").value;
-      const seed = $("fSeed").value.trim() || "ADM";
-      const status = $("fStatus").value;
-      const manifest = ($("fManifest").value || pickManifest()).trim();
-
-      const t = mkTraits(name, gender, origin, clear, seed, status, manifest);
-
-      $("traitsOut").textContent = t.text;
-      setHUD(clear, seed);
-
-      const payload = {
-        name, gender, origin, clear, seed, status,
-        profile: t.profile,
-        stats: t.stats,
-        manifest
-      };
-
-      drawCardSmall(payload);
-      drawCardTall(payload);
-    }
-
-    function downloadCanvas(canvasId, filename){
-      const cv = $(canvasId);
-      const link = document.createElement("a");
-      link.download = filename;
-      link.href = cv.toDataURL("image/png");
-      link.click();
-    }
-
-    $("btnGen").addEventListener("click", gen);
-
-    $("btnRandom").addEventListener("click", ()=>{
-      $("fName").value = rand(["MARTINA","VOID","NEON","ADM-OP","FURY","ORACLE"]);
-      $("fGender").value = Math.random()>.5 ? "female" : "male";
-      $("fOrigin").value = rand(["ZERO DISTRICT","GLASS CITY","COLD METAL SECTOR","BORDER NODE","WHITE ROOM"]);
-      $("fClear").value = rand(["PEARL","LAVENDER","WHITE","VOID"]);
-      $("fSeed").value = rand(["ADM","ADM-01","KEY-7","NODE-13","PEARL-CORE"]);
-      $("fStatus").value = rand(["UNSTOPPABLE","ANTI-SYS","ADM CORE","RAGE MODE"]);
-      $("fManifest").value = pickManifest();
-      gen();
-    });
-
-    $("btnNewManifest").addEventListener("click", ()=>{
-      pickManifest();
-    });
-
-    $("dlSmall").addEventListener("click", ()=> downloadCanvas("cvSmall","adm-access-card.png"));
-    $("dlTall").addEventListener("click", ()=> downloadCanvas("cvTall","adm-full-profile.png"));
-
-    // init
-    pickManifest();
-    gen();
-  </script>
 </body>
 </html>
