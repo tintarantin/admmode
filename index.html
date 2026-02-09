@@ -2,26 +2,33 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ADM MODE — скан</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ADM MODE — скан персонажа</title>
   <meta name="description" content="ADM MODE — скан персонажа по дате рождения." />
+
+  <!-- Export libs (PNG/PDF) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
   <style>
     :root{
-      --bg0:#f7fbff;
-      --bg1:#eef6ff;
+      --bg0:#f7fbff; --bg1:#eef6ff;
       --glass: rgba(255,255,255,.66);
       --glass2: rgba(255,255,255,.42);
       --stroke: rgba(20, 60, 90, .10);
       --ink: #0c1b2a;
       --muted: rgba(12,27,42,.68);
+
       --brand: #19d3ff;
       --brand2:#7c5cff;
+
       --shadow: 0 28px 90px rgba(6,22,44,.18);
       --shadow2: 0 18px 55px rgba(6,22,44,.14);
-      --r: 22px;
-      --r2: 28px;
+
+      --r: 22px; --r2: 28px;
       --ease: cubic-bezier(.2,.9,.2,1);
     }
+
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
@@ -41,34 +48,28 @@
       pointer-events:none;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.13'/%3E%3C/svg%3E");
       mix-blend-mode:multiply;
-      opacity:.30;
+      opacity:.28;
       z-index:0;
     }
-    a{ color:inherit; text-decoration:none; }
     .wrap{ position:relative; z-index:1; }
 
-    /* Top bar */
+    /* Topbar */
     .topbar{
-      position:sticky; top:0;
-      z-index:50;
+      position:sticky; top:0; z-index:50;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.40));
       border-bottom: 1px solid var(--stroke);
     }
     .topbar .inner{
-      max-width:1120px;
-      margin:0 auto;
+      max-width:1120px; margin:0 auto;
       padding:14px 18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
     }
     .brand{
       display:flex; align-items:center; gap:10px;
       letter-spacing:.12em; text-transform:uppercase;
-      font-weight:800; font-size:12px;
+      font-weight:900; font-size:12px;
       color: rgba(12,27,42,.82);
     }
     .dot{
@@ -90,14 +91,10 @@
       border-radius:999px;
       padding:10px 14px;
       font-size:13px;
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
+      display:inline-flex; align-items:center; gap:10px;
       box-shadow: 0 14px 40px rgba(6,22,44,.10);
       transition: transform .25s var(--ease), box-shadow .25s var(--ease);
-      cursor:pointer;
-      user-select:none;
-      white-space:nowrap;
+      cursor:pointer; user-select:none; white-space:nowrap;
     }
     .btn:hover{ transform: translateY(-1px); box-shadow: 0 18px 55px rgba(6,22,44,.14); }
     .btn:active{ transform: translateY(0px) scale(.99); }
@@ -109,11 +106,10 @@
         linear-gradient(180deg, rgba(255,255,255,.76), rgba(255,255,255,.30));
     }
 
-    /* Hero layout */
+    /* Layout */
     .hero{
-      max-width:1120px;
-      margin:0 auto;
-      padding:52px 18px 36px;
+      max-width:1120px; margin:0 auto;
+      padding:52px 18px 28px;
       display:grid;
       grid-template-columns: 1.25fr .75fr;
       gap:18px;
@@ -130,8 +126,7 @@
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       box-shadow: var(--shadow);
-      position:relative;
-      overflow:hidden;
+      position:relative; overflow:hidden;
     }
     .card::before{
       content:"";
@@ -145,10 +140,8 @@
 
     .heroMain{ padding:26px 24px; }
     .kicker{
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color: rgba(12,27,42,.56);
+      font-size:12px; letter-spacing:.18em;
+      text-transform:uppercase; color: rgba(12,27,42,.56);
       display:flex; flex-wrap:wrap; gap:8px;
     }
     .chip{
@@ -181,12 +174,7 @@
     .adm::after{
       content:"";
       position:absolute; inset:-40px;
-      background: linear-gradient(120deg,
-        transparent 0%,
-        rgba(255,255,255,.0) 40%,
-        rgba(255,255,255,.55) 50%,
-        rgba(255,255,255,0) 60%,
-        transparent 100%);
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 60%, transparent 100%);
       transform: translateX(-60%) rotate(8deg);
       animation: shine 4.2s var(--ease) infinite;
       opacity:.9;
@@ -201,55 +189,43 @@
 
     .sub{
       margin: 0 0 14px;
-      font-size: 15px;
-      line-height:1.55;
+      font-size: 15px; line-height:1.55;
       color: var(--muted);
       max-width: 62ch;
     }
 
     .manifest{
       margin-top:14px;
-      padding:14px 14px;
+      padding:14px;
       border-radius: 18px;
       border: 1px dashed rgba(12,27,42,.16);
       background: rgba(255,255,255,.46);
       color: rgba(12,27,42,.78);
-      font-size:14px;
-      line-height:1.5;
-      position:relative;
-      overflow:hidden;
+      font-size:14px; line-height:1.5;
+      position:relative; overflow:hidden;
     }
     .manifest .label{
-      font-size:11px;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      color: rgba(12,27,42,.52);
+      font-size:11px; letter-spacing:.16em;
+      text-transform:uppercase; color: rgba(12,27,42,.52);
       margin-bottom:8px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
     }
     .manifest .sig{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-      font-size:11px;
-      color: rgba(12,27,42,.55);
+      font-size:11px; color: rgba(12,27,42,.55);
       white-space:nowrap;
     }
 
     /* Scanner */
     .scanner{ padding:18px; display:flex; flex-direction:column; gap:12px; }
-    .scannerTop{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-    }
+    .scannerTop{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
     .scannerTop h3{
-      margin:0;
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
+      margin:0; font-size:12px;
+      letter-spacing:.18em; text-transform:uppercase;
       color: rgba(12,27,42,.68);
     }
     .status{
-      font-size:12px;
-      color: rgba(12,27,42,.56);
+      font-size:12px; color: rgba(12,27,42,.56);
       display:flex; gap:8px; align-items:center;
       white-space:nowrap;
     }
@@ -271,15 +247,14 @@
     @media (max-width: 520px){ .fieldRow{ grid-template-columns:1fr; } }
 
     .field{
-      padding:12px 12px;
+      padding:12px;
       border-radius:16px;
       border:1px solid rgba(12,27,42,.10);
       background: rgba(255,255,255,.58);
       display:flex; flex-direction:column; gap:8px;
     }
     .field label{
-      font-size:11px;
-      letter-spacing:.14em;
+      font-size:11px; letter-spacing:.14em;
       text-transform:uppercase;
       color: rgba(12,27,42,.52);
     }
@@ -341,11 +316,66 @@
     }
 
     .miniHint{
-      font-size:12px;
-      color: rgba(12,27,42,.56);
-      line-height:1.45;
-      margin-top:2px;
+      font-size:12px; color: rgba(12,27,42,.56);
+      line-height:1.45; margin-top:2px;
     }
+
+    /* Terminal */
+    .terminal{
+      max-width:1120px; margin:0 auto;
+      padding: 0 18px 34px;
+    }
+    .panel{
+      border-radius: 26px;
+      border:1px solid rgba(12,27,42,.10);
+      background: rgba(255,255,255,.52);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+      position:relative;
+    }
+    .panelHead{
+      padding:14px;
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+      border-bottom: 1px solid rgba(12,27,42,.10);
+    }
+    .panelTitle{
+      font-size:12px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      font-weight:900;
+      color: rgba(12,27,42,.70);
+      display:flex; align-items:center; gap:10px;
+    }
+    .lights{ display:flex; gap:8px; }
+    .lights span{ width:10px; height:10px; border-radius:999px; background: rgba(12,27,42,.14); }
+    .lights span:nth-child(1){ background: rgba(25,211,255,.35); }
+    .lights span:nth-child(2){ background: rgba(124,92,255,.25); }
+    .lights span:nth-child(3){ background: rgba(12,27,42,.14); }
+    .panelBody{ padding:14px; }
+    .log{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size:12px;
+      line-height:1.6;
+      color: rgba(12,27,42,.78);
+      margin:0;
+      white-space:pre-wrap;
+    }
+    .log .muted{ color: rgba(12,27,42,.52); }
+    .log .ok{ color: rgba(0,120,120,.85); }
+    .log .warn{ color: rgba(124,92,255,.85); }
+
+    .paybox{
+      margin-top:12px;
+      padding:12px;
+      border-radius: 18px;
+      border:1px solid rgba(25,211,255,.20);
+      background:
+        radial-gradient(260px 120px at 20% 20%, rgba(25,211,255,.18), transparent 60%),
+        radial-gradient(260px 120px at 80% 25%, rgba(124,92,255,.12), transparent 60%),
+        rgba(255,255,255,.56);
+    }
+    .paybox h4{ margin:0 0 6px; font-size:14px; }
+    .paybox p{ margin:0 0 10px; font-size:12px; color: rgba(12,27,42,.62); line-height:1.45; }
 
     /* Modal */
     .modalBack{
@@ -362,7 +392,7 @@
     .modalBack.show{ display:flex; }
 
     .modal{
-      width:min(1100px, 100%);
+      width:min(1180px, 100%);
       border-radius: 28px;
       border:1px solid rgba(255,255,255,.30);
       background:
@@ -372,6 +402,12 @@
       box-shadow: 0 55px 140px rgba(6,22,44,.35);
       overflow:hidden;
       position:relative;
+      transform: translateY(8px);
+      opacity:0;
+      animation: modalIn .35s var(--ease) forwards;
+    }
+    @keyframes modalIn{
+      to{ transform: translateY(0); opacity:1; }
     }
     .modalHead{
       padding:14px 16px;
@@ -382,7 +418,7 @@
       display:flex; align-items:center; gap:10px;
       font-size:12px; letter-spacing:.18em; text-transform:uppercase;
       color: rgba(12,27,42,.70);
-      font-weight:800;
+      font-weight:900;
     }
     .close{
       border:1px solid rgba(12,27,42,.12);
@@ -393,17 +429,17 @@
       font-size:13px;
       white-space:nowrap;
     }
-
     .modalBody{
       padding:16px;
       display:grid;
-      grid-template-columns: .9fr 1.1fr;
+      grid-template-columns: .95fr 1.05fr;
       gap:14px;
     }
     @media (max-width: 980px){ .modalBody{ grid-template-columns:1fr; } }
 
-    /* PASS cards */
+    /* Cards */
     .stack{ display:grid; gap:12px; }
+
     .pass{
       border-radius: 26px;
       border:1px solid rgba(12,27,42,.10);
@@ -428,14 +464,14 @@
     }
 
     .seal{
-      width:84px; height:84px;
-      border-radius:999px;
+      width:84px; height:84px; border-radius:999px;
       position:relative;
       background:
         radial-gradient(circle at 30% 25%, rgba(255,255,255,.9), rgba(255,255,255,.25) 35%, rgba(255,255,255,.0) 65%),
         conic-gradient(from 120deg, rgba(25,211,255,.55), rgba(124,92,255,.40), rgba(25,211,255,.55));
       box-shadow: 0 18px 55px rgba(6,22,44,.16), 0 0 0 10px rgba(25,211,255,.08);
       filter: saturate(1.05);
+      transition: transform .35s var(--ease);
     }
     .seal::before{
       content:"";
@@ -448,8 +484,7 @@
       content:"STAMP";
       position:absolute; inset:0;
       display:grid; place-items:center;
-      font-size:11px;
-      letter-spacing:.20em;
+      font-size:11px; letter-spacing:.20em;
       font-weight:900;
       color: rgba(12,27,42,.72);
       text-transform:uppercase;
@@ -457,23 +492,44 @@
       text-shadow: 0 1px 0 rgba(255,255,255,.55);
     }
 
-    /* Mini ID (как права) */
+    /* Rarity */
+    .rarityBadge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(12,27,42,.10);
+      background: rgba(255,255,255,.60);
+      font-size:12px;
+      color: rgba(12,27,42,.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      white-space:nowrap;
+    }
+    .rarityDot{
+      width:10px; height:10px; border-radius:999px;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+      box-shadow: 0 0 0 6px rgba(25,211,255,.10);
+    }
+    .rarityCommon .rarityDot{ box-shadow:0 0 0 6px rgba(12,27,42,.06); filter:saturate(.9); }
+    .rarityRare .rarityDot{ box-shadow:0 0 0 6px rgba(25,211,255,.10); }
+    .rarityEpic .rarityDot{ box-shadow:0 0 0 7px rgba(124,92,255,.10); }
+    .rarityMythic .rarityDot{ box-shadow:0 0 0 8px rgba(255,200,80,.12); filter:saturate(1.2) brightness(1.05); }
+
+    /* Mini card */
     .mini{
       padding:14px;
       display:grid;
       grid-template-columns: 92px 1fr;
       gap:12px;
       align-items:stretch;
-      min-height: 170px;
+      min-height: 180px;
     }
     .miniHead{
       grid-column: 1 / -1;
       display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
       margin-bottom:2px;
     }
-    .miniHead .t{
-      display:flex; flex-direction:column; gap:6px;
-    }
+    .miniHead .t{ display:flex; flex-direction:column; gap:6px; }
     .miniHead .t1{
       font-size:12px; font-weight:900;
       letter-spacing:.18em; text-transform:uppercase;
@@ -482,7 +538,9 @@
     .miniHead .t2{
       font-size:12px; color: rgba(12,27,42,.58);
       letter-spacing:.12em; text-transform:uppercase;
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
     }
+    .miniHead .t2 b{ color: rgba(12,27,42,.85); }
 
     .avatarFace{
       width:92px; height:110px;
@@ -495,13 +553,11 @@
     .avatarFace img{
       width:100%; height:100%;
       object-fit:cover;
-      /* делаем "фото лица" из одной картинки */
-      object-position: 50% 18%;
+      object-position: 50% 25%;
       transform: scale(1.08);
       display:block;
       filter: saturate(1.02) contrast(1.02);
     }
-
     .miniInfo{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -509,10 +565,12 @@
       align-content:start;
     }
     .kv{
-      padding:10px 10px;
+      padding:10px;
       border-radius: 16px;
       border:1px solid rgba(12,27,42,.10);
       background: rgba(255,255,255,.56);
+      position:relative;
+      overflow:hidden;
     }
     .kv .k{
       font-size:10px;
@@ -524,10 +582,9 @@
     .kv .v{
       font-size:14px;
       color: rgba(12,27,42,.90);
-      font-weight:700;
+      font-weight:800;
       word-break:break-word;
     }
-
     .miniFoot{
       grid-column: 1 / -1;
       display:flex; justify-content:space-between; align-items:center; gap:10px;
@@ -543,27 +600,21 @@
       white-space:nowrap;
     }
 
-    /* Full card (в полный рост + подробная характеристика) */
-    .full{
-      padding:14px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:12px;
-    }
+    /* Full card */
+    .full{ padding:14px; display:grid; gap:12px; }
     .fullTop{
       display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
     }
-    .fullTop .ttl{
-      display:flex; flex-direction:column; gap:6px;
-    }
+    .fullTop .ttl{ display:flex; flex-direction:column; gap:6px; }
     .fullTop .ttl .t1{
       font-size:12px; font-weight:900;
       letter-spacing:.18em; text-transform:uppercase;
       color: rgba(12,27,42,.70);
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
     }
     .fullTop .ttl .t2{
       font-size:22px; letter-spacing:-.02em;
-      font-weight:850;
+      font-weight:900;
       color: rgba(12,27,42,.92);
     }
 
@@ -573,9 +624,7 @@
       gap:12px;
       align-items:stretch;
     }
-    @media (max-width: 520px){
-      .fullBody{ grid-template-columns:1fr; }
-    }
+    @media (max-width: 520px){ .fullBody{ grid-template-columns:1fr; } }
 
     .avatarFull{
       border-radius: 22px;
@@ -588,94 +637,67 @@
     .avatarFull img{
       width:100%; height:100%;
       object-fit:cover;
-      object-position: 50% 45%;
+      object-position: 50% 50%;
       display:block;
       transform: scale(1.02);
       filter: saturate(1.02) contrast(1.02);
     }
-    .stats{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-      align-content:start;
-    }
+
+    .stats{ display:grid; gap:10px; align-content:start; }
     .line{
-      padding:12px 12px;
+      padding:12px;
       border-radius: 18px;
       border:1px solid rgba(12,27,42,.10);
       background: rgba(255,255,255,.56);
       color: rgba(12,27,42,.86);
       font-size:14px;
       line-height:1.45;
+      position:relative;
+      overflow:hidden;
+      transform: translateY(0);
     }
     .line b{ color: rgba(12,27,42,.92); }
+    .line.reveal{
+      animation: revealUp .45s var(--ease) both;
+    }
+    @keyframes revealUp{
+      from{ opacity:0; transform: translateY(8px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
 
-    /* Right panel (Terminal / upsell) */
-    .panel{
-      border-radius: 26px;
-      border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.52);
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-      position:relative;
-      min-height: 520px;
-    }
-    .panelHead{
-      padding:14px 14px;
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      border-bottom: 1px solid rgba(12,27,42,.10);
-    }
-    .panelTitle{
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
+    /* Lock overlay */
+    .locked::after{
+      content:"🔒 locked";
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       font-weight:900;
-      color: rgba(12,27,42,.70);
-      display:flex; align-items:center; gap:10px;
-    }
-    .lights{ display:flex; gap:8px; }
-    .lights span{ width:10px; height:10px; border-radius:999px; background: rgba(12,27,42,.14); }
-    .lights span:nth-child(1){ background: rgba(25,211,255,.35); }
-    .lights span:nth-child(2){ background: rgba(124,92,255,.25); }
-    .lights span:nth-child(3){ background: rgba(12,27,42,.14); }
-
-    .panelBody{ padding:14px; }
-    .log{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-      font-size:12px;
-      line-height:1.6;
-      color: rgba(12,27,42,.78);
-      margin:0;
-      white-space:pre-wrap;
-    }
-    .log .muted{ color: rgba(12,27,42,.52); }
-    .log .ok{ color: rgba(0,120,120,.85); }
-    .log .warn{ color: rgba(124,92,255,.85); }
-
-    .paybox{
-      margin-top:12px;
-      padding:12px 12px;
-      border-radius: 18px;
-      border:1px solid rgba(25,211,255,.20);
-      background:
-        radial-gradient(260px 120px at 20% 20%, rgba(25,211,255,.18), transparent 60%),
-        radial-gradient(260px 120px at 80% 25%, rgba(124,92,255,.12), transparent 60%),
-        rgba(255,255,255,.56);
-    }
-    .paybox h4{
-      margin:0 0 6px;
-      font-size:14px;
-      letter-spacing:-.01em;
-    }
-    .paybox p{
-      margin:0 0 10px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
       font-size:12px;
       color: rgba(12,27,42,.62);
-      line-height:1.45;
+      background:
+        radial-gradient(280px 140px at 30% 25%, rgba(25,211,255,.16), transparent 60%),
+        radial-gradient(280px 140px at 80% 25%, rgba(124,92,255,.10), transparent 60%),
+        rgba(255,255,255,.68);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 18px;
+      opacity:1;
+      transition: opacity .35s var(--ease), transform .35s var(--ease);
     }
+    .locked{ filter: saturate(.95); }
+    .unlocked.locked::after{
+      opacity:0;
+      transform: scale(1.02);
+      pointer-events:none;
+    }
+
+    /* Footer */
     .footer{
-      max-width:1120px;
-      margin:0 auto;
+      max-width:1120px; margin:0 auto;
       padding: 0 18px 28px;
       color: rgba(12,27,42,.56);
       font-size:12px;
@@ -707,8 +729,7 @@
       </div>
     </header>
 
-    <main class="hero" id="top">
-      <!-- Minimal hero -->
+    <main class="hero">
       <section class="card heroMain">
         <div class="kicker">
           <span class="chip">быстро</span>
@@ -722,7 +743,7 @@
         </h1>
 
         <p class="sub">
-          Введи дату рождения (время — если знаешь). Получишь базовые характеристики.
+          Введи дату рождения (время — если знаешь). Получишь базовые характеристики и MULTIPASS.
           Полная карточка откроет подробную расшифровку.
         </p>
 
@@ -731,7 +752,7 @@
             <span>фраза протокола</span>
             <span class="sig">protocol // signed</span>
           </div>
-          <div id="manifestText">Я не ищу объяснений. Я собираю свой билд.</div>
+          <div id="manifestText">меньше шума. больше точности.</div>
         </div>
 
         <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
@@ -739,12 +760,9 @@
           <button class="btn" id="shuffleManifest">обновить фразу</button>
         </div>
 
-        <div class="miniHint">
-          Время рождения — не обязательно. Если нет — оставь пустым.
-        </div>
+        <div class="miniHint">Время рождения — не обязательно. Если нет — оставь пустым.</div>
       </section>
 
-      <!-- Scanner -->
       <aside class="card scanner">
         <div class="scannerTop">
           <h3>сканер</h3>
@@ -773,12 +791,12 @@
 
         <button class="btn primary" id="scanBtn">start scan</button>
         <div class="miniHint">
-          После скана появятся 2 MULTIPASS: маленький (как права) и полный (в рост).
+          У каждого игрока фиксируется свой портрет (из коллекции 144) и редкость.
         </div>
       </aside>
     </main>
 
-    <section class="hero" style="padding-top:0; grid-template-columns: 1fr; gap:16px;">
+    <section class="terminal">
       <div class="panel">
         <div class="panelHead">
           <div class="panelTitle">terminal</div>
@@ -791,11 +809,8 @@
 
           <div class="paybox">
             <h4>полная карточка игрока</h4>
-            <p>
-              В базовом скане ты видишь характеристики. В полной карточке — что с этим делать:
-              сильные стороны, слабые места, триггеры и понятные шаги.
-            </p>
-            <button class="btn primary" id="buyBtn">открыть полный доступ</button>
+            <p>В базовом скане ты видишь «что есть». В полном доступе — «как этим пользоваться».</p>
+            <button class="btn primary" id="unlockBtn">открыть полный доступ</button>
           </div>
         </div>
       </div>
@@ -807,7 +822,7 @@
     </footer>
   </div>
 
-  <!-- MODAL with 2 images: mini (face) + full (full body) -->
+  <!-- MODAL -->
   <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-label="MULTIPASS">
     <div class="modal">
       <div class="modalHead">
@@ -820,23 +835,29 @@
 
       <div class="modalBody">
         <div class="stack">
-          <!-- MINI ID (face photo) -->
-          <div class="pass">
+          <!-- MINI (как права) -->
+          <div class="pass" id="miniCard">
             <div class="mini">
               <div class="miniHead">
                 <div class="t">
                   <div class="t1">MULTIPASS</div>
-                  <div class="t2">ADM MODE</div>
+                  <div class="t2">
+                    <b>ADM MODE</b>
+                    <span class="rarityBadge" id="rarityBadgeMini">
+                      <span class="rarityDot"></span>
+                      <span id="rarityTextMini">COMMON</span>
+                    </span>
+                    <span class="rarityBadge" style="gap:6px;">
+                      <span style="opacity:.75">№</span>
+                      <span id="p_no">—</span><span style="opacity:.65">/144</span>
+                    </span>
+                  </div>
                 </div>
-                <div class="seal" aria-hidden="true" title="STAMP"></div>
+                <div class="seal" id="sealMini" aria-hidden="true"></div>
               </div>
 
-              <div class="avatarFace" title="Фото лица">
-                <!-- ВАЖНО:
-                  Положи картинку персонажа в assets/character-full.jpg
-                  Это будет и "фото лица" (автокроп), и "в полный рост" ниже.
-                -->
-                <img id="faceImg" src="assets/character-full.jpg" alt="Фото лица">
+              <div class="avatarFace" title="портрет">
+                <img id="faceImg" src="" alt="портрет игрока">
               </div>
 
               <div class="miniInfo">
@@ -865,49 +886,63 @@
             </div>
           </div>
 
-          <!-- FULL CARD (full body + detailed stats) -->
-          <div class="pass">
+          <!-- FULL (в рост + подробные хар-ки) -->
+          <div class="pass" id="fullCard">
             <div class="full">
               <div class="fullTop">
                 <div class="ttl">
-                  <div class="t1">FULL PLAYER CARD</div>
+                  <div class="t1">
+                    FULL PLAYER CARD
+                    <span class="rarityBadge" id="rarityBadgeFull">
+                      <span class="rarityDot"></span>
+                      <span id="rarityTextFull">COMMON</span>
+                    </span>
+                    <span class="rarityBadge" style="gap:6px;">
+                      <span style="opacity:.75">№</span>
+                      <span id="p_no2">—</span><span style="opacity:.65">/144</span>
+                    </span>
+                  </div>
                   <div class="t2">характеристики</div>
                 </div>
-                <div class="seal" aria-hidden="true" style="transform:scale(.92) rotate(6deg);"></div>
+                <div class="seal" id="sealFull" aria-hidden="true" style="transform:rotate(6deg) scale(.92);"></div>
               </div>
 
               <div class="fullBody">
-                <div class="avatarFull" title="Фото в полный рост">
-                  <img id="fullImg" src="assets/character-full.jpg" alt="Фото в полный рост">
+                <div class="avatarFull" title="портрет">
+                  <img id="fullImg" src="" alt="портрет игрока">
                 </div>
 
-                <div class="stats">
-                  <div class="line"><b>Роль:</b> <span id="d_role">—</span></div>
-                  <div class="line"><b>Как действуешь:</b> <span id="d_action">—</span></div>
-                  <div class="line"><b>Общение:</b> <span id="d_social">—</span></div>
-                  <div class="line"><b>Сильная сторона:</b> <span id="d_strong">—</span></div>
-                  <div class="line"><b>Слабое место:</b> <span id="d_weak">—</span></div>
-                  <div class="line"><b>Триггер:</b> <span id="d_trigger">—</span></div>
-                  <div class="line"><b>Навык:</b> <span id="d_skill">—</span></div>
-                  <div class="line"><b>Бонус:</b> <span id="d_bonus">—</span></div>
-                  <div class="line"><b>Задача сейчас:</b> <span id="d_quest">—</span></div>
+                <div class="stats" id="statsBox">
+                  <div class="line reveal"><b>Роль:</b> <span id="d_role">—</span></div>
+                  <div class="line reveal"><b>Энергия:</b> <span id="d_energy">—</span></div>
+
+                  <!-- Locked until unlock -->
+                  <div class="line locked reveal" data-lock="1"><b>Как действуешь:</b> <span id="d_action">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Общение:</b> <span id="d_social">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Сильная сторона:</b> <span id="d_strong">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Слабое место:</b> <span id="d_weak">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Триггер:</b> <span id="d_trigger">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Навык:</b> <span id="d_skill">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Бонус:</b> <span id="d_bonus">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Задача сейчас:</b> <span id="d_quest">—</span></div>
                 </div>
               </div>
 
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="btn primary" id="copyBtn">копировать</button>
+                <button class="btn primary" id="exportPngBtn">экспорт PNG</button>
+                <button class="btn primary" id="exportPdfBtn">экспорт PDF</button>
                 <button class="btn" id="regenBtn">пересканировать</button>
               </div>
 
               <div class="miniHint">
-                Базовый скан показывает характеристики. Полный доступ — расшифровка и пошаговые действия.
+                BASIC показывает базу. FULL ACCESS открывает все строки и расшифровку (позже сюда можно добавить отдельную страницу).
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Right: output / upsell -->
-        <div class="panel" style="min-height: 540px;">
+        <!-- Right: output + unlock -->
+        <div class="panel">
           <div class="panelHead">
             <div class="panelTitle">terminal / output</div>
             <div class="lights" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -916,9 +951,10 @@
 <pre class="log" id="termOut"><span class="muted">[scan]</span> waiting...</pre>
 
             <div class="paybox" style="margin-top:12px;">
-              <h4>unlock: полный доступ</h4>
-              <p>Откроем подробную карточку: “почему так”, “что с этим делать” и “как качаться”.</p>
-              <button class="btn primary" id="buyBtn2">открыть полный доступ</button>
+              <h4>🔒 unlock</h4>
+              <p>Нажми — и замки спадут. (Оплату подключим позже, здесь уже готова логика unlock.)</p>
+              <button class="btn primary" id="unlockBtn2">открыть полный доступ</button>
+              <button class="btn" id="copyBtn">копировать данные</button>
             </div>
           </div>
         </div>
@@ -926,259 +962,396 @@
     </div>
   </div>
 
-  <script>
-    // ==========================
-    // НАСТРОЙКА ФОТО ДЛЯ MULTIPASS
-    // ==========================
-    // Положи один файл с персонажем в полный рост:
-    //   assets/character-full.jpg
-    // Он будет автоматически:
-    // - использован как "фото лица" (кроп сверху)
-    // - и как "в полный рост" (без кропа)
-    //
-    // Если хочешь разные файлы:
-    //   assets/character-face.jpg
-    //   assets/character-full.jpg
-    // Тогда просто поменяй src у faceImg ниже.
-    //
-    // document.getElementById("faceImg").src = "assets/character-face.jpg";
+<script>
+  // ====== UI helpers
+  const $ = (id)=>document.getElementById(id);
+  const modalBack = $("modalBack");
+  const scanPane = $("scanPane");
+  const led = $("led");
+  const statusText = $("statusText");
+  const termLog = $("termLog");
+  const termOut = $("termOut");
 
-    // ==========================
-    // Простые игровые термины (без пафоса)
-    // ==========================
-    const phrases = [
-      "я не ищу объяснений. я собираю свой билд.",
-      "мне не нужен знак. мне нужна ясность.",
-      "меньше шума. больше точности.",
-      "я выбираю то, что работает.",
-      "я не ломаюсь. я настраиваюсь."
-    ];
+  // ====== Simple phrases (no pathos)
+  const phrases = [
+    "меньше шума. больше точности.",
+    "я не угадываю. я настраиваю.",
+    "вижу суть — и действую.",
+    "сначала ясность. потом скорость.",
+    "я собираю свой билд."
+  ];
+  function shufflePhrase(){
+    const txt = phrases[Math.floor(Math.random() * phrases.length)];
+    const el = $("manifestText");
+    el.style.opacity = 0;
+    setTimeout(()=>{ el.textContent = txt; el.style.opacity = 1; }, 140);
+  }
+  $("shuffleManifest").addEventListener("click", shufflePhrase);
+  shufflePhrase();
 
-    const ROLES = ["исследователь", "сборщик", "стратег", "наблюдатель", "проводник", "ускоритель"];
-    const ENERGY = ["ровная", "рывками", "высокая", "бережная", "творческая", "боевой режим"];
-    const ACTION = ["сначала думаю, потом делаю", "делаю быстро, потом правлю", "делаю только когда ясно", "делаю через вдохновение"];
-    const SOCIAL = ["узкий круг", "легко знакомлюсь", "мне нужна дистанция", "я лидер в общении", "я мягко веду"];
-    const STRONG = ["ясность", "скорость", "интуиция", "выдержка", "влияние", "честность"];
-    const WEAK = ["перегруз", "самокритика", "откладывание", "резкость", "усталость", "эмо-качели"];
-    const TRIGGER = ["давление", "контроль", "неопределённость", "несправедливость", "хаос", "обесценивание"];
-    const SKILL = ["держать границы", "видеть суть", "резать лишнее", "собирать план", "поднимать себя", "вести людей"];
-    const BONUS = ["чувство правды", "быстрое обучение", "сильный фокус", "высокая чувствительность", "холодная голова"];
-    const QUEST = ["настроить режим", "почистить окружение", "собрать цель", "усилить тело", "выстроить деньги", "сделать шаг в новое"];
-
-    const $ = (id)=>document.getElementById(id);
-
-    const led = $("led");
-    const statusText = $("statusText");
-    const scanPane = $("scanPane");
-    const termLog = $("termLog");
-    const termOut = $("termOut");
-    const modalBack = $("modalBack");
-
-    function pad2(n){ return String(n).padStart(2,"0"); }
-    function nowStamp(){
-      const d = new Date();
-      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  // ====== Deterministic seed (FNV-like)
+  function hashLike(str){
+    let h = 2166136261;
+    for(let i=0;i<str.length;i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
     }
+    return (h>>>0);
+  }
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function nowStamp(){
+    const d = new Date();
+    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  }
 
-    // лёгкий детерминизм от даты/времени (чтобы "похоже на тебя")
-    function hashLike(str){
-      let h = 2166136261;
-      for(let i=0;i<str.length;i++){
-        h ^= str.charCodeAt(i);
-        h = Math.imul(h, 16777619);
-      }
-      return (h>>>0);
-    }
-    function pick(list, seed){
-      return list[seed % list.length];
-    }
+  // ====== Portraits (144)
+  const PORTRAITS_COUNT = 144;
+  function pickPortraitIndex(seed){
+    return (seed % PORTRAITS_COUNT) + 1; // 1..144
+  }
+  function portraitUrl(idx){
+    return `assets/portraits/p${String(idx).padStart(3,"0")}.jpg`;
+  }
 
-    function canScan(){
-      return $("dob").value.trim().length > 0;
-    }
+  // ====== Rarity logic (portrait <-> build)
+  // 1-6 Mythic, 7-24 Epic, 25-60 Rare, 61-144 Common
+  function rarityByIndex(idx){
+    if(idx <= 6) return "MYTHIC";
+    if(idx <= 24) return "EPIC";
+    if(idx <= 60) return "RARE";
+    return "COMMON";
+  }
 
-    function setReadyState(){
-      if(canScan()){
-        led.classList.add("live");
-        statusText.textContent = "готово";
+  // Role pools by rarity (simple, understandable)
+  const ROLE_COMMON = ["наблюдатель","сборщик","исполнитель","организатор","исследователь","практик"];
+  const ROLE_RARE   = ["стратег","проводник","ускоритель","синхронизатор","медиатор","архитектор"];
+  const ROLE_EPIC   = ["контролёр хаоса","игрок на грани","мастер фокуса","собиратель влияния"];
+  const ROLE_MYTHIC = ["переломщик правил","ядро протокола","носитель доступа"];
+
+  // Other simple traits
+  const ENERGY = ["ровная","рывками","высокая","бережная","творческая","боевой режим"];
+  const ACTION = ["сначала думаю, потом делаю","делаю быстро, потом правлю","делаю только когда ясно","делаю через вдохновение"];
+  const SOCIAL = ["узкий круг","легко знакомлюсь","мне нужна дистанция","я веду разговор","я мягко веду"];
+  const STRONG = ["ясность","скорость","интуиция","выдержка","влияние","честность"];
+  const WEAK   = ["перегруз","самокритика","откладывание","резкость","усталость","эмо-качели"];
+  const TRIG   = ["давление","контроль","неопределённость","несправедливость","хаос","обесценивание"];
+  const SKILL  = ["держать границы","видеть суть","резать лишнее","собирать план","поднимать себя","вести людей"];
+  const BONUS  = ["чувство правды","+фокус","+скорость обучения","+стойкость","+интуиция"];
+  const QUEST  = ["настроить режим","почистить окружение","собрать цель","усилить тело","выстроить деньги","сделать шаг в новое"];
+
+  function pick(list, seed){ return list[seed % list.length]; }
+
+  // ====== Lock / Unlock
+  let unlocked = false;
+  function applyUnlockState(){
+    const lockedEls = document.querySelectorAll("[data-lock='1']");
+    lockedEls.forEach((el, i)=>{
+      if(unlocked){
+        el.classList.add("unlocked");
+        // лёгкое появление текста после снятия замка
+        setTimeout(()=>{ el.classList.remove("locked"); }, 140 + i*40);
       } else {
-        led.classList.remove("live");
-        statusText.textContent = "жду дату";
+        el.classList.add("locked");
+        el.classList.remove("unlocked");
       }
-    }
+    });
 
-    function logLine(text){
-      termLog.textContent += "\n" + text;
-      termLog.parentElement.scrollTop = termLog.parentElement.scrollHeight;
-    }
+    $("p_access").textContent = unlocked ? "FULL" : "BASIC";
+  }
 
-    function openModal(){
-      modalBack.classList.add("show");
-      document.body.style.overflow = "hidden";
-    }
-    function closeModal(){
-      modalBack.classList.remove("show");
-      document.body.style.overflow = "";
-    }
+  // ====== Build payload
+  function buildPayload(){
+    const dob = $("dob").value.trim();
+    const tob = ($("tob").value.trim() || "00:00");
+    const seed = hashLike(`${dob}|${tob}|ADM`);
 
-    function buildPayload(){
-      const dob = $("dob").value.trim();
-      const tob = $("tob").value.trim() || "00:00";
-      const seed = hashLike(`${dob}|${tob}|ADM`);
-      const id = "ADM-" + String(seed).slice(0,10);
+    const idx = pickPortraitIndex(seed);
+    const rarity = rarityByIndex(idx);
 
-      const role = pick(ROLES, seed);
-      const energy = pick(ENERGY, seed >>> 1);
-      const action = pick(ACTION, seed >>> 2);
-      const social = pick(SOCIAL, seed >>> 3);
-      const strong = pick(STRONG, seed >>> 4);
-      const weak = pick(WEAK, seed >>> 5);
-      const trigger = pick(TRIGGER, seed >>> 6);
-      const skill = pick(SKILL, seed >>> 7);
-      const bonus = pick(BONUS, seed >>> 8);
-      const quest = pick(QUEST, seed >>> 9);
+    let rolePool = ROLE_COMMON;
+    if(rarity === "RARE") rolePool = ROLE_RARE;
+    if(rarity === "EPIC") rolePool = ROLE_EPIC;
+    if(rarity === "MYTHIC") rolePool = ROLE_MYTHIC;
 
-      return {
-        dob, tob, id,
-        access: "BASIC",
-        sig: "protocol // signed",
-        time: nowStamp(),
-        role, energy, action, social, strong, weak, trigger, skill, bonus, quest
-      };
-    }
+    // make "rarity affects build" a bit:
+    const role = pick(rolePool, seed >>> 1);
+    const energy = pick(ENERGY, seed >>> 2);
+    const action = pick(ACTION, seed >>> 3);
+    const social = pick(SOCIAL, seed >>> 4);
+    const strong = pick(STRONG, seed >>> 5);
+    const weak   = pick(WEAK,   seed >>> 6);
+    const trigger= pick(TRIG,   seed >>> 7);
+    const skill  = pick(SKILL,  seed >>> 8);
+    let bonus    = pick(BONUS,  seed >>> 9);
+    let quest    = pick(QUEST,  seed >>> 10);
 
-    function render(p){
-      // MINI
-      $("p_id").textContent = p.id;
-      $("p_access").textContent = p.access;
-      $("p_role").textContent = p.role;
-      $("p_energy").textContent = p.energy;
-      $("p_sig").textContent = p.sig;
-      $("p_time").textContent = p.time;
+    // Rare boost flavor
+    if(rarity === "EPIC") bonus = bonus + " (усилено)";
+    if(rarity === "MYTHIC") { bonus = bonus + " (максимум)"; quest = "уровень доступа"; }
 
-      // FULL
-      $("d_role").textContent = p.role;
-      $("d_action").textContent = p.action;
-      $("d_social").textContent = p.social;
-      $("d_strong").textContent = p.strong;
-      $("d_weak").textContent = p.weak;
-      $("d_trigger").textContent = p.trigger;
-      $("d_skill").textContent = p.skill;
-      $("d_bonus").textContent = p.bonus;
-      $("d_quest").textContent = p.quest;
+    return {
+      dob, tob, seed,
+      id: "ADM-" + String(seed).slice(0,10),
+      portraitIndex: idx,
+      portraitUrl: portraitUrl(idx),
+      rarity,
+      role, energy, action, social, strong, weak, trigger, skill, bonus, quest,
+      sig: "protocol // signed",
+      time: nowStamp()
+    };
+  }
 
-      termOut.innerHTML =
+  // ====== Render
+  function setRarityUI(rarity){
+    const mapClass = {
+      "COMMON":"rarityCommon",
+      "RARE":"rarityRare",
+      "EPIC":"rarityEpic",
+      "MYTHIC":"rarityMythic"
+    };
+
+    const badgeMini = $("rarityBadgeMini");
+    const badgeFull = $("rarityBadgeFull");
+    badgeMini.className = "rarityBadge " + mapClass[rarity];
+    badgeFull.className = "rarityBadge " + mapClass[rarity];
+    $("rarityTextMini").textContent = rarity;
+    $("rarityTextFull").textContent = rarity;
+
+    // tiny stamp reaction
+    const s1 = $("sealMini"), s2 = $("sealFull");
+    if(rarity === "MYTHIC"){ s1.style.transform="scale(1.02) rotate(-5deg)"; s2.style.transform="scale(.98) rotate(10deg)"; }
+    else if(rarity === "EPIC"){ s1.style.transform="scale(.98) rotate(-3deg)"; s2.style.transform="scale(.96) rotate(8deg)"; }
+    else { s1.style.transform=""; s2.style.transform=""; }
+  }
+
+  function render(p){
+    // Portraits
+    $("faceImg").src = p.portraitUrl;
+    $("fullImg").src = p.portraitUrl;
+
+    // Collection number
+    $("p_no").textContent = String(p.portraitIndex).padStart(3,"0");
+    $("p_no2").textContent = String(p.portraitIndex).padStart(3,"0");
+
+    // Mini
+    $("p_id").textContent = p.id;
+    $("p_role").textContent = p.role;
+    $("p_energy").textContent = p.energy;
+    $("p_sig").textContent = p.sig;
+    $("p_time").textContent = p.time;
+
+    // Full
+    $("d_role").textContent = p.role;
+    $("d_energy").textContent = p.energy;
+    $("d_action").textContent = p.action;
+    $("d_social").textContent = p.social;
+    $("d_strong").textContent = p.strong;
+    $("d_weak").textContent = p.weak;
+    $("d_trigger").textContent = p.trigger;
+    $("d_skill").textContent = p.skill;
+    $("d_bonus").textContent = p.bonus;
+    $("d_quest").textContent = p.quest;
+
+    // Rarity badges
+    setRarityUI(p.rarity);
+
+    // Terminal output
+    termOut.innerHTML =
 `<span class="muted">[scan]</span> <span class="ok">complete</span>
 <span class="muted">[input]</span> dob=${p.dob}  tob=${(p.tob==="00:00" ? "—" : p.tob)}
 <span class="muted">[id]</span> ${p.id}
+<span class="muted">[portrait]</span> #${String(p.portraitIndex).padStart(3,"0")}/144 (${p.rarity})
 <span class="muted">[basic]</span> роль=${p.role} | энергия=${p.energy}
-<span class="muted">[traits]</span> сильное=${p.strong} | слабое=${p.weak}
-<span class="muted">[trigger]</span> ${p.trigger}
-<span class="muted">[skill]</span> ${p.skill}  (+${p.bonus})
-<span class="muted">[quest]</span> ${p.quest}
+<span class="muted">[locked]</span> подробные строки закрыты до доступа
 <span class="muted">[stamp]</span> embedded
 <span class="muted">[protocol]</span> ${p.sig}
 <span class="muted">[time]</span> ${p.time}`;
-    }
 
-    let lastPayload = null;
-
-    function startScan(){
-      if(!canScan()){
-        logLine("[warn] add: date of birth");
-        statusText.textContent = "нужна дата";
-        return;
-      }
-
-      // UI scan feel
-      scanPane.classList.add("scanning");
-      statusText.textContent = "сканирую...";
-      led.classList.add("live");
-
-      logLine("[scan] init...");
-      logLine("[scan] reading input...");
-      logLine("[scan] building multipass...");
-
-      setTimeout(()=> logLine("[stamp] applied"), 520);
-      setTimeout(()=> logLine("[protocol] signed"), 820);
-
-      setTimeout(()=>{
-        scanPane.classList.remove("scanning");
-        statusText.textContent = "готово";
-        const p = buildPayload();
-        lastPayload = p;
-        render(p);
-        openModal();
-      }, 1450);
-    }
-
-    // Manifest rotation
-    function shufflePhrase(){
-      const txt = phrases[Math.floor(Math.random() * phrases.length)];
-      const el = $("manifestText");
-      el.style.opacity = 0;
-      setTimeout(()=>{
-        el.textContent = txt;
-        el.style.opacity = 1;
-      }, 140);
-    }
-
-    // Events
-    $("scanBtn").addEventListener("click", startScan);
-    $("scanMainBtn").addEventListener("click", startScan);
-    $("scanTopBtn").addEventListener("click", startScan);
-
-    $("closeModal").addEventListener("click", closeModal);
-    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
-
-    $("shuffleManifest").addEventListener("click", shufflePhrase);
-    shufflePhrase();
-
-    ["dob","tob"].forEach(id=>{
-      $(id).addEventListener("input", setReadyState);
+    // Reveal animation reset
+    document.querySelectorAll(".line").forEach((el, i)=>{
+      el.classList.remove("reveal");
+      void el.offsetWidth;
+      setTimeout(()=> el.classList.add("reveal"), 20 + i*35);
     });
-    setReadyState();
 
-    $("regenBtn").addEventListener("click", ()=>{
-      if(!canScan()) return;
+    applyUnlockState();
+  }
+
+  // ====== Scan flow
+  function canScan(){ return $("dob").value.trim().length > 0; }
+  function setReadyState(){
+    if(canScan()){
+      led.classList.add("live");
+      statusText.textContent = "готово";
+    } else {
+      led.classList.remove("live");
+      statusText.textContent = "жду дату";
+    }
+  }
+  ["dob","tob"].forEach(id => $(id).addEventListener("input", setReadyState));
+  setReadyState();
+
+  function logLine(t){
+    termLog.textContent += "\n" + t;
+    termLog.parentElement.scrollTop = termLog.parentElement.scrollHeight;
+  }
+
+  function openModal(){
+    modalBack.classList.add("show");
+    document.body.style.overflow = "hidden";
+  }
+  function closeModal(){
+    modalBack.classList.remove("show");
+    document.body.style.overflow = "";
+  }
+  $("closeModal").addEventListener("click", closeModal);
+  modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
+
+  let lastPayload = null;
+
+  function startScan(){
+    if(!canScan()){
+      logLine("[warn] add: date of birth");
+      statusText.textContent = "нужна дата";
+      return;
+    }
+
+    unlocked = false; // reset on every scan
+    applyUnlockState();
+
+    scanPane.classList.add("scanning");
+    statusText.textContent = "сканирую...";
+    led.classList.add("live");
+
+    logLine("[scan] init...");
+    logLine("[scan] reading input...");
+    logLine("[scan] selecting portrait...");
+    logLine("[scan] building multipass...");
+
+    setTimeout(()=> logLine("[stamp] applied"), 520);
+    setTimeout(()=> logLine("[protocol] signed"), 820);
+
+    setTimeout(()=>{
+      scanPane.classList.remove("scanning");
+      statusText.textContent = "готово";
       const p = buildPayload();
       lastPayload = p;
       render(p);
-    });
+      openModal();
+    }, 1450);
+  }
 
-    $("copyBtn").addEventListener("click", async ()=>{
-      if(!lastPayload) return;
-      const t =
+  $("scanBtn").addEventListener("click", startScan);
+  $("scanMainBtn").addEventListener("click", startScan);
+  $("scanTopBtn").addEventListener("click", startScan);
+
+  $("regenBtn").addEventListener("click", ()=>{
+    if(!canScan()) return;
+    unlocked = false;
+    const p = buildPayload();
+    lastPayload = p;
+    render(p);
+  });
+
+  // ====== Unlock (payment hook later)
+  function doUnlock(){
+    unlocked = true;
+    applyUnlockState();
+    termOut.innerHTML += `\n<span class="muted">[unlock]</span> <span class="ok">granted</span>`;
+  }
+  $("unlockBtn").addEventListener("click", doUnlock);
+  $("unlockBtn2").addEventListener("click", doUnlock);
+
+  // ====== Copy
+  $("copyBtn").addEventListener("click", async ()=>{
+    if(!lastPayload) return;
+    const p = lastPayload;
+    const t =
 `MULTIPASS / ADM MODE
-ID: ${lastPayload.id}
-Роль: ${lastPayload.role}
-Энергия: ${lastPayload.energy}
-Как действуешь: ${lastPayload.action}
-Общение: ${lastPayload.social}
-Сильная сторона: ${lastPayload.strong}
-Слабое место: ${lastPayload.weak}
-Триггер: ${lastPayload.trigger}
-Навык: ${lastPayload.skill}
-Бонус: ${lastPayload.bonus}
-Задача сейчас: ${lastPayload.quest}
-Подпись: ${lastPayload.sig}
-Время: ${lastPayload.time}`;
-      try{
-        await navigator.clipboard.writeText(t);
-        termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="ok">copied</span>`;
-      }catch(e){
-        termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="warn">blocked</span>`;
-      }
-    });
-
-    function fakeBuy(){
-      // сюда позже подключим оплату/страницу тарифа
-      alert("Здесь будет оплата и выдача полной расшифровки.");
+№: ${String(p.portraitIndex).padStart(3,"0")}/144 (${p.rarity})
+ID: ${p.id}
+Роль: ${p.role}
+Энергия: ${p.energy}
+${unlocked ? `Как действуешь: ${p.action}
+Общение: ${p.social}
+Сильная сторона: ${p.strong}
+Слабое место: ${p.weak}
+Триггер: ${p.trigger}
+Навык: ${p.skill}
+Бонус: ${p.bonus}
+Задача: ${p.quest}` : `FULL ACCESS: locked`}
+Подпись: ${p.sig}
+Время: ${p.time}`;
+    try{
+      await navigator.clipboard.writeText(t);
+      termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="ok">copied</span>`;
+    }catch(e){
+      termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="warn">blocked</span>`;
     }
-    $("buyBtn").addEventListener("click", fakeBuy);
-    $("buyBtn2").addEventListener("click", fakeBuy);
+  });
 
-    $("year").textContent = new Date().getFullYear();
-  </script>
+  // ====== Export PNG/PDF (mini + full)
+  async function nodeToPngDataUrl(node){
+    const canvas = await html2canvas(node, {backgroundColor: null, scale: 2});
+    return canvas.toDataURL("image/png");
+  }
+  function downloadDataUrl(dataUrl, filename){
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  $("exportPngBtn").addEventListener("click", async ()=>{
+    if(!lastPayload) return;
+    const n = String(lastPayload.portraitIndex).padStart(3,"0");
+    const mini = $("miniCard");
+    const full = $("fullCard");
+    const d1 = await nodeToPngDataUrl(mini);
+    const d2 = await nodeToPngDataUrl(full);
+    downloadDataUrl(d1, `ADM_MULTIPASS_${n}_mini.png`);
+    downloadDataUrl(d2, `ADM_MULTIPASS_${n}_full.png`);
+    termOut.innerHTML += `\n<span class="muted">[export]</span> <span class="ok">png saved</span>`;
+  });
+
+  $("exportPdfBtn").addEventListener("click", async ()=>{
+    if(!lastPayload) return;
+    const { jsPDF } = window.jspdf;
+    const n = String(lastPayload.portraitIndex).padStart(3,"0");
+    const mini = $("miniCard");
+    const full = $("fullCard");
+    const d1 = await nodeToPngDataUrl(mini);
+    const d2 = await nodeToPngDataUrl(full);
+
+    // A4 portrait
+    const pdf = new jsPDF({ orientation:"p", unit:"pt", format:"a4" });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const margin = 28;
+    const maxW = pageW - margin*2;
+
+    // place mini then full
+    const img1 = new Image(); img1.src = d1;
+    const img2 = new Image(); img2.src = d2;
+
+    await new Promise(r=> img1.onload = r);
+    await new Promise(r=> img2.onload = r);
+
+    const h1 = (img1.height / img1.width) * maxW;
+    const h2 = (img2.height / img2.width) * maxW;
+
+    let y = margin;
+    pdf.addImage(d1, "PNG", margin, y, maxW, h1);
+    y += h1 + 18;
+    pdf.addImage(d2, "PNG", margin, y, maxW, h2);
+
+    pdf.save(`ADM_MULTIPASS_${n}.pdf`);
+    termOut.innerHTML += `\n<span class="muted">[export]</span> <span class="ok">pdf saved</span>`;
+  });
+
+  // ====== Year
+  $("year").textContent = new Date().getFullYear();
+</script>
 </body>
 </html>
