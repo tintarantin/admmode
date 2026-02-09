@@ -2,1356 +2,880 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ADM MODE — скан персонажа</title>
-  <meta name="description" content="ADM MODE — скан персонажа по дате рождения." />
-
-  <!-- Export libs (PNG/PDF) -->
-  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OFF SCRIPT</title>
+  <meta name="description" content="OFF SCRIPT — скрытый режим игры. Сканируй свой профиль решений и забери управление обратно." />
 
   <style>
     :root{
-      --bg0:#f7fbff; --bg1:#eef6ff;
-      --glass: rgba(255,255,255,.66);
-      --glass2: rgba(255,255,255,.42);
-      --stroke: rgba(20, 60, 90, .10);
-      --ink: #0c1b2a;
-      --muted: rgba(12,27,42,.68);
+      /* Pearl / Apple-ish */
+      --bg0:#0B0B12;
+      --bg1:#0E0C18;
+      --bg2:#120E22;
 
-      --brand: #19d3ff;
-      --brand2:#7c5cff;
+      --ink:#F8FBFF;
+      --muted: rgba(248,251,255,.70);
 
-      --shadow: 0 28px 90px rgba(6,22,44,.18);
-      --shadow2: 0 18px 55px rgba(6,22,44,.14);
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.05);
+      --stroke: rgba(255,255,255,.18);
+      --stroke2: rgba(255,255,255,.10);
 
-      --r: 22px; --r2: 28px;
-      --ease: cubic-bezier(.2,.9,.2,1);
+      --p1:#FFFFFF;   /* white */
+      --p2:#F4EFFF;   /* pearl */
+      --p3:#E7D8FF;   /* lilac */
+      --p4:#D7F2FF;   /* icy */
+      --p5:#E9E3FF;   /* soft violet */
+
+      --shadow: 0 24px 90px rgba(0,0,0,.55);
+      --shadow2: 0 10px 40px rgba(0,0,0,.45);
+
+      --r:24px;
+      --r2:18px;
+
+      --shineSpeed: 2.9s;
+      --scanSpeed: 2.3s;
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color:var(--ink);
       background:
-        radial-gradient(1200px 800px at 15% 10%, rgba(25,211,255,.20), transparent 60%),
-        radial-gradient(900px 700px at 90% 0%, rgba(124,92,255,.14), transparent 55%),
-        radial-gradient(900px 700px at 70% 90%, rgba(25,211,255,.12), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
+        radial-gradient(1100px 700px at 18% 12%, rgba(231,216,255,.18), transparent 60%),
+        radial-gradient(900px 520px at 82% 18%, rgba(215,242,255,.14), transparent 62%),
+        radial-gradient(900px 700px at 55% 86%, rgba(244,239,255,.12), transparent 62%),
+        linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 45%, var(--bg2) 100%);
       overflow-x:hidden;
     }
-    body::before{
-      content:"";
+
+    /* ===== FX Layers (Future feel) ===== */
+    .fx{position:fixed; inset:0; pointer-events:none; z-index:0;}
+    .fx.vignette{
+      background: radial-gradient(80% 70% at 50% 40%, transparent 55%, rgba(0,0,0,.62) 100%);
+      opacity:.65;
+    }
+    .fx.scanlines{
+      opacity:.10;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,.06) 0px,
+        rgba(255,255,255,.06) 1px,
+        transparent 2px,
+        transparent 7px
+      );
+      mix-blend-mode: overlay;
+    }
+    .fx.noise{
+      opacity:.10;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+    .fx.glow{
+      opacity:.65;
+      background:
+        radial-gradient(900px 650px at 20% 10%, rgba(231,216,255,.20), transparent 60%),
+        radial-gradient(800px 550px at 80% 20%, rgba(215,242,255,.18), transparent 62%),
+        radial-gradient(900px 650px at 55% 88%, rgba(244,239,255,.14), transparent 64%);
+      filter: blur(2px);
+      mix-blend-mode: screen;
+      animation: breathe 6.2s ease-in-out infinite;
+    }
+    @keyframes breathe{
+      0%,100%{transform:scale(1); opacity:.55}
+      50%{transform:scale(1.02); opacity:.78}
+    }
+
+    /* Particle canvas sits above glow but behind UI */
+    canvas#particles{
       position:fixed; inset:0;
+      z-index:1;
       pointer-events:none;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.13'/%3E%3C/svg%3E");
-      mix-blend-mode:multiply;
-      opacity:.28;
+      opacity:.55;
+      mix-blend-mode: screen;
+    }
+
+    /* ===== Layout ===== */
+    .wrap{
+      position:relative;
+      z-index:2;
+      max-width:1160px;
+      margin:0 auto;
+      padding:28px 18px 84px;
+    }
+
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .brand{display:flex; align-items:center; gap:12px; user-select:none;}
+    .sig{
+      width:40px; height:40px; border-radius:14px;
+      border:1px solid rgba(255,255,255,.20);
+      background:
+        radial-gradient(24px 18px at 30% 30%, rgba(255,255,255,.22), transparent 62%),
+        radial-gradient(24px 18px at 70% 70%, rgba(231,216,255,.22), transparent 62%),
+        rgba(255,255,255,.05);
+      box-shadow: 0 0 26px rgba(231,216,255,.18);
+      position:relative; overflow:hidden;
+    }
+    .sig:after{
+      content:"";
+      position:absolute; inset:-35%;
+      background: conic-gradient(from 180deg, transparent, rgba(255,255,255,.20), rgba(231,216,255,.16), transparent);
+      animation: spin 7s linear infinite;
+      opacity:.8;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .chips{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    .chip{
+      font-size:12px;
+      color:rgba(248,251,255,.76);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:999px;
+      padding:7px 10px;
+      background: rgba(255,255,255,.05);
+      white-space:nowrap;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* ===== Hero ===== */
+    .hero{
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: var(--r);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+
+    .heroGrid{
+      position:absolute; inset:0;
+      pointer-events:none;
+      opacity:.22;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.10) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.08) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mix-blend-mode: overlay;
+      mask: radial-gradient(70% 70% at 50% 35%, #000 60%, transparent 100%);
       z-index:0;
     }
-    .wrap{ position:relative; z-index:1; }
 
-    /* Topbar */
-    .topbar{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.40));
-      border-bottom: 1px solid var(--stroke);
-    }
-    .topbar .inner{
-      max-width:1120px; margin:0 auto;
-      padding:14px 18px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      letter-spacing:.12em; text-transform:uppercase;
-      font-weight:900; font-size:12px;
-      color: rgba(12,27,42,.82);
-    }
-    .dot{
-      width:10px; height:10px; border-radius:999px;
-      background:
-        radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.2) 35%),
-        linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: 0 0 0 6px rgba(25,211,255,.12);
-      animation: pulse 2.6s var(--ease) infinite;
-    }
-    @keyframes pulse{
-      0%,100%{ transform:scale(1); box-shadow:0 0 0 6px rgba(25,211,255,.12); }
-      50%{ transform:scale(1.08); box-shadow:0 0 0 10px rgba(25,211,255,.08); }
-    }
-
-    .btn{
-      border:1px solid rgba(25,211,255,.28);
-      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.35));
-      border-radius:999px;
-      padding:10px 14px;
-      font-size:13px;
-      display:inline-flex; align-items:center; gap:10px;
-      box-shadow: 0 14px 40px rgba(6,22,44,.10);
-      transition: transform .25s var(--ease), box-shadow .25s var(--ease);
-      cursor:pointer; user-select:none; white-space:nowrap;
-    }
-    .btn:hover{ transform: translateY(-1px); box-shadow: 0 18px 55px rgba(6,22,44,.14); }
-    .btn:active{ transform: translateY(0px) scale(.99); }
-    .btn.primary{
-      border:1px solid rgba(25,211,255,.42);
-      background:
-        radial-gradient(140px 80px at 25% 25%, rgba(25,211,255,.30), transparent 60%),
-        linear-gradient(135deg, rgba(25,211,255,.18), rgba(124,92,255,.14)),
-        linear-gradient(180deg, rgba(255,255,255,.76), rgba(255,255,255,.30));
-    }
-
-    /* Layout */
-    .hero{
-      max-width:1120px; margin:0 auto;
-      padding:52px 18px 28px;
-      display:grid;
-      grid-template-columns: 1.25fr .75fr;
-      gap:18px;
-      align-items:stretch;
-    }
-    @media (max-width: 980px){
-      .hero{ grid-template-columns:1fr; padding-top:32px; }
-    }
-
-    .card{
-      border: 1px solid var(--stroke);
-      border-radius: var(--r2);
-      background: linear-gradient(180deg, var(--glass), rgba(255,255,255,.38));
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      box-shadow: var(--shadow);
-      position:relative; overflow:hidden;
-    }
-    .card::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(800px 240px at 20% 0%, rgba(25,211,255,.16), transparent 60%),
-        radial-gradient(700px 250px at 80% 15%, rgba(124,92,255,.10), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,0));
+    /* Scan beam */
+    .scanBeam{
+      position:absolute; inset:-10%;
       pointer-events:none;
+      opacity:.0;
+      z-index:1;
+      background:
+        linear-gradient(to bottom,
+          transparent 0%,
+          rgba(255,255,255,.00) 35%,
+          rgba(231,216,255,.08) 46%,
+          rgba(255,255,255,.35) 50%,
+          rgba(215,242,255,.12) 53%,
+          transparent 62%,
+          transparent 100%
+        );
+      mix-blend-mode: screen;
+      filter: blur(.4px);
+      transform: translateY(-45%);
+    }
+    .hero.scanning .scanBeam{
+      opacity:1;
+      animation: scanPass var(--scanSpeed) linear infinite;
+    }
+    @keyframes scanPass{
+      0%{transform: translateY(-55%)}
+      100%{transform: translateY(55%)}
     }
 
-    .heroMain{ padding:26px 24px; }
-    .kicker{
-      font-size:12px; letter-spacing:.18em;
-      text-transform:uppercase; color: rgba(12,27,42,.56);
-      display:flex; flex-wrap:wrap; gap:8px;
-    }
-    .chip{
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.55);
-    }
-
-    .title{
-      margin:14px 0 8px;
-      font-size: clamp(36px, 4.2vw, 62px);
-      line-height:1.02;
-      letter-spacing:-.03em;
-    }
-    .adm{
-      display:inline-block;
+    .heroInner{
       position:relative;
-      padding:4px 10px 6px;
-      margin-left:-10px;
-      border-radius: 16px;
-      background:
-        radial-gradient(220px 90px at 20% 30%, rgba(25,211,255,.28), transparent 60%),
-        radial-gradient(240px 90px at 80% 30%, rgba(124,92,255,.14), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.68), rgba(255,255,255,.25));
-      border: 1px solid rgba(25,211,255,.24);
-      box-shadow: 0 18px 50px rgba(6,22,44,.10);
-      overflow:hidden;
+      z-index:2;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap:16px;
+      padding: 22px;
     }
-    .adm::after{
+    @media (max-width: 920px){ .heroInner{grid-template-columns:1fr;} }
+
+    .pane{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: var(--r2);
+      background: rgba(255,255,255,.05);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow2);
+    }
+
+    /* Apple-ish title */
+    .title{
+      margin:0;
+      font-weight: 1000;
+      font-size: 54px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      line-height: 1.02;
+
+      background: linear-gradient(110deg,
+        var(--p1) 0%,
+        var(--p2) 18%,
+        var(--p3) 38%,
+        var(--p4) 58%,
+        var(--p5) 78%,
+        var(--p1) 100%
+      );
+      background-size: 240% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+
+      filter: drop-shadow(0 0 18px rgba(231,216,255,.18));
+      position:relative;
+    }
+    @media (max-width: 560px){ .title{font-size:42px} }
+
+    /* Shimmer sweep */
+    .title:after{
       content:"";
-      position:absolute; inset:-40px;
-      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0) 40%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 60%, transparent 100%);
-      transform: translateX(-60%) rotate(8deg);
-      animation: shine 4.2s var(--ease) infinite;
-      opacity:.9;
+      position:absolute; inset:-20% -40%;
+      background: linear-gradient(120deg,
+        transparent 35%,
+        rgba(255,255,255,.22) 45%,
+        rgba(231,216,255,.18) 50%,
+        rgba(215,242,255,.20) 55%,
+        transparent 65%
+      );
+      transform: translateX(-40%);
+      animation: shine var(--shineSpeed) ease-in-out infinite;
+      mix-blend-mode: screen;
       pointer-events:none;
+      opacity:.9;
+      filter: blur(.2px);
+      mask: linear-gradient(#000, #000);
     }
     @keyframes shine{
-      0%{ transform: translateX(-70%) rotate(8deg); opacity:.0; }
-      18%{ opacity:.85; }
-      42%{ transform: translateX(70%) rotate(8deg); opacity:.0; }
-      100%{ transform: translateX(70%) rotate(8deg); opacity:.0; }
+      0%{transform: translateX(-45%)}
+      60%{transform: translateX(45%)}
+      100%{transform: translateX(45%)}
     }
 
-    .sub{
-      margin: 0 0 14px;
-      font-size: 15px; line-height:1.55;
-      color: var(--muted);
-      max-width: 62ch;
-    }
-
-    .manifest{
-      margin-top:14px;
-      padding:14px;
-      border-radius: 18px;
-      border: 1px dashed rgba(12,27,42,.16);
-      background: rgba(255,255,255,.46);
-      color: rgba(12,27,42,.78);
-      font-size:14px; line-height:1.5;
-      position:relative; overflow:hidden;
-    }
-    .manifest .label{
-      font-size:11px; letter-spacing:.16em;
-      text-transform:uppercase; color: rgba(12,27,42,.52);
-      margin-bottom:8px;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .manifest .sig{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-      font-size:11px; color: rgba(12,27,42,.55);
-      white-space:nowrap;
-    }
-
-    /* Scanner */
-    .scanner{ padding:18px; display:flex; flex-direction:column; gap:12px; }
-    .scannerTop{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
-    .scannerTop h3{
-      margin:0; font-size:12px;
-      letter-spacing:.18em; text-transform:uppercase;
-      color: rgba(12,27,42,.68);
-    }
-    .status{
-      font-size:12px; color: rgba(12,27,42,.56);
-      display:flex; gap:8px; align-items:center;
-      white-space:nowrap;
-    }
-    .led{
-      width:8px; height:8px; border-radius:999px;
-      background: rgba(12,27,42,.18);
-      box-shadow: 0 0 0 4px rgba(12,27,42,.06);
-    }
-    .led.live{
-      background:
-        radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.25) 35%),
-        linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: 0 0 0 6px rgba(25,211,255,.10), 0 0 22px rgba(25,211,255,.28);
-      animation: blink 1.4s var(--ease) infinite;
-    }
-    @keyframes blink{ 0%,100%{ filter:saturate(1); } 50%{ filter:saturate(1.25) brightness(1.04); } }
-
-    .fieldRow{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
-    @media (max-width: 520px){ .fieldRow{ grid-template-columns:1fr; } }
-
-    .field{
-      padding:12px;
-      border-radius:16px;
-      border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.58);
-      display:flex; flex-direction:column; gap:8px;
-    }
-    .field label{
-      font-size:11px; letter-spacing:.14em;
-      text-transform:uppercase;
-      color: rgba(12,27,42,.52);
-    }
-    .field input{
-      border:none; outline:none;
-      font-size:14px;
-      background:transparent;
-      color: rgba(12,27,42,.92);
-      padding:0;
-    }
-
-    .scanPane{
-      position:relative;
-      border-radius: 18px;
-      border:1px solid rgba(12,27,42,.10);
-      background:
-        radial-gradient(420px 180px at 15% 10%, rgba(25,211,255,.18), transparent 60%),
-        radial-gradient(420px 180px at 85% 20%, rgba(124,92,255,.14), transparent 60%),
-        rgba(255,255,255,.52);
-      overflow:hidden;
-      height: 150px;
-    }
-    .scanGrid{
-      position:absolute; inset:0;
-      background-image:
-        linear-gradient(to right, rgba(12,27,42,.06) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(12,27,42,.06) 1px, transparent 1px);
-      background-size: 22px 22px;
-      opacity:.55;
-      mask-image: radial-gradient(circle at 30% 40%, black 0 55%, transparent 75%);
-    }
-    .scanLine{
-      position:absolute; left:-20%; right:-20%;
-      height:2px;
-      top:-10%;
-      background: linear-gradient(90deg, transparent, rgba(25,211,255,.95), transparent);
-      box-shadow: 0 0 18px rgba(25,211,255,.50);
-      opacity:0;
-      transform: rotate(-7deg);
-    }
-    .scanPulse{
-      position:absolute; inset:-40px;
-      background: radial-gradient(circle at 30% 40%, rgba(25,211,255,.18), transparent 62%);
-      opacity:.85;
-      filter: blur(2px);
-      animation: float 6.5s var(--ease) infinite;
-    }
-    @keyframes float{
-      0%,100%{ transform: translate3d(0,0,0) scale(1); }
-      50%{ transform: translate3d(8px,-10px,0) scale(1.02); }
-    }
-    .scanning .scanLine{ opacity:1; animation: scan 1.35s var(--ease) infinite; }
-    @keyframes scan{
-      0%{ top:-20%; opacity:0; }
-      12%{ opacity:1; }
-      50%{ top:55%; opacity:1; }
-      88%{ opacity:1; }
-      100%{ top:120%; opacity:0; }
-    }
-
-    .miniHint{
-      font-size:12px; color: rgba(12,27,42,.56);
-      line-height:1.45; margin-top:2px;
-    }
-
-    /* Terminal */
-    .terminal{
-      max-width:1120px; margin:0 auto;
-      padding: 0 18px 34px;
-    }
-    .panel{
-      border-radius: 26px;
-      border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.52);
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-      position:relative;
-    }
-    .panelHead{
-      padding:14px;
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      border-bottom: 1px solid rgba(12,27,42,.10);
-    }
-    .panelTitle{
+    .subline{
+      margin-top:10px;
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      color: rgba(248,251,255,.72);
       font-size:12px;
-      letter-spacing:.18em;
+      letter-spacing:.10em;
       text-transform:uppercase;
-      font-weight:900;
-      color: rgba(12,27,42,.70);
-      display:flex; align-items:center; gap:10px;
     }
-    .lights{ display:flex; gap:8px; }
-    .lights span{ width:10px; height:10px; border-radius:999px; background: rgba(12,27,42,.14); }
-    .lights span:nth-child(1){ background: rgba(25,211,255,.35); }
-    .lights span:nth-child(2){ background: rgba(124,92,255,.25); }
-    .lights span:nth-child(3){ background: rgba(12,27,42,.14); }
-    .panelBody{ padding:14px; }
-    .log{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-      font-size:12px;
-      line-height:1.6;
-      color: rgba(12,27,42,.78);
-      margin:0;
-      white-space:pre-wrap;
-    }
-    .log .muted{ color: rgba(12,27,42,.52); }
-    .log .ok{ color: rgba(0,120,120,.85); }
-    .log .warn{ color: rgba(124,92,255,.85); }
-
-    .paybox{
-      margin-top:12px;
-      padding:12px;
-      border-radius: 18px;
-      border:1px solid rgba(25,211,255,.20);
-      background:
-        radial-gradient(260px 120px at 20% 20%, rgba(25,211,255,.18), transparent 60%),
-        radial-gradient(260px 120px at 80% 25%, rgba(124,92,255,.12), transparent 60%),
-        rgba(255,255,255,.56);
-    }
-    .paybox h4{ margin:0 0 6px; font-size:14px; }
-    .paybox p{ margin:0 0 10px; font-size:12px; color: rgba(12,27,42,.62); line-height:1.45; }
-
-    /* Modal */
-    .modalBack{
-      position:fixed; inset:0;
-      background: rgba(5, 18, 34, .28);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:100;
-      padding:16px;
-    }
-    .modalBack.show{ display:flex; }
-
-    .modal{
-      width:min(1180px, 100%);
-      border-radius: 28px;
-      border:1px solid rgba(255,255,255,.30);
-      background:
-        radial-gradient(1000px 500px at 20% 0%, rgba(25,211,255,.20), transparent 60%),
-        radial-gradient(1000px 500px at 90% 10%, rgba(124,92,255,.18), transparent 55%),
-        linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.45));
-      box-shadow: 0 55px 140px rgba(6,22,44,.35);
-      overflow:hidden;
-      position:relative;
-      transform: translateY(8px);
-      opacity:0;
-      animation: modalIn .35s var(--ease) forwards;
-    }
-    @keyframes modalIn{
-      to{ transform: translateY(0); opacity:1; }
-    }
-    .modalHead{
-      padding:14px 16px;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      border-bottom:1px solid rgba(12,27,42,.10);
-    }
-    .modalTitle{
-      display:flex; align-items:center; gap:10px;
-      font-size:12px; letter-spacing:.18em; text-transform:uppercase;
-      color: rgba(12,27,42,.70);
-      font-weight:900;
-    }
-    .close{
-      border:1px solid rgba(12,27,42,.12);
-      background: rgba(255,255,255,.60);
-      border-radius: 999px;
-      padding:8px 10px;
-      cursor:pointer;
-      font-size:13px;
-      white-space:nowrap;
-    }
-    .modalBody{
-      padding:16px;
-      display:grid;
-      grid-template-columns: .95fr 1.05fr;
-      gap:14px;
-    }
-    @media (max-width: 980px){ .modalBody{ grid-template-columns:1fr; } }
-
-    /* Cards */
-    .stack{ display:grid; gap:12px; }
-
-    .pass{
-      border-radius: 26px;
-      border:1px solid rgba(12,27,42,.10);
-      background:
-        linear-gradient(135deg, rgba(255,255,255,.80), rgba(255,255,255,.40)),
-        radial-gradient(900px 360px at 20% 0%, rgba(25,211,255,.18), transparent 60%),
-        radial-gradient(900px 360px at 80% 10%, rgba(124,92,255,.14), transparent 60%);
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-      position:relative;
-    }
-    .pass::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        linear-gradient(90deg, rgba(12,27,42,.06) 1px, transparent 1px),
-        linear-gradient(0deg, rgba(12,27,42,.06) 1px, transparent 1px);
-      background-size: 26px 26px;
-      opacity:.28;
-      mask-image: radial-gradient(circle at 30% 30%, black 0 55%, transparent 78%);
-      pointer-events:none;
+    .dot{
+      width:9px; height:9px; border-radius:50%;
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 0 16px rgba(231,216,255,.26);
     }
 
-    .seal{
-      width:84px; height:84px; border-radius:999px;
-      position:relative;
-      background:
-        radial-gradient(circle at 30% 25%, rgba(255,255,255,.9), rgba(255,255,255,.25) 35%, rgba(255,255,255,.0) 65%),
-        conic-gradient(from 120deg, rgba(25,211,255,.55), rgba(124,92,255,.40), rgba(25,211,255,.55));
-      box-shadow: 0 18px 55px rgba(6,22,44,.16), 0 0 0 10px rgba(25,211,255,.08);
-      filter: saturate(1.05);
-      transition: transform .35s var(--ease);
+    .lead{
+      margin: 16px 0 0;
+      font-size: 15.5px;
+      line-height: 1.65;
+      color: rgba(248,251,255,.90);
+      max-width: 78ch;
     }
-    .seal::before{
-      content:"";
-      position:absolute; inset:10px;
-      border-radius:999px;
-      border:1px dashed rgba(255,255,255,.72);
-      opacity:.9;
-    }
-    .seal::after{
-      content:"STAMP";
-      position:absolute; inset:0;
-      display:grid; place-items:center;
-      font-size:11px; letter-spacing:.20em;
-      font-weight:900;
-      color: rgba(12,27,42,.72);
-      text-transform:uppercase;
-      transform: rotate(-12deg);
-      text-shadow: 0 1px 0 rgba(255,255,255,.55);
-    }
-
-    /* Rarity */
-    .rarityBadge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.60);
-      font-size:12px;
-      color: rgba(12,27,42,.72);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      white-space:nowrap;
-    }
-    .rarityDot{
-      width:10px; height:10px; border-radius:999px;
-      background: linear-gradient(135deg, var(--brand), var(--brand2));
-      box-shadow: 0 0 0 6px rgba(25,211,255,.10);
-    }
-    .rarityCommon .rarityDot{ box-shadow:0 0 0 6px rgba(12,27,42,.06); filter:saturate(.9); }
-    .rarityRare .rarityDot{ box-shadow:0 0 0 6px rgba(25,211,255,.10); }
-    .rarityEpic .rarityDot{ box-shadow:0 0 0 7px rgba(124,92,255,.10); }
-    .rarityMythic .rarityDot{ box-shadow:0 0 0 8px rgba(255,200,80,.12); filter:saturate(1.2) brightness(1.05); }
-
-    /* Mini card */
+    .lead b{color: var(--ink)}
     .mini{
-      padding:14px;
-      display:grid;
-      grid-template-columns: 92px 1fr;
-      gap:12px;
-      align-items:stretch;
-      min-height: 180px;
+      margin: 12px 0 0;
+      font-size: 13.7px;
+      line-height: 1.65;
+      color: var(--muted);
     }
-    .miniHead{
-      grid-column: 1 / -1;
-      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-      margin-bottom:2px;
-    }
-    .miniHead .t{ display:flex; flex-direction:column; gap:6px; }
-    .miniHead .t1{
-      font-size:12px; font-weight:900;
-      letter-spacing:.18em; text-transform:uppercase;
-      color: rgba(12,27,42,.70);
-    }
-    .miniHead .t2{
-      font-size:12px; color: rgba(12,27,42,.58);
-      letter-spacing:.12em; text-transform:uppercase;
-      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
-    }
-    .miniHead .t2 b{ color: rgba(12,27,42,.85); }
 
-    .avatarFace{
-      width:92px; height:110px;
-      border-radius:18px;
-      overflow:hidden;
-      border:1px solid rgba(12,27,42,.12);
-      background: rgba(255,255,255,.60);
+    /* Proof blocks */
+    .proofRow{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:12px;
+      margin-top:16px;
+    }
+    @media (max-width: 920px){ .proofRow{grid-template-columns:1fr;} }
+
+    .proof{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      padding: 12px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, filter .18s ease, border-color .18s ease;
     }
-    .avatarFace img{
-      width:100%; height:100%;
-      object-fit:cover;
-      object-position: 50% 25%;
-      transform: scale(1.08);
+    .proof:hover{
+      transform: translateY(-2px);
+      border-color: rgba(231,216,255,.24);
+      filter: brightness(1.06);
+    }
+    .proof .k{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color: rgba(248,251,255,.72);
+      display:flex; align-items:center; gap:8px;
+      margin-bottom:8px;
+    }
+    .proof .k .p{
+      width:7px; height:7px; border-radius:50%;
+      background: rgba(215,242,255,.72);
+      box-shadow: 0 0 14px rgba(215,242,255,.22);
+    }
+    .proof .v{
+      font-size:13.5px;
+      line-height:1.55;
+      color: rgba(248,251,255,.86);
+    }
+
+    /* Form */
+    .formTitle{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin:0 0 12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight:900;
+      font-size:13px;
+      color: rgba(248,251,255,.86);
+    }
+    .statusPill{
+      font-size:11px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      padding:7px 10px;
+      background: rgba(255,255,255,.04);
+      color: rgba(248,251,255,.70);
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    label{
       display:block;
-      filter: saturate(1.02) contrast(1.02);
+      font-size:12px;
+      color: rgba(248,251,255,.72);
+      margin: 10px 0 7px;
+      letter-spacing:.04em;
     }
-    .miniInfo{
+    .row{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:10px;
-      align-content:start;
     }
-    .kv{
-      padding:10px;
-      border-radius: 16px;
-      border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.56);
-      position:relative;
-      overflow:hidden;
-    }
-    .kv .k{
-      font-size:10px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color: rgba(12,27,42,.55);
-      margin-bottom:6px;
-    }
-    .kv .v{
+    @media (max-width: 520px){ .row{grid-template-columns:1fr;} }
+
+    input, select{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      color: var(--ink);
+      outline:none;
       font-size:14px;
-      color: rgba(12,27,42,.90);
-      font-weight:800;
-      word-break:break-word;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
-    .miniFoot{
-      grid-column: 1 / -1;
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      border-top:1px solid rgba(12,27,42,.10);
-      padding-top:10px;
-      margin-top:2px;
-      font-size:12px;
-      color: rgba(12,27,42,.62);
+    input:focus, select:focus{
+      border-color: rgba(231,216,255,.32);
+      box-shadow: 0 0 0 4px rgba(231,216,255,.10);
     }
-    .protoSig{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-      letter-spacing:.06em;
-      white-space:nowrap;
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="time"]::-webkit-calendar-picker-indicator{
+      filter: invert(1);
+      opacity:.85;
     }
 
-    /* Full card */
-    .full{ padding:14px; display:grid; gap:12px; }
-    .fullTop{
-      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
-    }
-    .fullTop .ttl{ display:flex; flex-direction:column; gap:6px; }
-    .fullTop .ttl .t1{
-      font-size:12px; font-weight:900;
-      letter-spacing:.18em; text-transform:uppercase;
-      color: rgba(12,27,42,.70);
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-    }
-    .fullTop .ttl .t2{
-      font-size:22px; letter-spacing:-.02em;
-      font-weight:900;
-      color: rgba(12,27,42,.92);
-    }
-
-    .fullBody{
-      display:grid;
-      grid-template-columns: 1fr 1.2fr;
-      gap:12px;
-      align-items:stretch;
-    }
-    @media (max-width: 520px){ .fullBody{ grid-template-columns:1fr; } }
-
-    .avatarFull{
-      border-radius: 22px;
-      overflow:hidden;
-      border:1px solid rgba(12,27,42,.12);
-      background: rgba(255,255,255,.60);
-      min-height: 320px;
-      position:relative;
-    }
-    .avatarFull img{
-      width:100%; height:100%;
-      object-fit:cover;
-      object-position: 50% 50%;
-      display:block;
-      transform: scale(1.02);
-      filter: saturate(1.02) contrast(1.02);
-    }
-
-    .stats{ display:grid; gap:10px; align-content:start; }
-    .line{
-      padding:12px;
-      border-radius: 18px;
-      border:1px solid rgba(12,27,42,.10);
-      background: rgba(255,255,255,.56);
-      color: rgba(12,27,42,.86);
-      font-size:14px;
-      line-height:1.45;
-      position:relative;
-      overflow:hidden;
-      transform: translateY(0);
-    }
-    .line b{ color: rgba(12,27,42,.92); }
-    .line.reveal{
-      animation: revealUp .45s var(--ease) both;
-    }
-    @keyframes revealUp{
-      from{ opacity:0; transform: translateY(8px); }
-      to{ opacity:1; transform: translateY(0); }
-    }
-
-    /* Lock overlay */
-    .locked::after{
-      content:"🔒 locked";
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-size:12px;
-      color: rgba(12,27,42,.62);
+    .cta{
+      width:100%;
+      margin-top: 14px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
       background:
-        radial-gradient(280px 140px at 30% 25%, rgba(25,211,255,.16), transparent 60%),
-        radial-gradient(280px 140px at 80% 25%, rgba(124,92,255,.10), transparent 60%),
-        rgba(255,255,255,.68);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border-radius: 18px;
-      opacity:1;
-      transition: opacity .35s var(--ease), transform .35s var(--ease);
-    }
-    .locked{ filter: saturate(.95); }
-    .unlocked.locked::after{
-      opacity:0;
-      transform: scale(1.02);
-      pointer-events:none;
-    }
-
-    /* Footer */
-    .footer{
-      max-width:1120px; margin:0 auto;
-      padding: 0 18px 28px;
-      color: rgba(12,27,42,.56);
-      font-size:12px;
-      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
-    }
-    .footer .p{
+        linear-gradient(90deg,
+          rgba(255,255,255,.14),
+          rgba(231,216,255,.14),
+          rgba(215,242,255,.12),
+          rgba(255,255,255,.12)
+        );
+      color: var(--ink);
+      font-weight: 950;
       letter-spacing:.14em;
       text-transform:uppercase;
-      font-weight:900;
-      color: rgba(12,27,42,.62);
+      cursor:pointer;
+      user-select:none;
+      box-shadow: 0 0 35px rgba(231,216,255,.12);
+      transition: transform .12s ease, filter .12s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .cta:hover{filter:brightness(1.07)}
+    .cta:active{transform: translateY(1px)}
+    .cta:before{
+      content:"";
+      position:absolute; inset:-60% -40%;
+      background: linear-gradient(120deg,
+        transparent 35%,
+        rgba(255,255,255,.16) 45%,
+        rgba(231,216,255,.14) 52%,
+        transparent 65%
+      );
+      transform: translateX(-35%);
+      animation: shineBtn 3.2s ease-in-out infinite;
+      opacity:.9;
+      pointer-events:none;
+      filter: blur(.2px);
+    }
+    @keyframes shineBtn{
+      0%{transform: translateX(-45%)}
+      55%{transform: translateX(45%)}
+      100%{transform: translateX(45%)}
+    }
+
+    /* Sections */
+    .section{
+      margin-top: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--r);
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--shadow2);
+      padding: 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position:relative;
+      overflow:hidden;
+    }
+    .section h2{
+      margin:0 0 10px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size:13px;
+      color: rgba(248,251,255,.86);
+    }
+    .section .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:12px;
+    }
+    .card{
+      grid-column: span 6;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      padding: 14px;
+      position:relative;
+      overflow:hidden;
+      transition: transform .18s ease, border-color .18s ease, filter .18s ease;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(231,216,255,.22);
+      filter: brightness(1.06);
+    }
+    .card.wide{grid-column: span 12;}
+    @media (max-width: 920px){ .card{grid-column: span 12;} }
+
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      color: rgba(248,251,255,.72);
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .tag .tDot{
+      width:8px; height:8px; border-radius:50%;
+      background: rgba(231,216,255,.80);
+      box-shadow: 0 0 14px rgba(231,216,255,.24);
+    }
+
+    .text{
+      color: rgba(248,251,255,.86);
+      line-height: 1.62;
+      font-size: 13.9px;
+    }
+    .list{
+      margin:10px 0 0;
+      padding-left:18px;
+      color: rgba(248,251,255,.78);
+      line-height:1.62;
+      font-size: 13.4px;
+    }
+    .list li{margin:7px 0}
+
+    /* Scroll reveal */
+    .reveal{opacity:0; transform: translateY(14px); filter: blur(3px);}
+    .reveal.show{opacity:1; transform: translateY(0); filter: blur(0); transition: all .7s ease;}
+
+    /* Tiny micro-glitch */
+    .microglitch{position:relative;}
+    .microglitch:after{
+      content: attr(data-g);
+      position:absolute; inset:0;
+      opacity:0;
+      color: rgba(231,216,255,.65);
+      transform: translateX(-1px);
+      clip-path: inset(0 0 50% 0);
+      animation: micro 6.8s infinite;
+      pointer-events:none;
+    }
+    @keyframes micro{
+      0%, 93%, 100%{opacity:0}
+      94%{opacity:.55}
+      95%{opacity:0}
+    }
+
+    .footer{
+      margin-top: 16px;
+      color: rgba(248,251,255,.58);
+      font-size: 12px;
+      line-height: 1.55;
+      text-align:center;
+      padding: 14px 0 0;
     }
   </style>
 </head>
 
 <body>
+  <div class="fx glow"></div>
+  <div class="fx scanlines"></div>
+  <div class="fx noise"></div>
+  <div class="fx vignette"></div>
+  <canvas id="particles"></canvas>
+
   <div class="wrap">
-    <header class="topbar">
-      <div class="inner">
-        <div class="brand">
-          <span class="dot"></span>
-          <span>protocol</span>
-          <span style="opacity:.65">/</span>
-          <span style="opacity:.85">ADM MODE</span>
+    <div class="topbar">
+      <div class="brand">
+        <div class="sig"></div>
+        <div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <div style="font-weight:950; letter-spacing:.14em;">OFF SCRIPT</div>
+            <div class="chip microglitch" data-g="HUD">HUD</div>
+            <div class="chip microglitch" data-g="SCAN">SCAN</div>
+          </div>
+          <div style="font-size:12px; color:rgba(248,251,255,.62); letter-spacing:.08em; margin-top:4px;">
+            скрытый режим игры: где ты живёшь по сценарию и где у тебя есть ход
+          </div>
         </div>
-
-        <button class="btn primary" id="scanTopBtn">
-          сканировать multipass <span style="opacity:.65">↳</span>
-        </button>
       </div>
-    </header>
 
-    <main class="hero">
-      <section class="card heroMain">
-        <div class="kicker">
-          <span class="chip">быстро</span>
-          <span class="chip">понятно</span>
-          <span class="chip">по делу</span>
-        </div>
+      <div class="chips">
+        <div class="chip">без эзотерики</div>
+        <div class="chip">без обещаний</div>
+        <div class="chip">только структура</div>
+      </div>
+    </div>
 
-        <h1 class="title">
-          <span class="adm">ADM MODE</span>
-          <span style="display:block; margin-top:6px;">скан персонажа</span>
-        </h1>
+    <section class="hero scanning" id="hero">
+      <div class="heroGrid"></div>
+      <div class="scanBeam"></div>
 
-        <p class="sub">
-          Введи дату рождения (время — если знаешь). Получишь базовые характеристики и MULTIPASS.
-          Полная карточка откроет подробную расшифровку.
-        </p>
-
-        <div class="manifest" aria-live="polite">
-          <div class="label">
-            <span>фраза протокола</span>
-            <span class="sig">protocol // signed</span>
+      <div class="heroInner">
+        <!-- Left -->
+        <div class="pane reveal">
+          <h1 class="title">OFF SCRIPT</h1>
+          <div class="subline">
+            <span class="dot"></span>
+            <span>hidden game mode</span>
+            <span style="opacity:.55;">•</span>
+            <span>интерфейс решений</span>
+            <span style="opacity:.55;">•</span>
+            <span>карта игрока</span>
           </div>
-          <div id="manifestText">меньше шума. больше точности.</div>
-        </div>
 
-        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn primary" id="scanMainBtn">сканировать multipass</button>
-          <button class="btn" id="shuffleManifest">обновить фразу</button>
-        </div>
+          <p class="lead">
+            <b>если ты умный, но живёшь не своей жизнью — это не “характер”.</b><br>
+            это сценарий. он работает в фоне и забирает управление так тихо, что ты называешь это “реальностью”.
+          </p>
 
-        <div class="miniHint">Время рождения — не обязательно. Если нет — оставь пустым.</div>
-      </section>
+          <p class="mini">
+            OFF SCRIPT показывает не “кто ты”. а <b>где у тебя отняли ход</b>, какие петли тебя крутят,
+            и какой следующий шаг возвращает контроль.
+          </p>
 
-      <aside class="card scanner">
-        <div class="scannerTop">
-          <h3>сканер</h3>
-          <div class="status">
-            <span class="led" id="led"></span>
-            <span id="statusText">жду дату</span>
+          <div class="proofRow">
+            <div class="proof">
+              <div class="k"><span class="p"></span> почему это работает</div>
+              <div class="v">мы не угадываем. мы строим интерфейс из повторяемых паттернов решений и реакций.</div>
+            </div>
+            <div class="proof">
+              <div class="k"><span class="p"></span> без магии</div>
+              <div class="v">никаких “предсказаний”. только логика, структура и читаемая диагностика.</div>
+            </div>
+            <div class="proof">
+              <div class="k"><span class="p"></span> фильтр</div>
+              <div class="v">если тебе нужно утешение — это не сюда. тут — ясность и ход.</div>
+            </div>
+          </div>
+
+          <div class="mini" style="margin-top:14px;">
+            <span style="opacity:.7">вход занимает</span> <b>60 секунд</b>.
+            <span style="opacity:.7">выход — прежним не будет.</span>
           </div>
         </div>
 
-        <div class="fieldRow">
-          <div class="field">
-            <label for="dob">дата рождения</label>
-            <input id="dob" type="date" />
+        <!-- Right -->
+        <div class="pane reveal">
+          <div class="formTitle">
+            <span>ВХОД В СКАН</span>
+            <span class="statusPill">alpha access</span>
           </div>
-          <div class="field">
-            <label for="tob">время (если знаешь)</label>
-            <input id="tob" type="time" />
+
+          <label>Дата рождения</label>
+          <input id="dob" type="date" />
+
+          <div class="row">
+            <div>
+              <label>Время (если знаешь)</label>
+              <input id="tob" type="time" placeholder="--:--" />
+            </div>
+            <div>
+              <label>Таймзона</label>
+              <select id="tz">
+                <option value="+03:00">UTC+03</option>
+                <option value="+02:00">UTC+02</option>
+                <option value="+01:00">UTC+01</option>
+                <option value="+00:00">UTC+00</option>
+                <option value="-01:00">UTC-01</option>
+                <option value="-02:00">UTC-02</option>
+                <option value="-03:00">UTC-03</option>
+                <option value="-04:00">UTC-04</option>
+                <option value="-05:00">UTC-05</option>
+                <option value="-06:00">UTC-06</option>
+                <option value="-07:00">UTC-07</option>
+                <option value="-08:00">UTC-08</option>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div class="scanPane" id="scanPane" aria-hidden="true">
-          <div class="scanPulse"></div>
-          <div class="scanGrid"></div>
-          <div class="scanLine"></div>
-        </div>
+          <label>Город (опционально)</label>
+          <input id="place" type="text" placeholder="например: Москва" />
 
-        <button class="btn primary" id="scanBtn">start scan</button>
-        <div class="miniHint">
-          У каждого игрока фиксируется свой портрет (из коллекции 144) и редкость.
-        </div>
-      </aside>
-    </main>
+          <button class="cta" id="go">ENTER OFF SCRIPT</button>
 
-    <section class="terminal">
-      <div class="panel">
-        <div class="panelHead">
-          <div class="panelTitle">terminal</div>
-          <div class="lights" aria-hidden="true"><span></span><span></span><span></span></div>
-        </div>
-        <div class="panelBody">
-<pre class="log" id="termLog"><span class="muted">[system]</span> ready
-<span class="muted">[hint]</span> scan starts after date input
-<span class="muted">[protocol]</span> signature embedded</pre>
+          <div class="mini" style="margin-top:12px;">
+            скан выдаёт: <b>ONE-LINER</b>, <b>CORE</b>, <b>LOOPS</b>, <b>QUEST</b>, <b>ENERGY</b>, <b>SETTINGS</b>.
+          </div>
 
-          <div class="paybox">
-            <h4>полная карточка игрока</h4>
-            <p>В базовом скане ты видишь «что есть». В полном доступе — «как этим пользоваться».</p>
-            <button class="btn primary" id="unlockBtn">открыть полный доступ</button>
+          <div class="mini" style="margin-top:10px; opacity:.78">
+            если внутри появился скепсис — нормально. он и есть твой охранник у входа.
           </div>
         </div>
       </div>
     </section>
 
-    <footer class="footer">
-      <div class="p">PROTOCOL</div>
-      <div>© <span id="year"></span> ADM MODE — signature inside.</div>
-    </footer>
-  </div>
-
-  <!-- MODAL -->
-  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-label="MULTIPASS">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="modalTitle">
-          <span class="dot" style="animation:none; box-shadow:0 0 0 8px rgba(25,211,255,.10);"></span>
-          <span>multipass / generated</span>
-        </div>
-        <button class="close" id="closeModal">закрыть</button>
-      </div>
-
-      <div class="modalBody">
-        <div class="stack">
-          <!-- MINI (как права) -->
-          <div class="pass" id="miniCard">
-            <div class="mini">
-              <div class="miniHead">
-                <div class="t">
-                  <div class="t1">MULTIPASS</div>
-                  <div class="t2">
-                    <b>ADM MODE</b>
-                    <span class="rarityBadge" id="rarityBadgeMini">
-                      <span class="rarityDot"></span>
-                      <span id="rarityTextMini">COMMON</span>
-                    </span>
-                    <span class="rarityBadge" style="gap:6px;">
-                      <span style="opacity:.75">№</span>
-                      <span id="p_no">—</span><span style="opacity:.65">/144</span>
-                    </span>
-                  </div>
-                </div>
-                <div class="seal" id="sealMini" aria-hidden="true"></div>
-              </div>
-
-              <div class="avatarFace" title="портрет">
-                <img id="faceImg" src="" alt="портрет игрока">
-              </div>
-
-              <div class="miniInfo">
-                <div class="kv">
-                  <div class="k">id</div>
-                  <div class="v" id="p_id">—</div>
-                </div>
-                <div class="kv">
-                  <div class="k">доступ</div>
-                  <div class="v" id="p_access">BASIC</div>
-                </div>
-                <div class="kv">
-                  <div class="k">роль</div>
-                  <div class="v" id="p_role">—</div>
-                </div>
-                <div class="kv">
-                  <div class="k">энергия</div>
-                  <div class="v" id="p_energy">—</div>
-                </div>
-              </div>
-
-              <div class="miniFoot">
-                <div class="protoSig" id="p_sig">protocol // signed</div>
-                <div id="p_time">—</div>
-              </div>
-            </div>
+    <!-- WHAT YOU GET -->
+    <section class="section reveal">
+      <h2>что ты получишь за 3 минуты</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> ONE-LINER</div>
+          <div class="text">
+            короткий диагноз, который либо попадает — либо ты закрываешь вкладку.
+            компромиссов нет.
           </div>
-
-          <!-- FULL (в рост + подробные хар-ки) -->
-          <div class="pass" id="fullCard">
-            <div class="full">
-              <div class="fullTop">
-                <div class="ttl">
-                  <div class="t1">
-                    FULL PLAYER CARD
-                    <span class="rarityBadge" id="rarityBadgeFull">
-                      <span class="rarityDot"></span>
-                      <span id="rarityTextFull">COMMON</span>
-                    </span>
-                    <span class="rarityBadge" style="gap:6px;">
-                      <span style="opacity:.75">№</span>
-                      <span id="p_no2">—</span><span style="opacity:.65">/144</span>
-                    </span>
-                  </div>
-                  <div class="t2">характеристики</div>
-                </div>
-                <div class="seal" id="sealFull" aria-hidden="true" style="transform:rotate(6deg) scale(.92);"></div>
-              </div>
-
-              <div class="fullBody">
-                <div class="avatarFull" title="портрет">
-                  <img id="fullImg" src="" alt="портрет игрока">
-                </div>
-
-                <div class="stats" id="statsBox">
-                  <div class="line reveal"><b>Роль:</b> <span id="d_role">—</span></div>
-                  <div class="line reveal"><b>Энергия:</b> <span id="d_energy">—</span></div>
-
-                  <!-- Locked until unlock -->
-                  <div class="line locked reveal" data-lock="1"><b>Как действуешь:</b> <span id="d_action">—</span></div>
-                  <div class="line locked reveal" data-lock="1"><b>Общение:</b> <span id="d_social">—</span></div>
-                  <div class="line locked reveal" data-lock="1"><b>Сильная сторона:</b> <span id="d_strong">—</span></div>
-                  <div class="line locked reveal" data-lock="1"><b>Слабое место:</b> <span id="d_weak">—</span></div>
-                  <div class="line locked reveal" data-lock="1"><b>Триггер:</b> <span id="d_trigger">—</span></div>
-                  <div class="line locked reveal" data-lock="1"><b>Навык:</b> <span id="d_skill">—</span></div>
-                  <div class="line locked reveal" data-lock="1"><b>Бонус:</b> <span id="d_bonus">—</span></div>
-                  <div class="line locked reveal" data-lock="1"><b>Задача сейчас:</b> <span id="d_quest">—</span></div>
-                </div>
-              </div>
-
-              <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="btn primary" id="exportPngBtn">экспорт PNG</button>
-                <button class="btn primary" id="exportPdfBtn">экспорт PDF</button>
-                <button class="btn" id="regenBtn">пересканировать</button>
-              </div>
-
-              <div class="miniHint">
-                BASIC показывает базу. FULL ACCESS открывает все строки и расшифровку (позже сюда можно добавить отдельную страницу).
-              </div>
-            </div>
-          </div>
+          <ul class="list">
+            <li>где у тебя отняли ход</li>
+            <li>что ты называешь “характером”</li>
+            <li>какая цена у сценария</li>
+          </ul>
         </div>
 
-        <!-- Right: output + unlock -->
-        <div class="panel">
-          <div class="panelHead">
-            <div class="panelTitle">terminal / output</div>
-            <div class="lights" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> LOOPS</div>
+          <div class="text">
+            петли — это не “проблемы”. это повторяющиеся механики поведения, которые включаются сами.
           </div>
-          <div class="panelBody">
-<pre class="log" id="termOut"><span class="muted">[scan]</span> waiting...</pre>
+          <ul class="list">
+            <li>что тебя триггерит</li>
+            <li>как ты сливаешь ресурс</li>
+            <li>почему “понимание” не помогает</li>
+          </ul>
+        </div>
 
-            <div class="paybox" style="margin-top:12px;">
-              <h4>🔒 unlock</h4>
-              <p>Нажми — и замки спадут. (Оплату подключим позже, здесь уже готова логика unlock.)</p>
-              <button class="btn primary" id="unlockBtn2">открыть полный доступ</button>
-              <button class="btn" id="copyBtn">копировать данные</button>
-            </div>
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> SETTINGS</div>
+          <div class="text">
+            меню управления: команды, которые возвращают доступ. не мотивация. не “полюби себя”. ход.
+          </div>
+          <ul class="list">
+            <li>что выключить</li>
+            <li>что включить</li>
+            <li>какой следующий шаг дать системе</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> QUEST</div>
+          <div class="text">
+            твой повторяющийся квест: тема, в которую ты заходишь снова и снова, пока не пройдёшь.
+          </div>
+          <ul class="list">
+            <li>какой “босс” возвращается</li>
+            <li>какой выбор ты избегаешь</li>
+            <li>что станет иначе после прохождения</li>
+          </ul>
+        </div>
+
+        <div class="card wide">
+          <div class="tag"><span class="tDot"></span> честный фильтр</div>
+          <div class="text">
+            OFF SCRIPT не для всех. и это плюс.
+            <ul class="list">
+              <li>если тебе нужно, чтобы тебя пожалели — закрывай</li>
+              <li>если ты хочешь “быстро и без боли” — закрывай</li>
+              <li>если ты готов увидеть правду и сделать ход — оставайся</li>
+            </ul>
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- WHY TRUST -->
+    <section class="section reveal">
+      <h2>почему скептик остаётся</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> 01</div>
+          <div class="text">
+            мы не продаём “веру”. мы продаём <b>интерфейс</b>. ты видишь структуру — и проверяешь на себе.
+          </div>
+        </div>
+        <div class="card">
+          <div class="tag"><span class="tDot"></span> 02</div>
+          <div class="text">
+            никакой мистики. если тебе “не зашло” — значит, не попало. мы не будем тебя уговаривать.
+          </div>
+        </div>
+        <div class="card wide">
+          <div class="tag"><span class="tDot"></span> 03</div>
+          <div class="text">
+            оффер простой: <b>получи карту</b>. если узнавание есть — дальше решаешь, нужен ли полный доступ.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      OFF SCRIPT — интерфейс ясности и выбора. не медицина. не терапия. не гадание.
     </div>
   </div>
 
-<script>
-  // ====== UI helpers
-  const $ = (id)=>document.getElementById(id);
-  const modalBack = $("modalBack");
-  const scanPane = $("scanPane");
-  const led = $("led");
-  const statusText = $("statusText");
-  const termLog = $("termLog");
-  const termOut = $("termOut");
-
-  // ====== Simple phrases (no pathos)
-  const phrases = [
-    "меньше шума. больше точности.",
-    "я не угадываю. я настраиваю.",
-    "вижу суть — и действую.",
-    "сначала ясность. потом скорость.",
-    "я собираю свой билд."
-  ];
-  function shufflePhrase(){
-    const txt = phrases[Math.floor(Math.random() * phrases.length)];
-    const el = $("manifestText");
-    el.style.opacity = 0;
-    setTimeout(()=>{ el.textContent = txt; el.style.opacity = 1; }, 140);
-  }
-  $("shuffleManifest").addEventListener("click", shufflePhrase);
-  shufflePhrase();
-
-  // ====== Deterministic seed (FNV-like)
-  function hashLike(str){
-    let h = 2166136261;
-    for(let i=0;i<str.length;i++){
-      h ^= str.charCodeAt(i);
-      h = Math.imul(h, 16777619);
+  <script>
+    // Save input and go to map
+    function makeId(dob, tob){
+      const r = Math.random().toString(16).slice(2,6).toUpperCase();
+      const base = dob.replaceAll('-','') + (tob ? tob.replace(':','') : 'XXXX');
+      return "OS-" + base + "-" + r;
     }
-    return (h>>>0);
-  }
-  function pad2(n){ return String(n).padStart(2,"0"); }
-  function nowStamp(){
-    const d = new Date();
-    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
-  }
 
-  // ====== Portraits (144)
-  const PORTRAITS_COUNT = 144;
-  function pickPortraitIndex(seed){
-    return (seed % PORTRAITS_COUNT) + 1; // 1..144
-  }
-  function portraitUrl(idx){
-    return `assets/portraits/p${String(idx).padStart(3,"0")}.jpg`;
-  }
+    document.getElementById('go').addEventListener('click', ()=>{
+      const dob = document.getElementById('dob').value;
+      const tob = document.getElementById('tob').value;
+      const tz = document.getElementById('tz').value;
+      const place = document.getElementById('place').value.trim();
 
-  // ====== Rarity logic (portrait <-> build)
-  // 1-6 Mythic, 7-24 Epic, 25-60 Rare, 61-144 Common
-  function rarityByIndex(idx){
-    if(idx <= 6) return "MYTHIC";
-    if(idx <= 24) return "EPIC";
-    if(idx <= 60) return "RARE";
-    return "COMMON";
-  }
-
-  // Role pools by rarity (simple, understandable)
-  const ROLE_COMMON = ["наблюдатель","сборщик","исполнитель","организатор","исследователь","практик"];
-  const ROLE_RARE   = ["стратег","проводник","ускоритель","синхронизатор","медиатор","архитектор"];
-  const ROLE_EPIC   = ["контролёр хаоса","игрок на грани","мастер фокуса","собиратель влияния"];
-  const ROLE_MYTHIC = ["переломщик правил","ядро протокола","носитель доступа"];
-
-  // Other simple traits
-  const ENERGY = ["ровная","рывками","высокая","бережная","творческая","боевой режим"];
-  const ACTION = ["сначала думаю, потом делаю","делаю быстро, потом правлю","делаю только когда ясно","делаю через вдохновение"];
-  const SOCIAL = ["узкий круг","легко знакомлюсь","мне нужна дистанция","я веду разговор","я мягко веду"];
-  const STRONG = ["ясность","скорость","интуиция","выдержка","влияние","честность"];
-  const WEAK   = ["перегруз","самокритика","откладывание","резкость","усталость","эмо-качели"];
-  const TRIG   = ["давление","контроль","неопределённость","несправедливость","хаос","обесценивание"];
-  const SKILL  = ["держать границы","видеть суть","резать лишнее","собирать план","поднимать себя","вести людей"];
-  const BONUS  = ["чувство правды","+фокус","+скорость обучения","+стойкость","+интуиция"];
-  const QUEST  = ["настроить режим","почистить окружение","собрать цель","усилить тело","выстроить деньги","сделать шаг в новое"];
-
-  function pick(list, seed){ return list[seed % list.length]; }
-
-  // ====== Lock / Unlock
-  let unlocked = false;
-  function applyUnlockState(){
-    const lockedEls = document.querySelectorAll("[data-lock='1']");
-    lockedEls.forEach((el, i)=>{
-      if(unlocked){
-        el.classList.add("unlocked");
-        // лёгкое появление текста после снятия замка
-        setTimeout(()=>{ el.classList.remove("locked"); }, 140 + i*40);
-      } else {
-        el.classList.add("locked");
-        el.classList.remove("unlocked");
+      if(!dob){
+        alert("введи дату рождения.");
+        return;
       }
+
+      const payload = {
+        id: makeId(dob, tob),
+        dob,
+        tob: tob || "",
+        tz,
+        place: place || ""
+      };
+
+      localStorage.setItem("offscript_session", JSON.stringify(payload));
+      window.location.href = "map.html";
     });
 
-    $("p_access").textContent = unlocked ? "FULL" : "BASIC";
-  }
+    // Scroll reveal
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting) e.target.classList.add("show");
+      });
+    }, {threshold: 0.12});
+    document.querySelectorAll(".reveal").forEach(el=>obs.observe(el));
 
-  // ====== Build payload
-  function buildPayload(){
-    const dob = $("dob").value.trim();
-    const tob = ($("tob").value.trim() || "00:00");
-    const seed = hashLike(`${dob}|${tob}|ADM`);
+    // Particles (pearl)
+    const c = document.getElementById("particles");
+    const ctx = c.getContext("2d");
+    let W, H, DPR;
 
-    const idx = pickPortraitIndex(seed);
-    const rarity = rarityByIndex(idx);
-
-    let rolePool = ROLE_COMMON;
-    if(rarity === "RARE") rolePool = ROLE_RARE;
-    if(rarity === "EPIC") rolePool = ROLE_EPIC;
-    if(rarity === "MYTHIC") rolePool = ROLE_MYTHIC;
-
-    // make "rarity affects build" a bit:
-    const role = pick(rolePool, seed >>> 1);
-    const energy = pick(ENERGY, seed >>> 2);
-    const action = pick(ACTION, seed >>> 3);
-    const social = pick(SOCIAL, seed >>> 4);
-    const strong = pick(STRONG, seed >>> 5);
-    const weak   = pick(WEAK,   seed >>> 6);
-    const trigger= pick(TRIG,   seed >>> 7);
-    const skill  = pick(SKILL,  seed >>> 8);
-    let bonus    = pick(BONUS,  seed >>> 9);
-    let quest    = pick(QUEST,  seed >>> 10);
-
-    // Rare boost flavor
-    if(rarity === "EPIC") bonus = bonus + " (усилено)";
-    if(rarity === "MYTHIC") { bonus = bonus + " (максимум)"; quest = "уровень доступа"; }
-
-    return {
-      dob, tob, seed,
-      id: "ADM-" + String(seed).slice(0,10),
-      portraitIndex: idx,
-      portraitUrl: portraitUrl(idx),
-      rarity,
-      role, energy, action, social, strong, weak, trigger, skill, bonus, quest,
-      sig: "protocol // signed",
-      time: nowStamp()
-    };
-  }
-
-  // ====== Render
-  function setRarityUI(rarity){
-    const mapClass = {
-      "COMMON":"rarityCommon",
-      "RARE":"rarityRare",
-      "EPIC":"rarityEpic",
-      "MYTHIC":"rarityMythic"
-    };
-
-    const badgeMini = $("rarityBadgeMini");
-    const badgeFull = $("rarityBadgeFull");
-    badgeMini.className = "rarityBadge " + mapClass[rarity];
-    badgeFull.className = "rarityBadge " + mapClass[rarity];
-    $("rarityTextMini").textContent = rarity;
-    $("rarityTextFull").textContent = rarity;
-
-    // tiny stamp reaction
-    const s1 = $("sealMini"), s2 = $("sealFull");
-    if(rarity === "MYTHIC"){ s1.style.transform="scale(1.02) rotate(-5deg)"; s2.style.transform="scale(.98) rotate(10deg)"; }
-    else if(rarity === "EPIC"){ s1.style.transform="scale(.98) rotate(-3deg)"; s2.style.transform="scale(.96) rotate(8deg)"; }
-    else { s1.style.transform=""; s2.style.transform=""; }
-  }
-
-  function render(p){
-    // Portraits
-    $("faceImg").src = p.portraitUrl;
-    $("fullImg").src = p.portraitUrl;
-
-    // Collection number
-    $("p_no").textContent = String(p.portraitIndex).padStart(3,"0");
-    $("p_no2").textContent = String(p.portraitIndex).padStart(3,"0");
-
-    // Mini
-    $("p_id").textContent = p.id;
-    $("p_role").textContent = p.role;
-    $("p_energy").textContent = p.energy;
-    $("p_sig").textContent = p.sig;
-    $("p_time").textContent = p.time;
-
-    // Full
-    $("d_role").textContent = p.role;
-    $("d_energy").textContent = p.energy;
-    $("d_action").textContent = p.action;
-    $("d_social").textContent = p.social;
-    $("d_strong").textContent = p.strong;
-    $("d_weak").textContent = p.weak;
-    $("d_trigger").textContent = p.trigger;
-    $("d_skill").textContent = p.skill;
-    $("d_bonus").textContent = p.bonus;
-    $("d_quest").textContent = p.quest;
-
-    // Rarity badges
-    setRarityUI(p.rarity);
-
-    // Terminal output
-    termOut.innerHTML =
-`<span class="muted">[scan]</span> <span class="ok">complete</span>
-<span class="muted">[input]</span> dob=${p.dob}  tob=${(p.tob==="00:00" ? "—" : p.tob)}
-<span class="muted">[id]</span> ${p.id}
-<span class="muted">[portrait]</span> #${String(p.portraitIndex).padStart(3,"0")}/144 (${p.rarity})
-<span class="muted">[basic]</span> роль=${p.role} | энергия=${p.energy}
-<span class="muted">[locked]</span> подробные строки закрыты до доступа
-<span class="muted">[stamp]</span> embedded
-<span class="muted">[protocol]</span> ${p.sig}
-<span class="muted">[time]</span> ${p.time}`;
-
-    // Reveal animation reset
-    document.querySelectorAll(".line").forEach((el, i)=>{
-      el.classList.remove("reveal");
-      void el.offsetWidth;
-      setTimeout(()=> el.classList.add("reveal"), 20 + i*35);
-    });
-
-    applyUnlockState();
-  }
-
-  // ====== Scan flow
-  function canScan(){ return $("dob").value.trim().length > 0; }
-  function setReadyState(){
-    if(canScan()){
-      led.classList.add("live");
-      statusText.textContent = "готово";
-    } else {
-      led.classList.remove("live");
-      statusText.textContent = "жду дату";
+    function resize(){
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      W = c.width = Math.floor(window.innerWidth * DPR);
+      H = c.height = Math.floor(window.innerHeight * DPR);
+      c.style.width = window.innerWidth + "px";
+      c.style.height = window.innerHeight + "px";
     }
-  }
-  ["dob","tob"].forEach(id => $(id).addEventListener("input", setReadyState));
-  setReadyState();
+    window.addEventListener("resize", resize);
+    resize();
 
-  function logLine(t){
-    termLog.textContent += "\n" + t;
-    termLog.parentElement.scrollTop = termLog.parentElement.scrollHeight;
-  }
+    const rand = (a,b)=>a+Math.random()*(b-a);
 
-  function openModal(){
-    modalBack.classList.add("show");
-    document.body.style.overflow = "hidden";
-  }
-  function closeModal(){
-    modalBack.classList.remove("show");
-    document.body.style.overflow = "";
-  }
-  $("closeModal").addEventListener("click", closeModal);
-  modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
+    const dots = Array.from({length: 60}, ()=>({
+      x: rand(0, W), y: rand(0, H),
+      r: rand(0.8, 2.2) * DPR,
+      vx: rand(-0.18, 0.18) * DPR,
+      vy: rand(-0.14, 0.14) * DPR,
+      a: rand(0.08, 0.22),
+      hue: rand(230, 285)
+    }));
 
-  let lastPayload = null;
+    function step(){
+      ctx.clearRect(0,0,W,H);
+      for(const d of dots){
+        d.x += d.vx; d.y += d.vy;
+        if(d.x < -40) d.x = W+40;
+        if(d.x > W+40) d.x = -40;
+        if(d.y < -40) d.y = H+40;
+        if(d.y > H+40) d.y = -40;
 
-  function startScan(){
-    if(!canScan()){
-      logLine("[warn] add: date of birth");
-      statusText.textContent = "нужна дата";
-      return;
+        const g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r*8);
+        g.addColorStop(0, `hsla(${d.hue}, 100%, 90%, ${d.a})`);
+        g.addColorStop(1, `hsla(${d.hue}, 100%, 90%, 0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r*8, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(255,255,255,${Math.min(d.a*2,0.35)})`;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+      requestAnimationFrame(step);
     }
-
-    unlocked = false; // reset on every scan
-    applyUnlockState();
-
-    scanPane.classList.add("scanning");
-    statusText.textContent = "сканирую...";
-    led.classList.add("live");
-
-    logLine("[scan] init...");
-    logLine("[scan] reading input...");
-    logLine("[scan] selecting portrait...");
-    logLine("[scan] building multipass...");
-
-    setTimeout(()=> logLine("[stamp] applied"), 520);
-    setTimeout(()=> logLine("[protocol] signed"), 820);
-
-    setTimeout(()=>{
-      scanPane.classList.remove("scanning");
-      statusText.textContent = "готово";
-      const p = buildPayload();
-      lastPayload = p;
-      render(p);
-      openModal();
-    }, 1450);
-  }
-
-  $("scanBtn").addEventListener("click", startScan);
-  $("scanMainBtn").addEventListener("click", startScan);
-  $("scanTopBtn").addEventListener("click", startScan);
-
-  $("regenBtn").addEventListener("click", ()=>{
-    if(!canScan()) return;
-    unlocked = false;
-    const p = buildPayload();
-    lastPayload = p;
-    render(p);
-  });
-
-  // ====== Unlock (payment hook later)
-  function doUnlock(){
-    unlocked = true;
-    applyUnlockState();
-    termOut.innerHTML += `\n<span class="muted">[unlock]</span> <span class="ok">granted</span>`;
-  }
-  $("unlockBtn").addEventListener("click", doUnlock);
-  $("unlockBtn2").addEventListener("click", doUnlock);
-
-  // ====== Copy
-  $("copyBtn").addEventListener("click", async ()=>{
-    if(!lastPayload) return;
-    const p = lastPayload;
-    const t =
-`MULTIPASS / ADM MODE
-№: ${String(p.portraitIndex).padStart(3,"0")}/144 (${p.rarity})
-ID: ${p.id}
-Роль: ${p.role}
-Энергия: ${p.energy}
-${unlocked ? `Как действуешь: ${p.action}
-Общение: ${p.social}
-Сильная сторона: ${p.strong}
-Слабое место: ${p.weak}
-Триггер: ${p.trigger}
-Навык: ${p.skill}
-Бонус: ${p.bonus}
-Задача: ${p.quest}` : `FULL ACCESS: locked`}
-Подпись: ${p.sig}
-Время: ${p.time}`;
-    try{
-      await navigator.clipboard.writeText(t);
-      termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="ok">copied</span>`;
-    }catch(e){
-      termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="warn">blocked</span>`;
-    }
-  });
-
-  // ====== Export PNG/PDF (mini + full)
-  async function nodeToPngDataUrl(node){
-    const canvas = await html2canvas(node, {backgroundColor: null, scale: 2});
-    return canvas.toDataURL("image/png");
-  }
-  function downloadDataUrl(dataUrl, filename){
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
-
-  $("exportPngBtn").addEventListener("click", async ()=>{
-    if(!lastPayload) return;
-    const n = String(lastPayload.portraitIndex).padStart(3,"0");
-    const mini = $("miniCard");
-    const full = $("fullCard");
-    const d1 = await nodeToPngDataUrl(mini);
-    const d2 = await nodeToPngDataUrl(full);
-    downloadDataUrl(d1, `ADM_MULTIPASS_${n}_mini.png`);
-    downloadDataUrl(d2, `ADM_MULTIPASS_${n}_full.png`);
-    termOut.innerHTML += `\n<span class="muted">[export]</span> <span class="ok">png saved</span>`;
-  });
-
-  $("exportPdfBtn").addEventListener("click", async ()=>{
-    if(!lastPayload) return;
-    const { jsPDF } = window.jspdf;
-    const n = String(lastPayload.portraitIndex).padStart(3,"0");
-    const mini = $("miniCard");
-    const full = $("fullCard");
-    const d1 = await nodeToPngDataUrl(mini);
-    const d2 = await nodeToPngDataUrl(full);
-
-    // A4 portrait
-    const pdf = new jsPDF({ orientation:"p", unit:"pt", format:"a4" });
-    const pageW = pdf.internal.pageSize.getWidth();
-    const margin = 28;
-    const maxW = pageW - margin*2;
-
-    // place mini then full
-    const img1 = new Image(); img1.src = d1;
-    const img2 = new Image(); img2.src = d2;
-
-    await new Promise(r=> img1.onload = r);
-    await new Promise(r=> img2.onload = r);
-
-    const h1 = (img1.height / img1.width) * maxW;
-    const h2 = (img2.height / img2.width) * maxW;
-
-    let y = margin;
-    pdf.addImage(d1, "PNG", margin, y, maxW, h1);
-    y += h1 + 18;
-    pdf.addImage(d2, "PNG", margin, y, maxW, h2);
-
-    pdf.save(`ADM_MULTIPASS_${n}.pdf`);
-    termOut.innerHTML += `\n<span class="muted">[export]</span> <span class="ok">pdf saved</span>`;
-  });
-
-  // ====== Year
-  $("year").textContent = new Date().getFullYear();
-</script>
+    step();
+  </script>
 </body>
 </html>
