@@ -1,846 +1,569 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OFF SCRIPT — HUD</title>
-  <meta name="description" content="OFF SCRIPT — карта игрока. Скан завершён: CORE, LOOPS, QUEST, ENERGY, SETTINGS." />
-
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>ADM MODE — MAP / Сканирование</title>
+  <meta name="description" content="ADM MODE — сканирование персонажа и генерация MULTIPASS EXTENDED."/>
   <style>
     :root{
-      --bg:#060812;
-      --ink:#EAF6FF;
-      --muted: rgba(234,246,255,.74);
-
-      --stroke: rgba(120,255,240,.26);
-      --stroke2: rgba(120,255,240,.14);
-
-      --a:#76FFF0;   /* cyan */
-      --b:#FFB35C;   /* amber */
-      --c:#B86BFF;   /* violet */
-      --d:#FF5C8A;   /* pink */
-      --ok:#7CFF7C;
-
-      --shadow: 0 18px 70px rgba(0,0,0,.55);
-      --r:22px;
+      --bg0:#050b10; --bg1:#07121b; --bg2:#0a1a25;
+      --glass: rgba(240,245,255,.07);
+      --stroke: rgba(220,235,255,.18);
+      --stroke2: rgba(220,235,255,.28);
+      --text:#eaf3ff;
+      --muted: rgba(234,243,255,.72);
+      --dim: rgba(234,243,255,.52);
+      --ice:#c8f5ff; --pearl:#d9d0ff; --danger:#ff547a;
+      --shadow: 0 22px 80px rgba(0,0,0,.55);
+      --radius2: 26px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
     }
-
     *{box-sizing:border-box}
-    html,body{height:100%}
     body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color:var(--ink);
+      margin:0; color:var(--text); font-family:var(--sans);
       background:
-        radial-gradient(1100px 600px at 18% 12%, rgba(118,255,240,.14), transparent 60%),
-        radial-gradient(900px 520px at 82% 22%, rgba(255,179,92,.12), transparent 62%),
-        radial-gradient(1000px 700px at 60% 86%, rgba(184,107,255,.12), transparent 65%),
-        radial-gradient(700px 600px at 40% 70%, rgba(255,92,138,.08), transparent 62%),
-        linear-gradient(180deg, #050712 0%, #070A16 45%, #050712 100%);
+        radial-gradient(1200px 800px at 70% 10%, rgba(185,165,255,.22), transparent 55%),
+        radial-gradient(900px 600px at 20% 30%, rgba(200,245,255,.16), transparent 60%),
+        radial-gradient(700px 500px at 70% 75%, rgba(255,84,122,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 40%, var(--bg2));
       overflow-x:hidden;
     }
-
-    /* FX LAYERS */
-    .fx{position:fixed; inset:0; pointer-events:none; z-index:0;}
-    .fx.stars{
-      opacity:.42; mix-blend-mode: screen;
-      background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.35) 50%, transparent 52%),
-        radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,.25) 50%, transparent 52%),
-        radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,.22) 50%, transparent 52%),
-        radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,.18) 50%, transparent 52%),
-        radial-gradient(1px 1px at 55% 10%, rgba(255,255,255,.20) 50%, transparent 52%),
-        radial-gradient(1px 1px at 15% 65%, rgba(255,255,255,.14) 50%, transparent 52%);
-      filter: blur(.25px);
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 18px 80px;}
+    header{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px;}
+    .brand{display:flex;flex-direction:column;gap:8px;}
+    .title{
+      font-size: clamp(26px, 3.6vw, 46px);
+      letter-spacing:.04em;font-weight:800;line-height:1;
+      background: linear-gradient(90deg, #ffffff, var(--ice), var(--pearl), #ffffff);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      filter: drop-shadow(0 0 26px rgba(200,245,255,.10));
+      background-size: 220% 100%;
+      animation: shimmer 7s linear infinite;
     }
-    .fx.scanlines{
-      opacity:.10;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,.06) 0px,
-        rgba(255,255,255,.06) 1px,
-        transparent 2px,
-        transparent 6px
-      );
-      mix-blend-mode: overlay;
+    @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:220% 50%}}
+    .sub{font-family:var(--mono);color:var(--muted);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;}
+    .pill{
+      font-family:var(--mono);
+      border:1px solid var(--stroke2);
+      background: linear-gradient(180deg, rgba(240,245,255,.09), rgba(240,245,255,.04));
+      border-radius:999px;padding:10px 12px;color:var(--muted);
+      box-shadow: var(--shadow);backdrop-filter: blur(10px);
+      display:flex;gap:10px;align-items:center;white-space:nowrap;
     }
-    .fx.vignette{
-      background: radial-gradient(80% 70% at 50% 40%, transparent 55%, rgba(0,0,0,.55) 100%);
-      opacity:.55;
-    }
-
-    .wrap{
+    .dot{width:8px;height:8px;border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--ice));
+      box-shadow: 0 0 12px rgba(200,245,255,.35);
+      animation:pulse 2.4s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.6);opacity:1}}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;margin-top:14px;}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.pill{align-self:flex-start}}
+    .card{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(240,245,255,.08), rgba(240,245,255,.04));
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      overflow:hidden;
       position:relative;
-      z-index:1;
-      max-width: 1160px;
-      margin: 0 auto;
-      padding: 26px 18px 90px;
     }
-
-    /* TOPBAR */
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; flex-wrap:wrap;
-      margin-bottom: 14px;
+    .cap{
+      padding:14px 16px;border-bottom:1px solid rgba(220,235,255,.10);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      background: linear-gradient(90deg, rgba(200,245,255,.08), rgba(217,208,255,.06), transparent);
     }
-    .brand{display:flex; align-items:center; gap:12px; user-select:none;}
-    .sig{
-      width:38px; height:38px; border-radius:12px;
-      border:1px solid rgba(120,255,240,.35);
-      background:
-        radial-gradient(22px 18px at 30% 30%, rgba(118,255,240,.35), transparent 60%),
-        radial-gradient(22px 18px at 70% 70%, rgba(255,179,92,.22), transparent 60%),
-        rgba(0,0,0,.22);
-      box-shadow: 0 0 18px rgba(118,255,240,.18);
-      position:relative; overflow:hidden;
-    }
-    .sig:after{
-      content:"";
-      position:absolute; inset:-20%;
-      background: conic-gradient(from 180deg, transparent, rgba(118,255,240,.22), transparent);
-      animation: spin 5.5s linear infinite;
-      opacity:.75;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
-
+    .cap h3{margin:0;font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
     .chip{
-      font-size:12px;
-      color:rgba(234,246,255,.74);
-      border:1px solid rgba(120,255,240,.18);
-      border-radius:999px;
-      padding:6px 10px;
-      background: rgba(0,0,0,.20);
+      font-family:var(--mono);font-size:12px;color: rgba(234,243,255,.70);
+      border:1px solid rgba(220,235,255,.20);border-radius:999px;padding:8px 10px;background: rgba(240,245,255,.05);
       white-space:nowrap;
     }
-    .chip b{color:rgba(234,246,255,.92)}
-    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;}
-
+    .body{padding:16px}
+    .manifest{margin:0;padding:0 0 6px;font-size:18px;line-height:1.32;font-weight:700}
+    .manifest small{display:block;margin-top:10px;font-family:var(--mono);color:var(--dim);font-weight:500;letter-spacing:.08em;text-transform:uppercase;}
+    .hint{font-family:var(--mono);color:var(--dim);font-size:12px;letter-spacing:.08em;line-height:1.3}
+    .form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    @media (max-width:640px){.form{grid-template-columns:1fr}}
+    label{display:flex;flex-direction:column;gap:8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-family:var(--mono)}
+    input{
+      outline:none;border:1px solid rgba(220,235,255,.18);
+      background: rgba(5,11,16,.35);color:var(--text);
+      padding:12px 12px;border-radius:14px;font-size:14.5px;font-family:var(--sans);
+    }
+    input:focus{border-color: rgba(200,245,255,.45);box-shadow:0 0 0 4px rgba(200,245,255,.10)}
+    .actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
     .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border:1px solid rgba(118,255,240,.35);
-      background: linear-gradient(90deg, rgba(118,255,240,.18), rgba(184,107,255,.14), rgba(255,179,92,.14));
-      color: rgba(234,246,255,.95);
-      font-weight:900;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      cursor:pointer;
-      box-shadow: 0 0 28px rgba(118,255,240,.12);
-      user-select:none;
-      text-decoration:none;
-      transition: transform .12s ease, filter .12s ease;
+      border:1px solid rgba(220,235,255,.22);
+      background: linear-gradient(180deg, rgba(240,245,255,.12), rgba(240,245,255,.06));
+      color:var(--text);border-radius:16px;padding:12px 14px;
+      font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-family:var(--mono);
+      cursor:pointer;box-shadow:0 12px 40px rgba(0,0,0,.28);
     }
-    .btn:hover{filter:brightness(1.06)}
-    .btn:active{transform: translateY(1px)}
-    .ghostBtn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border:1px solid rgba(120,255,240,.22);
-      background: rgba(0,0,0,.18);
-      color: rgba(234,246,255,.90);
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-weight:850;
-      cursor:pointer;
-      user-select:none;
-      text-decoration:none;
+    .btn.primary{border-color: rgba(200,245,255,.34);background: linear-gradient(90deg, rgba(200,245,255,.14), rgba(217,208,255,.12));position:relative;overflow:hidden}
+    .btn.primary:before{
+      content:"";position:absolute;inset:-40% -20%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 40%),
+                  radial-gradient(circle at 70% 60%, rgba(200,245,255,.18), transparent 50%);
+      transform: rotate(8deg);opacity:.9;pointer-events:none;animation:sweep 2.8s ease-in-out infinite;
     }
-    .ghostBtn:hover{filter:brightness(1.08)}
-
-    /* HERO (HUD HEADER) */
-    .hero{
-      border:1px solid rgba(120,255,240,.26);
-      border-radius: var(--r);
-      background: linear-gradient(180deg, rgba(14,18,33,.72), rgba(10,14,28,.58));
-      box-shadow: var(--shadow);
-      position:relative;
-      overflow:hidden;
-      isolation:isolate;
-      padding: 18px;
-      margin-bottom: 14px;
+    @keyframes sweep{0%,100%{transform:translateX(-12%) rotate(8deg);opacity:.55}50%{transform:translateX(12%) rotate(8deg);opacity:.95}}
+    .warn{
+      display:none;
+      border:1px solid rgba(255,84,122,.35);background: rgba(255,84,122,.08);
+      color: rgba(255,210,222,.95);
+      border-radius: 16px;padding: 12px 12px;margin-top: 12px;
+      font-family: var(--sans);line-height:1.35;
     }
-    .hero:before{
-      content:"";
-      position:absolute; inset:-2px;
+    .warn b{font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;display:block;margin-bottom:6px}
+    .scanBar{height:10px;background: rgba(240,245,255,.06);border:1px solid rgba(220,235,255,.10);border-radius:999px;overflow:hidden;margin-top:12px}
+    .scanFill{height:100%;width:0%;background: linear-gradient(90deg, rgba(200,245,255,.25), rgba(217,208,255,.25), rgba(255,84,122,.18));transition: width 950ms ease}
+    .out{display:none}
+    .out.show{display:block;animation:reveal .35s ease-out}
+    @keyframes reveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .terminal{
+      padding:16px;font-family:var(--mono);
       background:
-        radial-gradient(520px 240px at 12% 0%, rgba(118,255,240,.18), transparent 60%),
-        radial-gradient(520px 240px at 88% 0%, rgba(255,179,92,.14), transparent 60%),
-        radial-gradient(520px 240px at 50% 100%, rgba(184,107,255,.12), transparent 62%);
-      pointer-events:none;
-      filter: blur(1px);
-      z-index:0;
+        linear-gradient(180deg, rgba(5,11,16,.55), rgba(5,11,16,.18)),
+        radial-gradient(800px 300px at 10% 10%, rgba(200,245,255,.10), transparent 55%),
+        radial-gradient(900px 360px at 80% 30%, rgba(217,208,255,.08), transparent 60%);
+      border-top:1px solid rgba(220,235,255,.10);
     }
-    .heroGrid{
-      position:absolute; inset:0;
-      pointer-events:none;
-      opacity:.22;
-      background:
-        linear-gradient(to right, rgba(120,255,240,.10) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(120,255,240,.08) 1px, transparent 1px);
-      background-size: 64px 64px;
-      mix-blend-mode: screen;
-      mask: radial-gradient(70% 70% at 50% 35%, #000 55%, transparent 100%);
-      z-index:1;
-    }
-
-    /* SCAN BEAM */
-    .scanBeam{
-      position:absolute; inset:0;
-      pointer-events:none;
-      opacity:0;
-      z-index:2;
-      background:
-        linear-gradient(to bottom,
-          transparent 0%,
-          transparent 25%,
-          rgba(118,255,240,.10) 35%,
-          rgba(118,255,240,.55) 50%,
-          rgba(255,179,92,.18) 52%,
-          transparent 62%,
-          transparent 100%
-        );
-      mix-blend-mode: screen;
-      filter: blur(.2px);
-    }
-    .hero.scanning .scanBeam{
-      opacity:1;
-      animation: scanPass 2.2s linear infinite;
-    }
-    @keyframes scanPass{
-      from { transform: translateY(-35%); }
-      to   { transform: translateY(35%); }
-    }
-
-    .heroInner{
-      position:relative; z-index:3;
-      display:flex; flex-wrap:wrap; gap:14px;
-      align-items:flex-start; justify-content:space-between;
-    }
-
-    h1{
-      margin:0 0 8px;
-      letter-spacing:.14em;
-      font-weight: 950;
-      font-size: 26px;
-      text-transform:uppercase;
-    }
-
-    /* GLITCH TITLE */
-    .glitch{position:relative; text-shadow: 0 0 18px rgba(118,255,240,.14);}
-    .glitch:before, .glitch:after{
-      content: attr(data-text);
-      position:absolute; left:0; top:0;
-      opacity:0;
-      pointer-events:none;
-    }
-    .glitch:before{ transform: translateX(1px); color: rgba(255,92,138,.55); }
-    .glitch:after { transform: translateX(-1px); color: rgba(118,255,240,.55); }
-    @keyframes glitchPulse{
-      0%, 92%, 100% { opacity: 0; }
-      93% { opacity:.85; clip-path: inset(0 0 60% 0); }
-      94% { opacity:.65; clip-path: inset(40% 0 10% 0); }
-      95% { opacity: 0; }
-    }
-    .glitch:before, .glitch:after{ animation: glitchPulse 4.6s infinite; }
-
-    .subline{
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-      margin: 0;
-      color: rgba(234,246,255,.70);
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      font-size:12px;
-    }
-    .badgeDot{
-      width:8px; height:8px; border-radius:50%;
-      background: var(--a);
-      box-shadow: 0 0 14px rgba(118,255,240,.55);
-    }
-
-    .lead{
-      margin: 10px 0 0;
-      font-size: 14px;
-      line-height: 1.6;
-      color: rgba(234,246,255,.88);
-      max-width: 86ch;
-    }
-    .lead b{color:rgba(234,246,255,.98)}
-    .hint{
-      margin-top:10px;
-      color:rgba(234,246,255,.72);
-      font-size:13px;
-      line-height:1.55;
-      max-width: 92ch;
-    }
-
-    .rightCol{
-      display:flex; flex-direction:column; gap:10px;
-      min-width: 260px;
-      align-items:flex-end;
-    }
-
-    /* GRID */
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:14px;
-    }
-    .card{
-      grid-column: span 6;
-      border:1px solid rgba(120,255,240,.18);
-      border-radius: 18px;
-      background: rgba(0,0,0,.18);
-      padding: 16px;
-      position:relative;
-      overflow:hidden;
-      opacity:0; /* animated in */
-      transform: translateY(10px);
-      filter: blur(2px);
-      animation: popIn .55s ease-out forwards;
-    }
-    .card.wide{grid-column: span 12;}
-    @media (max-width: 900px){ .card{grid-column: span 12;} }
-
-    /* cascade */
-    .card:nth-child(1){animation-delay:.06s}
-    .card:nth-child(2){animation-delay:.12s}
-    .card:nth-child(3){animation-delay:.16s}
-    .card:nth-child(4){animation-delay:.20s}
-    .card:nth-child(5){animation-delay:.24s}
-    .card:nth-child(6){animation-delay:.28s}
-    .card:nth-child(7){animation-delay:.32s}
-    .card:nth-child(8){animation-delay:.36s}
-
-    @keyframes popIn{
-      to{ opacity:1; transform: translateY(0); filter: blur(0); }
-    }
-
-    .card:before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(420px 220px at 0% 0%, rgba(118,255,240,.12), transparent 55%),
-        radial-gradient(420px 220px at 100% 0%, rgba(255,179,92,.10), transparent 55%);
-      pointer-events:none;
-      z-index:0;
-    }
-    .card > *{position:relative; z-index:1;}
-
-    .card h3{
-      margin:0 0 10px;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-size:13px;
-    }
-
-    .tag{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(120,255,240,.18);
-      background: rgba(0,0,0,.18);
-      color: rgba(234,246,255,.74);
-      font-size:12px;
-      margin-bottom:10px;
-      user-select:none;
-    }
-    .dot{
-      width:8px; height:8px; border-radius:50%;
-      background: var(--a);
-      box-shadow: 0 0 12px rgba(118,255,240,.5);
-    }
-    .dot.b{background: var(--b); box-shadow: 0 0 12px rgba(255,179,92,.45);}
-    .dot.c{background: var(--c); box-shadow: 0 0 12px rgba(184,107,255,.45);}
-    .dot.d{background: var(--d); box-shadow: 0 0 12px rgba(255,92,138,.45);}
-
-    .line{
-      color: rgba(234,246,255,.90);
-      line-height:1.6;
-      font-size:13.8px;
-    }
-    .line b{color: rgba(234,246,255,.98);}
-
-    .list{
-      margin:10px 0 0;
-      padding-left:18px;
-      color: rgba(234,246,255,.78);
-      line-height:1.6;
-      font-size:13.3px;
-    }
-    .list li{margin:7px 0}
-
-    .callout{
-      border:1px solid rgba(255,179,92,.18);
-      background: rgba(0,0,0,.18);
-      border-radius: 16px;
-      padding: 12px;
-      color: rgba(234,246,255,.86);
-      line-height: 1.6;
-      font-size: 13.7px;
-    }
-
-    .footer{
-      margin-top:16px;
-      font-size:12px;
-      color: rgba(234,246,255,.58);
-      line-height:1.55;
-      border-top:1px solid rgba(120,255,240,.12);
-      padding-top:14px;
-    }
+    .termRow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed rgba(220,235,255,.12);flex-wrap:wrap}
+    .termRow:last-child{border-bottom:none}
+    .k{color: rgba(234,243,255,.60);letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+    .v{color: rgba(234,243,255,.95);font-size:13px}
+    .lists{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:820px){.lists{grid-template-columns:1fr}}
+    .box{border:1px solid rgba(220,235,255,.14);background: rgba(240,245,255,.05);border-radius:16px;padding:12px}
+    .box h4{margin:0 0 10px;font-family:var(--mono);color: rgba(234,243,255,.72);letter-spacing:.14em;text-transform:uppercase;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .badge{font-family:var(--mono);font-size:11.5px;padding:6px 8px;border-radius:999px;border:1px solid rgba(220,235,255,.20);background: rgba(5,11,16,.35);color: rgba(234,243,255,.72)}
+    .box ul{margin:0;padding-left:16px;color: rgba(234,243,255,.86);line-height:1.45;font-size:14px;font-family:var(--sans)}
+    details{border:1px solid rgba(220,235,255,.14);border-radius:16px;background: rgba(240,245,255,.05);padding:10px 12px;margin-top:12px}
+    summary{cursor:pointer;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;color: rgba(234,243,255,.72);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    summary::-webkit-details-marker{display:none}
+    .small{margin-top:10px;color: rgba(234,243,255,.80);line-height:1.45;font-size:14px;font-family:var(--sans)}
   </style>
 </head>
 
 <body>
-  <div class="fx stars"></div>
-  <div class="fx scanlines"></div>
-  <div class="fx vignette"></div>
-
   <div class="wrap">
-    <div class="topbar">
+    <header>
       <div class="brand">
-        <div class="sig"></div>
-        <div>
-          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <div style="font-weight:900; letter-spacing:.12em;">OFF SCRIPT</div>
-            <div class="chip">HUD</div>
-            <div class="chip">PLAYER MAP</div>
-          </div>
-          <div style="font-size:12px; color:rgba(234,246,255,.62); letter-spacing:.06em;">
-            scan → signature → loops → next move
-          </div>
-        </div>
+        <div class="title">ADM MODE</div>
+        <div class="sub">MAP / Сканирование персонажа • MULTIPASS EXTENDED</div>
       </div>
-
-      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
-        <a class="ghostBtn" href="index.html">← назад</a>
-        <a class="btn" href="pricing.html">К ПРАЙСУ</a>
+      <div class="pill">
+        <span class="dot"></span>
+        <span>STATUS: ONLINE</span>
+        <span style="opacity:.55">•</span>
+        <span>TERMINAL: READY</span>
       </div>
-    </div>
-
-    <section class="hero" id="hero">
-      <div class="heroGrid"></div>
-      <div class="scanBeam"></div>
-
-      <div class="heroInner">
-        <div style="max-width: 760px;">
-          <h1 class="glitch" data-text="SCAN COMPLETE">SCAN COMPLETE</h1>
-          <div class="subline">
-            <span class="badgeDot"></span>
-            <span>OFF SCRIPT</span>
-            <span style="opacity:.55;">•</span>
-            <span>твоё текущее состояние</span>
-          </div>
-
-          <p class="lead" id="heroLead">
-            <b>это не тест и не “описание личности”.</b><br>
-            это HUD твоих решений: где ты управляешь, а где тебя ведёт сценарий.
-          </p>
-
-          <div class="hint">
-            если где-то внутри стало неприятно — отлично. значит, ты увидел место, где тебя выключали.
-          </div>
-        </div>
-
-        <div class="rightCol">
-          <div class="chip"><b>ID</b>: <span class="mono" id="sid">—</span></div>
-          <div class="chip"><b>DOB</b>: <span class="mono" id="sdob">—</span> <span id="stob"></span></div>
-          <div class="chip"><b>TZ</b>: <span class="mono" id="stz">—</span></div>
-          <div class="chip"><b>PLACE</b>: <span class="mono" id="splace">—</span></div>
-        </div>
-      </div>
-    </section>
+    </header>
 
     <div class="grid">
-      <!-- 1 -->
-      <div class="card wide">
-        <h3>ONE-LINER</h3>
-        <div class="tag"><span class="dot"></span> быстрый диагноз</div>
-        <div class="line mono" id="oneLiner">—</div>
-        <div class="line" style="margin-top:10px; color:rgba(234,246,255,.76)" id="oneLinerSub">—</div>
-      </div>
+      <section class="card">
+        <div class="cap">
+          <h3>TERMINAL</h3>
+          <span class="chip">INPUT → SCAN → OUTPUT</span>
+        </div>
+        <div class="body">
+          <p class="manifest" id="manifestText"></p>
+          <p class="hint">Введи дату и нажми “СКАНИРОВАНИЕ”. Генерация детерминированная: одинаковый ввод = одинаковый MULTIPASS.</p>
 
-      <!-- 2 -->
-      <div class="card">
-        <h3>PLAYER STATUS</h3>
-        <div class="tag"><span class="dot b"></span> где ты сейчас</div>
-        <div class="line" id="statusText">—</div>
-        <ul class="list" id="statusList"></ul>
-      </div>
+          <div class="form">
+            <label>дата рождения
+              <input id="dob" type="text" inputmode="numeric" placeholder="ДД.ММ.ГГГГ (например 01.08.1996)">
+            </label>
+            <label>имя / ник (опционально)
+              <input id="name" type="text" placeholder="Любое имя">
+            </label>
+          </div>
 
-      <!-- 3 -->
-      <div class="card">
-        <h3>CORE</h3>
-        <div class="tag"><span class="dot c"></span> твоя базовая логика</div>
-        <div class="line" id="coreTitle">—</div>
-        <ul class="list" id="coreList"></ul>
-      </div>
+          <div class="actions">
+            <button class="btn primary" id="scanBtn">СКАНИРОВАНИЕ</button>
+            <button class="btn" id="clearBtn">СБРОС</button>
+            <span class="hint" id="helper">После скана появится полный MULTIPASS EXTENDED + скрытые поля.</span>
+          </div>
 
-      <!-- 4 -->
-      <div class="card">
-        <h3>LOOPS</h3>
-        <div class="tag"><span class="dot d"></span> петли, которые крутят</div>
-        <div class="line" id="loopsText">—</div>
-        <ul class="list" id="loopsList"></ul>
-      </div>
+          <div class="scanBar" aria-hidden="true"><div class="scanFill" id="scanFill"></div></div>
 
-      <!-- 5 -->
-      <div class="card">
-        <h3>QUEST</h3>
-        <div class="tag"><span class="dot"></span> твой повторяющийся квест</div>
-        <div class="line" id="questText">—</div>
-        <ul class="list" id="questList"></ul>
-      </div>
-
-      <!-- 6 -->
-      <div class="card">
-        <h3>ENERGY</h3>
-        <div class="tag"><span class="dot b"></span> ресурс и утечки</div>
-        <div class="line" id="energyText">—</div>
-        <ul class="list" id="energyList"></ul>
-      </div>
-
-      <!-- 7 -->
-      <div class="card">
-        <h3>SETTINGS</h3>
-        <div class="tag"><span class="dot c"></span> меню управления</div>
-        <div class="line" id="controlText">—</div>
-        <ul class="list" id="controlList"></ul>
-      </div>
-
-      <!-- 8 -->
-      <div class="card wide">
-        <h3>FULL ACCESS</h3>
-        <div class="callout">
-          <b>этот экран — обзор.</b> он показывает структуру, но не вскрывает её до причины.<br><br>
-          <b>полный доступ</b> нужен, если ты хочешь:
-          <ul class="list" style="margin-top:10px;">
-            <li>понять, почему именно эти петли включаются у тебя</li>
-            <li>увидеть точку, где ты отдаёшь управление (и как забрать)</li>
-            <li>получить следующий ход, который даст сдвиг, а не “мотивацию на вечер”</li>
-          </ul>
-          <div class="line" style="margin-top:12px; color:rgba(234,246,255,.78)">
-            без обещаний. без утешений. только разбор и точный ход.
+          <div class="warn" id="inputWarn">
+            <b>WARNING</b>
+            Введи дату в формате <span style="font-family:var(--mono)">ДД.ММ.ГГГГ</span>.
           </div>
         </div>
+      </section>
 
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; justify-content:flex-end;">
-          <button class="ghostBtn" id="copyBtn" type="button">СКОПИРОВАТЬ ОТЧЁТ</button>
-          <a class="btn" href="pricing.html">ОТКРЫТЬ ПРАЙС</a>
+      <section class="card">
+        <div class="cap">
+          <h3>MULTIPASS OUTPUT</h3>
+          <span class="chip" id="outChip">WAITING FOR INPUT</span>
         </div>
 
-        <div class="footer">
-          OFF SCRIPT не является медицинской/психологической услугой. это интерфейс для ясности и выбора.
+        <div class="out" id="out">
+          <div class="terminal" id="terminal"></div>
         </div>
-      </div>
+
+        <div class="body" id="outPlaceholder">
+          <p class="hint" style="margin:0;">Результат появится здесь после сканирования.</p>
+        </div>
+      </section>
     </div>
   </div>
 
-  <script>
-    // ===== OFF SCRIPT — HUD ENGINE v1 =====
-    function sumDigits(str){
-      return String(str).replace(/\\D/g,'').split('').reduce((a,c)=>a+Number(c),0);
-    }
-    function reduceTo1to9(n){
-      while(n>9){ n = String(n).split('').reduce((a,c)=>a+Number(c),0); }
-      return n;
-    }
-    function pad2(n){ return String(n).padStart(2,'0'); }
+<script>
+/* ========= ADM MODE генератор (богатый для всех) ========= */
 
-    function readSession(){
-      try{ return JSON.parse(localStorage.getItem("offscript_session") || "null"); }
-      catch(e){ return null; }
-    }
+const manifestPool = [
+  "Если система закрывает двери — я становлюсь дверью.<br/>Если система ставит границы — я становлюсь линией разрыва.<small>манифест меняется каждый запуск</small>",
+  "Система не выдаёт разрешений. Система фиксирует факт.<br/>Ты не просишь доступ. Ты подтверждаешь допуск.<small>манифест меняется каждый запуск</small>",
+  "Там, где другие ждут — я запускаю.<br/>Там, где другие сомневаются — я фиксирую выбор.<small>манифест меняется каждый запуск</small>",
+  "Я не «исправляюсь». Я переключаю режим.<br/>Я не убеждаю. Я запускаю протокол.<small>манифест меняется каждый запуск</small>",
+  "Слабость — это не боль. Слабость — это зависимость.<br/>ADM MODE отключает зависимость.<small>манифест меняется каждый запуск</small>"
+];
 
-    // CORE SIGNATURE (1..9). Потом расширим под твою систему.
-    const CORE = {
-      1: {title:"ты не ищешь себя. ты хочешь право решать.", bullets:[
-        "когда выбора нет — ты загораешься и давишь",
-        "тебе нужен контроль над шагом, а не над людьми",
-        "debuff: превращаешь контроль в броню"
-      ]},
-      2: {title:"ты чувствуешь людей. но иногда отдаёшь управление ради тишины.", bullets:[
-        "ты ловишь контекст быстрее других",
-        "debuff: уступаешь, чтобы не рушить связь",
-        "если молчишь — копишь урон внутри"
-      ]},
-      3: {title:"тебе нужен голос и движение. иначе система гасит тебя.", bullets:[
-        "ты оживаешь, когда выражаешься (текст/речь/дело)",
-        "debuff: распыление и откладывание старта",
-        "враг: самообесценивание"
-      ]},
-      4: {title:"ты строишь опору. даже когда делаешь вид, что живёшь без правил.", bullets:[
-        "ты сильнее, когда правила выбраны тобой",
-        "debuff: страх ошибки превращает тебя в бетон",
-        "тебе нужен старт “пока криво”"
-      ]},
-      5: {title:"ты не нестабильный. ты не переносишь клетку.", bullets:[
-        "тебе нужен воздух: смена, движение, риск",
-        "debuff: ломать раньше, чем выбрать ход",
-        "counter: свобода + дисциплина"
-      ]},
-      6: {title:"ты держишь качество. но спасательство ест твой ресурс.", bullets:[
-        "ты умеешь улучшать и защищать",
-        "debuff: брать чужое как своё",
-        "counter: границы = щит"
-      ]},
-      7: {title:"ты видишь глубже. но если зависаешь в анализе — игра встаёт.", bullets:[
-        "ты читаешь людей и ситуации как сканер",
-        "debuff: изоляция и перфекционизм",
-        "counter: шаг до готовности"
-      ]},
-      8: {title:"твой язык — ресурс и власть. не прячь его.", bullets:[
-        "ты стратег, если играешь честно",
-        "debuff: контроль ради безопасности",
-        "тебе важно “на своих условиях”"
-      ]},
-      9: {title:"ты закрываешь циклы. но ты не обязана держать весь мир.", bullets:[
-        "ты чувствуешь смысл и картину целиком",
-        "debuff: выгорание от роли “тащить”",
-        "counter: завершать и отпускать"
-      ]},
-    };
+const $ = (id)=>document.getElementById(id);
+const dobEl = $("dob"), nameEl = $("name");
+const scanBtn = $("scanBtn"), clearBtn = $("clearBtn");
+const out = $("out"), terminal = $("terminal");
+const outChip = $("outChip"), outPlaceholder = $("outPlaceholder");
+const manifestText = $("manifestText"), scanFill = $("scanFill");
+const warn = $("inputWarn"), helper = $("helper");
 
-    function pickEntryMode(D){
-      // как ты входишь в действие
-      if(D <= 10) return {
-        tag: "STALL", // стильный ярлык
-        text: "ты зависаешь перед входом. не потому что слабый — потому что ждёшь идеальный момент.",
-        bullets: [
-          "ждёшь уверенность вместо шага",
-          "не называешь условия — и тебя несёт",
-          "сливаешь ход до старта"
-        ]
-      };
-      if(D >= 21) return {
-        tag: "OVERDRIVE",
-        text: "ты входишь рывком. забираешь всё. и потом падаешь. сила есть — дозировки нет.",
-        bullets: [
-          "делаешь резко и до конца",
-          "если не ты — никто",
-          "конфликт включается быстрее диалога"
-        ]
-      };
-      return {
-        tag: "AUTO",
-        text: "ты играешь ‘нормально’, но без острого выбора. привычка ведёт сильнее, чем желание.",
-        bullets: [
-          "готовишься дольше, чем делаешь",
-          "сравнение жрёт ресурс",
-          "решения откладываются ‘на потом’"
-        ]
-      };
-    }
+setManifest();
 
-    function questByLifePath(lp){
-      const Q = {
-        1: ["квест: перестать доказывать — начать выбирать", "босс: зависимость от контроля"],
-        2: ["квест: выйти из режима “удобно всем”", "босс: страх конфликта"],
-        3: ["квест: говорить ясно, не прятать смысл", "босс: страх быть увиденным"],
-        4: ["квест: строить свою систему, а не чужую", "босс: страх ошибки"],
-        5: ["квест: свобода без самосноса", "босс: импульсивные решения"],
-        6: ["квест: помогать без спасательства", "босс: вина"],
-        7: ["квест: действовать, а не анализировать", "босс: изоляция"],
-        8: ["квест: власть на своих условиях", "босс: контроль ради безопасности"],
-        9: ["квест: завершать и не выгорать", "босс: роль спасателя"],
-      };
-      return Q[lp] || ["квест: выйти из сценария", "босс: автопилот"];
-    }
+function setManifest(){
+  manifestText.innerHTML = manifestPool[Math.floor(Math.random()*manifestPool.length)];
+}
 
-    function energyByMonth(M){
-      const E = {
-        1:["regen: старт и движение","leak: ожидание","item: действие до сомнений"],
-        2:["regen: доверие","leak: подавленный конфликт","item: честный разговор"],
-        3:["regen: выражение","leak: самокритика","item: выпустить текст/голос"],
-        4:["regen: порядок","leak: хаос","item: список 3 дел"],
-        5:["regen: смена среды","leak: рутина","item: новый маршрут"],
-        6:["regen: забота с границами","leak: спасательство","item: “нет” без объяснений"],
-        7:["regen: тишина","leak: шум","item: 30 минут одиночества"],
-        8:["regen: власть и масштаб","leak: чужие правила","item: один жёсткий выбор в день"],
-        9:["regen: смысл","leak: суета","item: закрыть 1 хвост"],
-        10:["regen: точность","leak: расплывчатость","item: правило на день"],
-        11:["regen: видение","leak: сомнение","item: решение без обсуждений"],
-        12:["regen: гибкость","leak: вина","item: отпустить одно “надо”"],
-      };
-      return E[M] || ["regen: движение","leak: сомнения","item: действие"];
-    }
+function validDOB(d){
+  const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec((d||"").trim());
+  if(!m) return false;
+  const dd = +m[1], mm=+m[2], yy=+m[3];
+  if(mm<1||mm>12||dd<1||dd>31||yy<1900||yy>2100) return false;
+  const dt = new Date(yy, mm-1, dd);
+  return dt && dt.getFullYear()===yy && dt.getMonth()===(mm-1) && dt.getDate()===dd;
+}
 
-    function settingsPack(lp, entry){
-      const list = [
-        "command: один ручной выбор в день (без обсуждений)",
-        "command: “я выбираю” — вслух или текстом",
-        "rule: не торговаться с собой"
-      ];
-      if(lp === 8 || lp === 1){
-        list.unshift("marker: у тебя высокий потенциал управления — вопрос, где ты его слил");
-      }
-      if(entry === "OVERDRIVE"){
-        list.push("stop: не решай на эмоции. решай на фактах.");
-      } else if(entry === "STALL"){
-        list.push("start: сделай ход до уверенности.");
-      } else {
-        list.push("hack: поменяй одну привычку и смотри, что вскроется.");
-      }
-      return list;
-    }
+// FNV-1a
+function hashStr(str){
+  let h = 2166136261;
+  for(let i=0;i<str.length;i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h>>>0);
+}
+function mulberry32(seed){
+  return function(){
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+}
+function pick(rng, arr){ return arr[Math.floor(rng()*arr.length)]; }
+function shuffle(rng, arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(rng()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function makeId(dob){
+  const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(dob);
+  return `108-${m[1]}${m[2]}${m[3].slice(2)}`;
+}
+function pad2(n){ return String(n).padStart(2,"0"); }
 
-    function buildReport(session){
-      const [Y,M,D] = session.dob.split("-").map(Number);
-      const lp = reduceTo1to9(sumDigits(`${Y}${pad2(M)}${pad2(D)}`));
-      const core = CORE[lp] || CORE[7];
-      const entry = pickEntryMode(D);
-      const quest = questByLifePath(lp);
-      const energy = energyByMonth(M);
+function computeProfile(rng, dob, name){
+  const archetypes = [
+    {a:"Catalyst / Breakpoint", role:"Trigger Unit", pos:"Outside Grid", tag:"HIGH IMPACT"},
+    {a:"Architect of Chaos", role:"System Rewriter", pos:"Edge Node", tag:"SYSTEM SHIFT"},
+    {a:"Cold Operator", role:"Decision Engine", pos:"Silent Core", tag:"NOISELESS"},
+    {a:"Signal Distorter", role:"Pattern Breaker", pos:"Off-Route", tag:"ANTI-PATTERN"},
+    {a:"Apex Initiator", role:"Gate Opener", pos:"No Man’s Zone", tag:"ACCESS"},
+    {a:"Pressure Reactor", role:"Impact Unit", pos:"Borderline", tag:"OVERLOAD"}
+  ];
 
-      // ONE-LINER: хлёстко, но без дешёвого унижения
-      let one = "ты не ‘странный’. ты просто живёшь по сценарию, который когда-то помог выжить.";
-      if(lp === 8) one = "ты умеешь управлять. но часть власти ты отдал — и теперь бесишься, а не выбираешь.";
-      if(lp === 1) one = "тебе нужен контроль над выбором. когда его нет — ты превращаешься в огонь без цели.";
-      if(lp === 5) one = "ты хочешь свободы. но иногда путаешь свободу с разрушением.";
-      const oneSub = "узнал себя? отлично. значит, у тебя есть точка входа. дальше — выбор.";
+  const engines = [
+    {type:"Internal Pressure", mode:"Compression → Release", note:"тебе нельзя долго удерживать импульс — он превращается в яд."},
+    {type:"Focus Spike", mode:"Silence → Strike", note:"ты копишь тишину, а потом делаешь один точный удар."},
+    {type:"Anger as Fuel", mode:"Friction → Force", note:"сопротивление среды заряжает тебя. без трения ты засыпаешь."},
+    {type:"Void Drive", mode:"Empty → Exact", note:"пустота — твой ресурс. шум — твой враг."},
+    {type:"High Voltage Will", mode:"Load → Break", note:"чем выше давление — тем точнее ты становишься."}
+  ];
 
-      const statusText = "ты уже в игре. вопрос не “получится ли”. вопрос — кто сейчас держит управление.";
-      const statusList = [
-        `life code: ${lp} (core signature)`,
-        `input mode: ${entry.tag}`,
-        "цель карты: найти, где управление не у тебя"
-      ];
+  const thinking = [
+    {mode:"Non-linear", percep:"Multi-layer", decision:"Instant / Irreversible"},
+    {mode:"Strategic", percep:"Threat-aware", decision:"Fast / Cold"},
+    {mode:"Pattern Hunter", percep:"X-ray", decision:"Binary / No Return"},
+    {mode:"Surgical", percep:"Minimalism", decision:"Precise / Final"}
+  ];
 
-      const loopsText = "это места, где ты повторяешь одно и то же — и называешь это “жизнью”.";
-      const loopsList = entry.bullets;
+  const social = [
+    {mode:"Observer / Out of Role", text:"ты считываешь фальшь быстрее, чем люди успевают сыграть."},
+    {mode:"Selective Contact", text:"ты выбираешь окружение как инструмент: по функции, не по эмоции."},
+    {mode:"No Hierarchy", text:"иерархии без смысла вызывают внутренний отказ."},
+    {mode:"Controlled Exposure", text:"ты либо близко, либо далеко. середины мало."}
+  ];
 
-      const questText = "это твоя тема. пока ты её не видишь — она видит тебя.";
-      const questList = quest;
+  const strengths = [
+    "иммунитет к массовым сценариям",
+    "высокая автономность мышления",
+    "способность действовать без поддержки",
+    "устойчивость к хаосу",
+    "быстрое считывание мотивов",
+    "точность решений под давлением",
+    "умение держать пустоту",
+    "резкое восстановление после ударов",
+    "невосприимчивость к манипуляциям",
+    "умение резать лишнее без жалости"
+  ];
 
-      const energyText = "ресурс уходит туда, где ты действуешь против себя. возвращается, когда играешь честно.";
-      const energyList = energy;
+  const vulnerabilities = [
+    "перегрев при задержке действия",
+    "нетерпимость к фальши",
+    "резкие обрывы без объяснений",
+    "отвращение к медленному темпу",
+    "выгорание при попытке быть «нормальным»",
+    "самоконтроль вместо действия",
+    "внутренняя ярость при ограничениях",
+    "скука как саботаж",
+    "непереносимость пустых разговоров"
+  ];
 
-      const controlText = "это меню управления. не советы. команды, которые возвращают доступ.";
-      const controlList = settingsPack(lp, entry.tag);
+  const blockers = [
+    {type:"Overcontrol", trigger:"External Expectations", fix:"отключается действием, не анализом"},
+    {type:"Delay Start", trigger:"Fear of Wrong Move", fix:"лечится одним запуском"},
+    {type:"People Anchor", trigger:"Loyalty to Dead Links", fix:"отрезается без переговоров"},
+    {type:"Explanation Loop", trigger:"Need to Be Understood", fix:"снимается молчанием + результатом"},
+    {type:"Perfection Trap", trigger:"High Inner Bar", fix:"ломается грубым прототипом"}
+  ];
 
-      return {
-        one, oneSub,
-        statusText, statusList,
-        core,
-        loopsText, loopsList,
-        questText, questList,
-        energyText, energyList,
-        controlText, controlList
-      };
-    }
+  const routing = [
+    {priority:"HIGH", shift:"ACTIVE", fail:"Passive Observation", rule:"если ты смотришь — ты не управляешь"},
+    {priority:"VERY HIGH", shift:"ACTIVE", fail:"Doubt / Delay", rule:"сомнение — это слив ветки"},
+    {priority:"HIGH", shift:"ACTIVE", fail:"Waiting for Signs", rule:"знаки приходят после действия, не до"}
+  ];
 
-    function el(id){ return document.getElementById(id); }
-    function fillList(id, arr){
-      const ul = el(id);
-      ul.innerHTML = "";
-      arr.forEach(x=>{
-        const li = document.createElement("li");
-        li.textContent = x;
-        ul.appendChild(li);
-      });
-    }
+  const prohibited = [
+    "роль ученика",
+    "ожидание разрешения",
+    "зависимость от авторитетов",
+    "жизнь по инструкции",
+    "коллективные цели без смысла",
+    "попытка быть удобным",
+    "объяснения вместо результата",
+    "долгие переговоры с мёртвыми связями"
+  ];
 
-    function makeId(dob, tob){
-      const r = Math.random().toString(16).slice(2,6).toUpperCase();
-      const base = dob.replaceAll('-','') + (tob ? tob.replace(':','') : 'XXXX');
-      return "OS-" + base + "-" + r;
-    }
+  const optimal = [
+    "одиночные циклы",
+    "резкие решения",
+    "ограниченное окружение",
+    "высокая концентрация",
+    "минимум объяснений",
+    "перезапуск среды действиями",
+    "короткие рывки → пауза",
+    "работа в тишине"
+  ];
 
-    function init(){
-      const s = readSession();
-      if(!s){
-        alert("данных нет. вернись на главную и нажми ENTER OFF SCRIPT.");
-        window.location.href = "index.html";
-        return;
-      }
+  const privatePool = [
+    "ты не обязана быть понятой. ты обязана быть точной.",
+    "если ты ждёшь — ветка уходит. если действуешь — ветка перестраивается.",
+    "система не спорит. система фиксирует факт. действуй.",
+    "никогда не объясняй там, где достаточно результата.",
+    "не лечи то, что можно отключить."
+  ];
 
-      // scan animation once
-      const hero = document.getElementById("hero");
-      hero.classList.add("scanning");
-      setTimeout(()=> hero.classList.remove("scanning"), 2600);
+  const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(dob);
+  const dd = +m[1], mm = +m[2], yy = +m[3];
 
-      // show ids
-      el("sid").textContent = s.id || makeId(s.dob, s.tob);
-      el("sdob").textContent = s.dob || "—";
-      el("stob").textContent = s.tob ? (" • " + s.tob) : "";
-      el("stz").textContent = s.tz || "—";
-      el("splace").textContent = s.place || "—";
+  const arch = pick(rng, archetypes);
+  const eng  = pick(rng, engines);
+  const th   = pick(rng, thinking);
+  const soc  = pick(rng, social);
+  const blk  = pick(rng, blockers);
+  const rt   = pick(rng, routing);
 
-      const r = buildReport(s);
+  const sPick = shuffle(rng, strengths).slice(0,6);
+  const vPick = shuffle(rng, vulnerabilities).slice(0,5);
+  const pPick = shuffle(rng, prohibited).slice(0,5);
+  const oPick = shuffle(rng, optimal).slice(0,5);
 
-      el("oneLiner").textContent = r.one;
-      el("oneLinerSub").textContent = r.oneSub;
+  // hooks for “узнавание”
+  const hooks = [];
+  if(dd === 1) hooks.push("у тебя врождённая тяга к старту. если не стартуешь — энергия становится ядом.");
+  if(dd >= 20) hooks.push("ты плохо переносишь ожидание. чем дольше пауза — тем жестче будет срыв.");
+  if(mm === 1) hooks.push("твоя сила — личная независимость. слабое место — гордость, которая не просит помощи даже когда надо.");
+  if(mm === 8) hooks.push("твоя зона силы — лидерство без просьбы. слабое место — внутренняя планка, которая тормозит запуск.");
+  if(yy % 2 === 0) hooks.push("ты быстрее реагируешь телом, чем словами: ощущения точнее объяснений.");
+  if((name||"").trim().length > 0) hooks.push("твоё имя в системе — якорь. используй его как команду, не как украшение.");
 
-      el("statusText").textContent = r.statusText;
-      fillList("statusList", r.statusList);
+  return {arch, eng, th, soc, blk, rt, sPick, vPick, pPick, oPick, hooks, privateMsg: pick(rng, privatePool)};
+}
 
-      el("coreTitle").textContent = r.core.title;
-      fillList("coreList", r.core.bullets);
+function render(profile, dob, name){
+  const id = makeId(dob);
+  const displayName = (name||"").trim() ? (name||"").trim() : "UNNAMED";
 
-      el("loopsText").textContent = r.loopsText;
-      fillList("loopsList", r.loopsList);
+  const hookText = profile.hooks.length
+    ? ("• " + profile.hooks.join("\n• "))
+    : "• система не выдаёт лести. только функциональный профиль.";
 
-      el("questText").textContent = r.questText;
-      fillList("questList", r.questList);
+  return `
+<div class="termRow"><div class="k">MULTIPASS</div><div class="v">EXTENDED / ACTIVE</div></div>
+<div class="termRow"><div class="k">ID</div><div class="v">${id}</div></div>
+<div class="termRow"><div class="k">ENTITY</div><div class="v">${escapeHtml(displayName)}</div></div>
+<div class="termRow"><div class="k">DATE OF BIRTH</div><div class="v">${dob}</div></div>
+<div class="termRow"><div class="k">CLEARANCE</div><div class="v">AUTONOMOUS</div></div>
+<div class="termRow"><div class="k">SYSTEM FLAG</div><div class="v">${profile.arch.tag}</div></div>
+<div class="termRow"><div class="k">ARCHETYPE</div><div class="v">${profile.arch.a}</div></div>
+<div class="termRow"><div class="k">ROLE</div><div class="v">${profile.arch.role}</div></div>
+<div class="termRow"><div class="k">DEFAULT POSITION</div><div class="v">${profile.arch.pos}</div></div>
 
-      el("energyText").textContent = r.energyText;
-      fillList("energyList", r.energyList);
+<div class="lists">
+  <div class="box">
+    <h4>ENERGY ENGINE <span class="badge">${profile.eng.type}</span></h4>
+    <div class="small"><b style="font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:rgba(234,243,255,.7)">MODE</b><br/>
+      ${profile.eng.mode}<br/><br/>
+      ${profile.eng.note}
+    </div>
+  </div>
 
-      el("controlText").textContent = r.controlText;
-      fillList("controlList", r.controlList);
+  <div class="box">
+    <h4>COGNITIVE PATTERN <span class="badge">${profile.th.mode}</span></h4>
+    <div class="small">
+      <b style="font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:rgba(234,243,255,.7)">PERCEPTION</b><br/>
+      ${profile.th.percep}<br/><br/>
+      <b style="font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:rgba(234,243,255,.7)">DECISION</b><br/>
+      ${profile.th.decision}
+    </div>
+  </div>
+</div>
 
-      // copy report (без разговоров про “сессии”)
-      el("copyBtn").addEventListener("click", async ()=>{
-        const txt =
-`OFF SCRIPT — PLAYER MAP
-ID: ${el("sid").textContent}
-DOB: ${el("sdob").textContent}${s.tob ? (" " + s.tob) : ""} | TZ: ${el("stz").textContent} | PLACE: ${el("splace").textContent}
----
-ONE-LINER:
-${r.one}
-${r.oneSub}
+<div class="lists">
+  <div class="box">
+    <h4>SOCIAL INTERFACE <span class="badge">${profile.soc.mode}</span></h4>
+    <div class="small">${profile.soc.text}</div>
+  </div>
 
-PLAYER STATUS:
-- ${r.statusText}
-${r.statusList.map(x=>"- "+x).join("\\n")}
+  <div class="box">
+    <h4>BLOCKER (DEFAULT) <span class="badge">${profile.blk.type}</span></h4>
+    <div class="small">
+      <b style="font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:rgba(234,243,255,.7)">TRIGGER</b><br/>
+      ${profile.blk.trigger}<br/><br/>
+      <b style="font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;color:rgba(234,243,255,.7)">FIX</b><br/>
+      ${profile.blk.fix}
+    </div>
+  </div>
+</div>
 
-CORE:
-- ${r.core.title}
-${r.core.bullets.map(x=>"- "+x).join("\\n")}
+<div class="lists">
+  <div class="box">
+    <h4>STRENGTH MATRIX <span class="badge">ACTIVE</span></h4>
+    <ul>${profile.sPick.map(x=>`<li>${x}</li>`).join("")}</ul>
+  </div>
 
-LOOPS:
-- ${r.loopsText}
-${r.loopsList.map(x=>"- "+x).join("\\n")}
+  <div class="box">
+    <h4>VULNERABILITY ZONES <span class="badge">RISK</span></h4>
+    <ul>${profile.vPick.map(x=>`<li>${x}</li>`).join("")}</ul>
+  </div>
+</div>
 
-QUEST:
-- ${r.questText}
-${r.questList.map(x=>"- "+x).join("\\n")}
+<div class="lists">
+  <div class="box">
+    <h4>RESTRICTED MODES <span class="badge">FORBIDDEN</span></h4>
+    <ul>${profile.pPick.map(x=>`<li>${x}</li>`).join("")}</ul>
+  </div>
 
-ENERGY:
-- ${r.energyText}
-${r.energyList.map(x=>"- "+x).join("\\n")}
+  <div class="box">
+    <h4>OPTIMAL MODES <span class="badge">RECOMMENDED</span></h4>
+    <ul>${profile.oPick.map(x=>`<li>${x}</li>`).join("")}</ul>
+  </div>
+</div>
 
-SETTINGS:
-- ${r.controlText}
-${r.controlList.map(x=>"- "+x).join("\\n")}
+<details>
+  <summary>REALITY ROUTING <span class="badge">OPEN</span></summary>
+  <div class="small">
+    <div class="termRow"><div class="k">PRIORITY</div><div class="v">${profile.rt.priority}</div></div>
+    <div class="termRow"><div class="k">SHIFT CAPACITY</div><div class="v">${profile.rt.shift}</div></div>
+    <div class="termRow"><div class="k">FAIL MODE</div><div class="v">${profile.rt.fail}</div></div>
+    <div class="small" style="margin-top:10px;">${profile.rt.rule}.</div>
+  </div>
+</details>
+
+<details>
+  <summary>RECOGNITION HOOKS <span class="badge">PERSONAL</span></summary>
+  <div class="small" style="white-space:pre-line">${hookText}</div>
+</details>
+
+<details>
+  <summary>PRIVATE SYSTEM MESSAGE <span class="badge">LOCKED</span></summary>
+  <div class="small">${profile.privateMsg}</div>
+</details>
+
+<div class="termRow" style="margin-top:10px">
+  <div class="k">STATUS</div><div class="v">FEATURE — NOT FAILURE</div>
+</div>
 `;
-        try{
-          await navigator.clipboard.writeText(txt);
-          alert("готово. отчёт в буфере.");
-        }catch(e){
-          const ta = document.createElement("textarea");
-          ta.value = txt;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          ta.remove();
-          alert("готово. отчёт в буфере.");
-        }
-      });
-    }
+}
 
-    init();
-  </script>
+function escapeHtml(str){
+  return (str||"").replace(/[&<>"']/g, (m)=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+  }[m]));
+}
+
+function runScan(){
+  const dob = (dobEl.value||"").trim();
+  const name = (nameEl.value||"").trim();
+
+  if(!validDOB(dob)){
+    warn.style.display = "block";
+    return;
+  }
+  warn.style.display = "none";
+
+  // progress
+  scanFill.style.width = "0%";
+  setTimeout(()=> scanFill.style.width = "100%", 50);
+
+  const seed = hashStr(`${dob}|${name}|ADM MODE`);
+  const rng = mulberry32(seed);
+
+  const profile = computeProfile(rng, dob, name);
+  const html = render(profile, dob, name);
+
+  outPlaceholder.style.display = "none";
+  out.classList.add("show");
+  out.style.display = "block";
+  terminal.innerHTML = html;
+  outChip.textContent = "SCAN COMPLETE";
+  helper.textContent = "Готово. MULTIPASS сгенерирован. Одинаковые данные → одинаковый результат.";
+
+  // new manifest after scan
+  setManifest();
+}
+
+function clearAll(){
+  dobEl.value = "";
+  nameEl.value = "";
+  out.style.display = "none";
+  out.classList.remove("show");
+  outPlaceholder.style.display = "block";
+  outChip.textContent = "WAITING FOR INPUT";
+  scanFill.style.width = "0%";
+  warn.style.display = "none";
+  helper.textContent = "После скана появится полный MULTIPASS EXTENDED + скрытые поля.";
+  setManifest();
+}
+
+scanBtn.addEventListener("click", runScan);
+clearBtn.addEventListener("click", clearAll);
+</script>
 </body>
 </html>
