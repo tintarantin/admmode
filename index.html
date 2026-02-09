@@ -1,1497 +1,835 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>PRTCL 108</title>
-  <meta name="description" content="PRTCL 108 — скан персонажа: параметры, навыки, блокеры и путь прокачки."/>
-  <style>
-    :root{
-      /* Холодная сталь / небо / зеркало */
-      --bg0:#050b10;
-      --bg1:#070f16;
-      --sky0:#0f2434;
-      --sky1:#1a3a52;
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>PRTCL 108 — ADM MODE</title>
+<meta name="description" content="PRTCL 108 — терминал сканирования персонажа. MULTIPASS, таланты, дебаффы, билд."/>
+<meta name="theme-color" content="#050b10"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 
-      --steel0:#aab7c3;
-      --steel1:#7e90a1;
-      --steel2:#5e7286;
+<style>
+:root{
+  --bg0:#050b10; --bg1:#07131c; --bg2:#0a1a25;
+  --txt:#eaf3ff; --mut:rgba(234,243,255,.72); --dim:rgba(234,243,255,.52);
+  --stroke:rgba(220,235,255,.14); --stroke2:rgba(220,235,255,.26);
+  --glass:rgba(240,245,255,.06); --glass2:rgba(240,245,255,.10);
+  --ice:#c8f5ff; --pearl:#d9d0ff; --danger:#ff547a; --ok:#86ffd6;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
+  --r1:18px; --r2:28px;
+}
 
-      --iceGlow:#c8f5ff;
-      --iceGlow2:#dffcff;
+*{box-sizing:border-box}
+html,body{height:100%; overscroll-behavior:none}
+body{
+  margin:0; color:var(--txt); font-family:var(--sans);
+  background:
+    radial-gradient(1200px 800px at 70% 10%, rgba(185,165,255,.22), transparent 55%),
+    radial-gradient(900px 600px at 20% 30%, rgba(200,245,255,.16), transparent 60%),
+    radial-gradient(700px 500px at 70% 75%, rgba(255,84,122,.10), transparent 55%),
+    linear-gradient(180deg, var(--bg0), var(--bg1) 40%, var(--bg2));
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none; user-select:none;
+}
+input,select,textarea{-webkit-user-select:text; user-select:text}
 
-      --warmGlass: rgba(235, 220, 205, .10);
-      --danger:#ff5b6a;
+.noise:before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.08; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+}
 
-      --border:rgba(255,255,255,.12);
-      --glass:rgba(10,18,26,.58);
-      --glass2:rgba(255,255,255,.06);
+.wrap{max-width:980px;margin:0 auto;padding:18px 14px 80px; position:relative; z-index:1;}
 
-      --r14:14px;
-      --r18:18px;
-      --r22:22px;
-      --r28:28px;
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  border:1px solid var(--stroke);
+  background:linear-gradient(180deg, rgba(240,245,255,.08), rgba(240,245,255,.04));
+  border-radius:999px;
+  padding:10px 12px;
+  box-shadow: 0 18px 70px rgba(0,0,0,.45);
+  backdrop-filter: blur(14px);
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--mono); letter-spacing:.18em; text-transform:uppercase; font-weight:900;
+}
+.dot{
+  width:10px;height:10px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #fff, var(--ice));
+  box-shadow:0 0 14px rgba(200,245,255,.32);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.6);opacity:1}}
+.access{
+  font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase;
+  font-size:12px; color:rgba(234,243,255,.72);
+  border:1px solid rgba(220,235,255,.18);
+  background:rgba(5,11,16,.28);
+  padding:8px 10px; border-radius:999px;
+}
 
-      --shadow: 0 18px 60px rgba(0,0,0,.55);
-      --shadow2: 0 10px 40px rgba(0,0,0,.42);
+.hero{
+  margin-top:14px;
+  border:1px solid var(--stroke);
+  background:linear-gradient(180deg, rgba(240,245,255,.08), rgba(240,245,255,.03));
+  border-radius: var(--r2);
+  padding:18px 16px;
+  box-shadow:0 26px 90px rgba(0,0,0,.55);
+  backdrop-filter: blur(16px);
+  overflow:hidden;
+  position:relative;
+}
+.hero:before{
+  content:""; position:absolute; inset:-1px; pointer-events:none; opacity:.55;
+  background:
+    radial-gradient(520px 220px at 15% 0%, rgba(200,245,255,.14), transparent 55%),
+    radial-gradient(560px 260px at 85% 100%, rgba(217,208,255,.12), transparent 58%),
+    linear-gradient(90deg, rgba(255,255,255,.05), transparent 35%, rgba(255,255,255,.04));
+}
 
-      --font: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display",
-              "Inter", "Segoe UI", Roboto, Helvetica, Arial;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    }
+.title{
+  margin:8px 0 6px;
+  font-size: clamp(34px, 7vw, 64px);
+  font-weight:900; letter-spacing:.10em; text-transform:uppercase;
+  background: linear-gradient(90deg,#fff,var(--ice),var(--pearl),#fff);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  background-size:220% 100%;
+  animation:shimmer 7s linear infinite;
+  filter: drop-shadow(0 0 28px rgba(200,245,255,.08));
+  position:relative; z-index:1;
+}
+@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:220% 50%}}
 
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:var(--font);
-      color:rgba(255,255,255,.92);
-      background:
-        radial-gradient(1100px 800px at 20% 15%, rgba(223,252,255,.10), transparent 60%),
-        radial-gradient(900px 700px at 80% 20%, rgba(126,144,161,.18), transparent 60%),
-        radial-gradient(1200px 900px at 55% 95%, rgba(15,36,52,.55), transparent 65%),
-        linear-gradient(180deg, var(--bg0), var(--sky0) 35%, var(--bg1) 70%, var(--bg0));
-      overflow-x:hidden;
-    }
+.sub{
+  font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(234,243,255,.62); font-size:12px;
+  position:relative; z-index:1;
+}
 
-    .stars{
-      position:fixed; inset:0;
-      pointer-events:none;
-      opacity:.55;
-      mix-blend-mode:screen;
-      background-image:
-        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.35) 50%, transparent 52%),
-        radial-gradient(1px 1px at 80% 35%, rgba(255,255,255,.25) 50%, transparent 52%),
-        radial-gradient(1px 1px at 55% 12%, rgba(255,255,255,.22) 50%, transparent 52%),
-        radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,.20) 50%, transparent 52%),
-        radial-gradient(1px 1px at 65% 82%, rgba(255,255,255,.18) 50%, transparent 52%),
-        radial-gradient(1px 1px at 15% 88%, rgba(255,255,255,.16) 50%, transparent 52%),
-        radial-gradient(1px 1px at 92% 78%, rgba(255,255,255,.14) 50%, transparent 52%);
-      filter: blur(.1px);
-    }
+.manifest{
+  margin-top:12px;
+  border:1px solid rgba(220,235,255,.12);
+  background: rgba(5,11,16,.22);
+  border-radius: 18px;
+  padding:14px;
+}
+.manifestText{
+  margin:0;
+  font-size:18px;
+  line-height:1.32;
+  font-weight:900;
+  letter-spacing:.01em;
+}
+.manifestText small{
+  display:block;margin-top:10px;font-family:var(--mono);
+  color:var(--dim);font-weight:600;letter-spacing:.10em;text-transform:uppercase;font-size:11px;
+}
 
-    .wrap{
-      width:min(1180px, calc(100% - 40px));
-      margin:0 auto;
-      padding:22px 0 90px;
-    }
+.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:12px;margin-top:14px;}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
 
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-      padding:14px 16px;
-      border:1px solid var(--border);
-      border-radius:999px;
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow2);
-      position:sticky;
-      top:14px;
-      z-index:50;
-    }
-    .brand{
-      display:flex; align-items:center; gap:12px;
-      letter-spacing:.22em;
-      text-transform:uppercase;
-      font-weight:750;
-    }
-    .brand .mark{
-      width:12px;height:12px;border-radius:4px;
-      background:rgba(223,252,255,.18);
-      border:1px solid rgba(223,252,255,.22);
-      box-shadow:0 0 26px rgba(200,245,255,.18)
-    }
-    .badge{
-      font-family:var(--mono);
-      font-size:12px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(200,245,255,.22);
-      background: rgba(200,245,255,.07);
-      color: rgba(223,252,255,.95);
-      white-space:nowrap;
-    }
-    .nav{display:flex; gap:10px; align-items:center;}
-    .nav a{
-      font-size:13px;
-      color:rgba(255,255,255,.74);
-      text-decoration:none;
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid transparent;
-    }
-    .nav a:hover{
-      color:rgba(255,255,255,.92);
-      border-color:rgba(255,255,255,.10);
-      background:rgba(255,255,255,.04);
-    }
+.card{
+  border:1px solid var(--stroke);
+  background:linear-gradient(180deg, rgba(240,245,255,.07), rgba(240,245,255,.03));
+  border-radius: var(--r2);
+  overflow:hidden;
+  box-shadow:0 22px 80px rgba(0,0,0,.50);
+  backdrop-filter: blur(14px);
+}
 
-    .panel{
-      border:1px solid var(--border);
-      border-radius:var(--r28);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      backdrop-filter: blur(14px);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
+.cap{
+  padding:14px 14px;
+  border-bottom:1px solid rgba(220,235,255,.10);
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background: linear-gradient(90deg, rgba(200,245,255,.08), rgba(217,208,255,.06), transparent);
+}
+.cap h3{
+  margin:0; font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase;
+  font-size:12px; color:rgba(234,243,255,.72);
+}
+.chip{
+  font-family:var(--mono); letter-spacing:.12em; text-transform:uppercase;
+  font-size:11px; color:rgba(234,243,255,.65);
+  border:1px solid rgba(220,235,255,.18);
+  background:rgba(5,11,16,.24);
+  padding:8px 10px;border-radius:999px;
+}
 
-    /* HERO */
-    .hero{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap:18px;
-      align-items:stretch;
-    }
-    .heroLeft{
-      padding:32px 28px 22px;
-      min-height:560px;
-      position:relative;
-    }
+.body{padding:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:620px){.row{grid-template-columns:1fr}}
 
-    /* Главный заголовок по центру экрана, сталь/зеркало */
-    .centerTitle{
-      position:absolute;
-      left:50%;
-      top:22px;
-      transform:translateX(-50%);
-      width:calc(100% - 40px);
-      text-align:center;
-      pointer-events:none;
-      z-index:2;
-    }
-    .steelText{
-      font-weight:900;
-      font-size:62px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      margin:0;
-      line-height:1.0;
-      background: linear-gradient(180deg,
-        rgba(255,255,255,.92),
-        rgba(170,183,195,.88),
-        rgba(120,140,158,.92),
-        rgba(255,255,255,.65)
-      );
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-      text-shadow:
-        0 0 22px rgba(223,252,255,.10),
-        0 18px 60px rgba(0,0,0,.55);
-      filter: saturate(1.05) contrast(1.08);
-      opacity:.95;
-    }
-    .steelSub{
-      margin-top:10px;
-      font-family:var(--mono);
-      font-size:12px;
-      letter-spacing:.22em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,.62);
-    }
+label{
+  display:flex; flex-direction:column; gap:8px;
+  font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase;
+  font-size:11px; color:rgba(234,243,255,.55);
+}
 
-    .kicker{
-      margin-top:120px;
-      font-family:var(--mono);
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      color:rgba(223,252,255,.72);
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .dot{
-      width:8px;height:8px;border-radius:99px;
-      background: rgba(200,245,255,.85);
-      box-shadow:0 0 18px rgba(200,245,255,.55);
-    }
+input,select{
+  width:100%;
+  border:1px solid rgba(220,235,255,.18);
+  background:rgba(5,11,16,.30);
+  color:var(--txt);
+  border-radius:16px;
+  padding:12px 12px;
+  font-size:15px;
+  outline:none;
+}
+input:focus,select:focus{border-color:rgba(200,245,255,.42); box-shadow:0 0 0 4px rgba(200,245,255,.10)}
 
-    h1{
-      margin:14px 0 10px;
-      font-size:44px;
-      line-height:1.05;
-      letter-spacing:.02em;
-    }
-    .sub{
-      margin:0 0 20px;
-      font-size:15px;
-      line-height:1.65;
-      color:rgba(255,255,255,.78);
-      max-width:62ch;
-    }
-    .sub b{color:rgba(255,255,255,.95)}
-    .ctaRow{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:16px;
-    }
-    .btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      border-radius:var(--r14);
-      padding:14px 16px;
-      font-weight:800;
-      letter-spacing:.02em;
-      color:rgba(255,255,255,.95);
-      background:
-        radial-gradient(120% 160% at 20% 10%, rgba(223,252,255,.28), transparent 55%),
-        linear-gradient(180deg, rgba(200,245,255,.16), rgba(200,245,255,.07));
-      border:1px solid rgba(200,245,255,.22);
-      box-shadow: 0 0 60px rgba(200,245,255,.10);
-      transition: transform .15s ease, filter .15s ease;
-    }
-    .btn:hover{ transform: translateY(-1px); filter:brightness(1.06); }
-    .btn:active{ transform: translateY(0px) scale(.99); }
-    .btnGhost{
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.14);
-      color:rgba(255,255,255,.82);
-    }
-    .micro{
-      font-family:var(--mono);
-      font-size:12px;
-      color:rgba(255,255,255,.62);
-      line-height:1.45;
-    }
-    .divider{
-      height:1px;
-      background: rgba(255,255,255,.10);
-      margin:16px 0;
-    }
-    .miniList{display:grid; gap:10px; margin-top:8px;}
-    .miniItem{display:flex; gap:10px; align-items:flex-start;}
-    .chip{
-      margin-top:2px;
-      font-family:var(--mono);
-      font-size:11px;
-      padding:5px 8px;
-      border-radius:999px;
-      border:1px solid rgba(200,245,255,.18);
-      background: rgba(200,245,255,.06);
-      color: rgba(223,252,255,.92);
-      white-space:nowrap;
-    }
-    .miniItem div{
-      color:rgba(255,255,255,.74);
-      font-size:13px;
-      line-height:1.45;
-    }
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.btn{
+  border:1px solid rgba(220,235,255,.22);
+  background:linear-gradient(180deg, rgba(240,245,255,.12), rgba(240,245,255,.06));
+  color:var(--txt);
+  border-radius:18px;
+  padding:12px 14px;
+  font-family:var(--mono);
+  letter-spacing:.12em; text-transform:uppercase; font-weight:900;
+  cursor:pointer;
+  box-shadow:0 16px 60px rgba(0,0,0,.35);
+  transition:transform .15s ease, border .15s ease;
+}
+.btn:active{transform:scale(.99)}
+.btn.primary{
+  border-color: rgba(200,245,255,.34);
+  background: linear-gradient(90deg, rgba(200,245,255,.14), rgba(217,208,255,.12));
+  position:relative; overflow:hidden;
+}
+.btn.primary:before{
+  content:""; position:absolute; inset:-40% -20%; pointer-events:none;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 40%),
+    radial-gradient(circle at 70% 60%, rgba(200,245,255,.18), transparent 50%);
+  transform:rotate(8deg); opacity:.9;
+  animation:sweep 2.8s ease-in-out infinite;
+}
+@keyframes sweep{0%,100%{transform:translateX(-12%) rotate(8deg);opacity:.55}50%{transform:translateX(12%) rotate(8deg);opacity:.95}}
 
-    /* HERO RIGHT */
-    .heroRight{min-height:560px; display:flex; flex-direction:column;}
-    .characterFrame{flex:1; position:relative; overflow:hidden;}
-    .characterFrame::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(650px 420px at 55% 25%, rgba(223,252,255,.16), transparent 60%),
-        radial-gradient(780px 520px at 40% 85%, rgba(126,144,161,.18), transparent 65%),
-        linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.00));
-      pointer-events:none;
-      z-index:2;
-    }
-    .charImg{
-      position:absolute;
-      inset:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      filter: contrast(1.07) saturate(1.02);
-      transform: scale(1.02);
-    }
-    .hud{
-      position:absolute;
-      left:18px; right:18px; bottom:16px;
-      padding:14px 14px;
-      border-radius:var(--r18);
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(10,18,26,.60);
-      backdrop-filter: blur(10px);
-      z-index:3;
-      display:grid;
-      gap:8px;
-    }
-    .hudTop{display:flex; justify-content:space-between; align-items:center; gap:10px;}
-    .hudTitle{
-      font-weight:800;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-size:12px;
-      color:rgba(223,252,255,.86);
-      font-family:var(--mono);
-    }
-    .hudTag{
-      font-family:var(--mono);
-      font-size:11px;
-      padding:6px 9px;
-      border-radius:999px;
-      border:1px solid rgba(170,183,195,.22);
-      background: rgba(170,183,195,.06);
-      color: rgba(255,255,255,.86);
-      white-space:nowrap;
-    }
-    .hudLine{font-size:13px; color:rgba(255,255,255,.76); line-height:1.4;}
+.scanBar{height:10px;background:rgba(240,245,255,.06);border:1px solid rgba(220,235,255,.10);border-radius:999px;overflow:hidden;margin-top:12px}
+.scanFill{height:100%;width:0%;background:linear-gradient(90deg, rgba(200,245,255,.25), rgba(217,208,255,.22), rgba(255,84,122,.16));transition:width 950ms ease}
 
-    /* Forms / text */
-    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-top:0; align-items:start;}
-    .card{padding:22px 22px;}
-    .card h2{margin:0 0 8px; font-size:18px; letter-spacing:.02em;}
-    .card p{margin:0 0 14px; color:rgba(255,255,255,.72); line-height:1.6; font-size:14px;}
+.hint{font-family:var(--mono);color:var(--dim);font-size:12px;letter-spacing:.08em;line-height:1.35}
+.warn{display:none;margin-top:12px;padding:12px;border-radius:18px;border:1px solid rgba(255,84,122,.35);background:rgba(255,84,122,.08);color:rgba(255,210,222,.92);line-height:1.35}
+.warn b{display:block;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:11px;margin-bottom:6px}
 
-    .scanBox{padding:22px; position:relative; overflow:hidden;}
-    .scanBox::after{
-      content:"";
-      position:absolute;
-      left:-10%;
-      width:120%;
-      height:2px;
-      top:20%;
-      background: linear-gradient(90deg, transparent, rgba(223,252,255,.80), transparent);
-      filter: blur(.4px);
-      animation: scanline 3.2s ease-in-out infinite;
-      opacity:.65;
-      pointer-events:none;
-    }
-    @keyframes scanline{
-      0%{ top:18%; opacity:.15;}
-      40%{ top:52%; opacity:.75;}
-      80%{ top:86%; opacity:.25;}
-      100%{ top:18%; opacity:.12;}
-    }
+.hr{height:1px;background:rgba(220,235,255,.08);margin:12px 0}
 
-    form{display:grid; gap:12px; margin-top:10px;}
-    .row2{display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
-    label{
-      font-size:12px;
-      color:rgba(255,255,255,.70);
-      font-family:var(--mono);
-      letter-spacing:.06em;
-      text-transform:uppercase;
-    }
-    .field{display:grid; gap:8px;}
-    input, select, textarea{
-      width:100%;
-      padding:12px 12px;
-      border-radius:var(--r14);
-      border:1px solid rgba(255,255,255,.14);
-      outline:none;
-      background: rgba(255,255,255,.05);
-      color:rgba(255,255,255,.92);
-      font-size:14px;
-    }
-    input::placeholder, textarea::placeholder{ color:rgba(255,255,255,.35); }
-    .hint{font-size:12px; color:rgba(255,255,255,.60); line-height:1.45;}
-    .warn{color:rgba(255,255,255,.70); font-family:var(--mono); font-size:12px;}
-    .warn b{color:rgba(255,255,255,.92)}
-    .warn .red{color:rgba(255,91,106,.92)}
+/* locked section labels */
+.lockRow{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:10px 0}
+.lockTag{
+  font-family:var(--mono); letter-spacing:.12em; text-transform:uppercase;
+  font-size:11px; color:rgba(234,243,255,.55);
+  border:1px solid rgba(220,235,255,.14);
+  background: rgba(5,11,16,.20);
+  padding:8px 10px; border-radius:999px;
+}
+.lockTxt{color:rgba(234,243,255,.70); line-height:1.35}
+.footerWarn{margin-top:10px;font-family:var(--mono);letter-spacing:.10em;color:rgba(234,243,255,.55)}
+.footerWarn b{color:rgba(234,243,255,.85)}
 
-    /* Signature */
-    .contract{
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      border-radius:18px;
-      padding:12px;
-    }
-    .contractTitle{
-      font-family:var(--mono);
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-size:12px;
-      color:rgba(223,252,255,.86);
-      margin:0 0 8px;
-    }
-    .contractText{
-      font-size:13px;
-      line-height:1.55;
-      color:rgba(255,255,255,.74);
-      margin:0;
-    }
-    .sigWrap{
-      margin-top:10px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:14px;
-      overflow:hidden;
-      background: rgba(10,18,26,.48);
-      position:relative;
-    }
-    canvas#sig{
-      width:100%;
-      height:110px;
-      display:block;
-      touch-action:none;
-    }
-    .sigHint{
-      position:absolute;
-      left:12px; top:10px;
-      font-family:var(--mono);
-      font-size:11px;
-      color:rgba(255,255,255,.55);
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      pointer-events:none;
-    }
-    .sigActions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-      align-items:center;
-    }
-    .btnMini{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      border-radius:12px;
-      padding:10px 12px;
-      font-weight:800;
-      color:rgba(255,255,255,.88);
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-    }
-    .btnMini:hover{ filter:brightness(1.06); }
+/* PROCESSING portal modal */
+.modal{
+  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+  padding:18px; z-index:9999;
+  background: rgba(0,0,0,.58);
+  backdrop-filter: blur(6px);
+}
+.modal.show{display:flex}
+.win{
+  width:min(560px, 100%);
+  border:1px solid rgba(220,235,255,.18);
+  background: linear-gradient(180deg, rgba(240,245,255,.10), rgba(240,245,255,.05));
+  border-radius: 26px;
+  box-shadow: 0 30px 140px rgba(0,0,0,.75);
+  overflow:hidden;
+}
+.winTop{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:14px 14px;
+  border-bottom:1px solid rgba(220,235,255,.10);
+  background: linear-gradient(90deg, rgba(200,245,255,.08), rgba(217,208,255,.06), transparent);
+}
+.winTop .t{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:rgba(234,243,255,.72)}
+.x{
+  width:42px;height:42px;border-radius:16px;
+  border:1px solid rgba(220,235,255,.18);
+  background: rgba(5,11,16,.30);
+  color:rgba(234,243,255,.85);
+  font-size:18px; cursor:pointer;
+}
+.winBody{padding:14px}
+.procTitle{font-size:22px;font-weight:900;letter-spacing:.02em;margin:6px 0 12px}
+.procLine{
+  font-family:var(--mono); letter-spacing:.10em; text-transform:uppercase;
+  font-size:11px; color:rgba(234,243,255,.62);
+  display:flex; justify-content:space-between; gap:12px;
+}
+.procBox{
+  margin-top:12px;
+  border:1px solid rgba(220,235,255,.12);
+  background: rgba(5,11,16,.26);
+  border-radius: 18px;
+  padding:12px;
+  min-height:120px;
+}
+.procMsg{font-size:14px; line-height:1.45; color:rgba(234,243,255,.86)}
+.procMsg b{color:#fff}
+.smallNote{margin-top:10px;font-family:var(--mono);letter-spacing:.08em;font-size:11px;color:rgba(234,243,255,.55)}
 
-    /* Overlays */
-    .overlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.52);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      z-index:200;
-    }
-    .modal{
-      width:min(980px, 100%);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:var(--r28);
-      background: rgba(10,18,26,.72);
-      backdrop-filter: blur(14px);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
+/* MULTIPASS */
+.mp{display:none}
+.mp.show{display:block; animation:reveal .35s ease-out}
+@keyframes reveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-    .modalHead{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:16px 18px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      position:relative;
-    }
-    .modalHead .title{
-      font-family:var(--mono);
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      font-size:12px;
-      color:rgba(223,252,255,.85);
-    }
-
-    /* Крестик справа (явный, кликабельный) */
-    .x{
-      appearance:none; border:none; cursor:pointer;
-      width:40px; height:40px; border-radius:12px;
-      background: rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.14);
-      color:rgba(255,255,255,.90);
-      font-size:18px;
-      display:grid;
-      place-items:center;
-      margin-left:auto;
-    }
-    .x:hover{ filter:brightness(1.08); }
-    .x:active{ transform:scale(.98); }
-
-    /* Processing */
-    .processing{ display:grid; place-items:center; }
-    .procInner{ width:min(680px, 100%); padding:26px 22px; }
-    .procTitle{ font-size:22px; margin:0 0 10px; letter-spacing:.02em; }
-    .log{
-      margin-top:14px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      padding:14px 14px;
-      background: rgba(255,255,255,.04);
-      font-family:var(--mono);
-      font-size:12px;
-      line-height:1.65;
-      color:rgba(223,252,255,.82);
-      min-height:140px;
-      white-space:pre-line;
-    }
-    .bar{
-      height:10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      overflow:hidden;
-      margin-top:12px;
-    }
-    .bar > i{
-      display:block; height:100%;
-      width:0%;
-      background: linear-gradient(90deg, rgba(200,245,255,.15), rgba(223,252,255,.55), rgba(200,245,255,.15));
-      box-shadow: 0 0 36px rgba(200,245,255,.18);
-      transition: width .2s ease;
-    }
-
-    /* DASHBOARD */
-    .dashWrap{margin-top:18px; display:none;}
-    .dashHeader{padding:20px 22px;}
-    .dashHeader h2{margin:0 0 6px; font-size:18px;}
-    .dashHeader p{margin:0; color:rgba(255,255,255,.72); line-height:1.6; font-size:14px;}
-
-    .dash{
-      padding:18px;
-      display:grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap:18px;
-      align-items:stretch;
-    }
-    .dashLeft{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:var(--r22);
-      overflow:hidden;
-      background: rgba(255,255,255,.03);
-      position:relative;
-      min-height:520px;
-    }
-    .dashLeft img{width:100%; height:100%; object-fit:cover;}
-    .dashLeft .tag{
-      position:absolute; left:14px; top:14px;
-      font-family:var(--mono);
-      font-size:11px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(223,252,255,.18);
-      background: rgba(223,252,255,.06);
-      color: rgba(223,252,255,.92);
-    }
-
-    .dashRight{ display:grid; gap:14px; }
-    .box{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:var(--r22);
-      background: rgba(255,255,255,.03);
-      padding:16px 16px;
-      position:relative;
-    }
-    .boxTitle{
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      font-family:var(--mono);
-      font-size:12px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:rgba(223,252,255,.85);
-      margin-bottom:10px;
-    }
-    .pill{
-      font-family:var(--mono);
-      font-size:11px;
-      padding:6px 9px;
-      border-radius:999px;
-      border:1px solid rgba(170,183,195,.20);
-      background: rgba(170,183,195,.06);
-      color: rgba(255,255,255,.86);
-      white-space:nowrap;
-    }
-    .meter{
-      display:grid;
-      grid-template-columns: 140px 1fr 52px;
-      gap:10px;
-      align-items:center;
-      padding:8px 0;
-      border-top:1px solid rgba(255,255,255,.08);
-    }
-    .meter:first-of-type{border-top:none}
-    .meter .name{color:rgba(255,255,255,.78); font-size:13px;}
-    .meter .val{font-family:var(--mono); color:rgba(223,252,255,.88); font-size:12px; text-align:right;}
-    .track{
-      height:10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      overflow:hidden;
-    }
-    .fill{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, rgba(200,245,255,.12), rgba(223,252,255,.55), rgba(200,245,255,.12));
-      box-shadow: 0 0 24px rgba(200,245,255,.14);
-      transition: width .35s ease;
-    }
-
-    .modeText, .blkText, .listText{
-      color:rgba(255,255,255,.74);
-      line-height:1.6;
-      font-size:14px;
-      margin:0;
-    }
-
-    .kv{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:8px;
-    }
-    .kvRow{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      padding-top:8px;
-      border-top:1px solid rgba(255,255,255,.08);
-    }
-    .kvRow:first-child{border-top:none; padding-top:0;}
-    .kvKey{
-      font-family:var(--mono);
-      font-size:11px;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      color:rgba(223,252,255,.78);
-      min-width:150px;
-    }
-    .kvVal{
-      color:rgba(255,255,255,.72);
-      font-size:13px;
-      line-height:1.45;
-    }
-
-    .lockLine{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      font-family:var(--mono);
-      font-size:12px;
-      color:rgba(255,255,255,.72);
-      margin:6px 0 0;
-    }
-    .lockIco{
-      width:26px; height:26px; border-radius:10px;
-      display:grid; place-items:center;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-    }
-
-    /* Locked blur block */
-    .lockedBlock{
-      margin-top:10px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px;
-      padding:12px;
-      background: rgba(255,255,255,.03);
-      position:relative;
-      overflow:hidden;
-    }
-    .lockedBlock .blur{
-      filter: blur(6px);
-      opacity:.9;
-      user-select:none;
-    }
-    .lockedBlock .overlayLock{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      gap:10px;
-      background: radial-gradient(260px 180px at 50% 40%, rgba(223,252,255,.10), transparent 65%);
-      pointer-events:none;
-    }
-    .unlockTag{
-      font-family:var(--mono);
-      font-size:11px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(223,252,255,.18);
-      background: rgba(223,252,255,.06);
-      color: rgba(223,252,255,.92);
-    }
-    .unlockHint{
-      color:rgba(255,255,255,.66);
-      font-size:13px;
-      text-align:center;
-      max-width:46ch;
-      line-height:1.4;
-    }
-
-    .payRow{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:12px;
-    }
-
-    .footer{
-      margin-top:18px;
-      padding:18px 22px;
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-      align-items:center;
-      color:rgba(255,255,255,.58);
-      font-size:12px;
-    }
-    .footer .mono{ font-family:var(--mono); letter-spacing:.08em; text-transform:uppercase; }
-
-    @media (max-width: 980px){
-      .hero{ grid-template-columns: 1fr; }
-      .heroLeft{ padding:28px 22px; min-height:auto;}
-      .steelText{ font-size:46px; }
-      h1{ font-size:38px; }
-      .grid2{ grid-template-columns:1fr; }
-      .dash{ grid-template-columns:1fr; }
-      .kicker{ margin-top:105px; }
-    }
-    @media (max-width: 520px){
-      .nav{ display:none; }
-      .steelText{ font-size:40px; letter-spacing:.14em; }
-      h1{ font-size:34px; }
-      .row2{ grid-template-columns:1fr; }
-      .kvKey{ min-width:120px; }
-    }
-  </style>
+.mpCard{
+  border:1px solid rgba(220,235,255,.18);
+  background:
+    linear-gradient(180deg, rgba(240,245,255,.10), rgba(240,245,255,.05)),
+    radial-gradient(1000px 380px at 10% 0%, rgba(200,245,255,.10), transparent 58%),
+    radial-gradient(1000px 420px at 85% 100%, rgba(217,208,255,.09), transparent 62%);
+  border-radius: 26px;
+  box-shadow: 0 22px 80px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.mpTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px;border-bottom:1px solid rgba(220,235,255,.10)}
+.mpBrand{display:flex;flex-direction:column;gap:4px}
+.mpBrand .a{font-family:var(--mono);letter-spacing:.18em;text-transform:uppercase;font-size:13px;font-weight:900;color:rgba(234,243,255,.90)}
+.mpBrand .b{font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.62)}
+.mpStamp{
+  border:1px solid rgba(220,235,255,.22);
+  border-radius:16px; padding:10px;
+  background: rgba(5,11,16,.30);
+  text-align:right; min-width:140px;
+}
+.mpStamp .l{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:10px;color:rgba(234,243,255,.60)}
+.mpStamp .v{margin-top:6px;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;font-weight:900;color:rgba(200,245,255,.92)}
+.mpGrid{display:grid;grid-template-columns:170px 1fr;gap:12px;padding:14px}
+@media(max-width:420px){.mpGrid{grid-template-columns:150px 1fr}}
+.eye{
+  height:210px;border-radius:18px;overflow:hidden;
+  border:1px solid rgba(220,235,255,.14); background: rgba(5,11,16,.26);
+  position:relative;
+}
+.eye .seal{
+  position:absolute; left:10px; bottom:10px;
+  font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase; font-size:10px;
+  color:rgba(234,243,255,.74);
+  padding:7px 9px; border-radius:999px;
+  border:1px solid rgba(220,235,255,.20);
+  background: rgba(5,11,16,.45);
+}
+.fields{
+  border:1px solid rgba(220,235,255,.14);
+  border-radius:18px; overflow:hidden;
+  background: rgba(5,11,16,.18);
+}
+.frow{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px dashed rgba(220,235,255,.12)}
+.frow:last-child{border-bottom:none}
+.k{font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.62);white-space:nowrap}
+.v{font-size:13.5px;font-weight:900;color:rgba(234,243,255,.92);text-align:right;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.blocks{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 14px}
+@media(max-width:820px){.blocks{grid-template-columns:1fr}}
+.bl{
+  border:1px solid rgba(220,235,255,.14);
+  border-radius:18px; background: rgba(240,245,255,.05);
+  padding:12px;
+}
+.bl.d{border-color: rgba(255,84,122,.22); background: rgba(255,84,122,.06)}
+.bl .h{
+  font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:11px;
+  color:rgba(234,243,255,.72);margin-bottom:10px;display:flex;justify-content:space-between;gap:10px
+}
+.bl.d .h{color:rgba(255,210,222,.90)}
+ul{margin:0;padding-left:16px;font-size:14px;line-height:1.45;color:rgba(234,243,255,.88)}
+.stats{display:flex;flex-direction:column;gap:8px}
+.stat{display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:var(--mono);letter-spacing:.10em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.70)}
+.bar{flex:1;height:10px;border-radius:999px;background:rgba(5,11,16,.35);border:1px solid rgba(220,235,255,.12);overflow:hidden}
+.fill{height:100%;width:50%;background:linear-gradient(90deg, rgba(200,245,255,.25), rgba(217,208,255,.22), rgba(255,84,122,.16))}
+.val{width:38px;text-align:right;font-weight:900;font-family:var(--mono);color:rgba(234,243,255,.88)}
+.mpFoot{
+  padding:12px 14px;border-top:1px solid rgba(220,235,255,.10);
+  background: rgba(5,11,16,.18);
+  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap
+}
+.mpHint{font-weight:900;color:rgba(234,243,255,.88)}
+.code{
+  font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.62);
+  padding:7px 9px;border-radius:999px;border:1px solid rgba(220,235,255,.18);background: rgba(240,245,255,.05)
+}
+</style>
 </head>
-
-<body>
-  <div class="stars" aria-hidden="true"></div>
-
+<body class="noise">
   <div class="wrap">
-    <header class="top">
-      <div class="brand">
-        <span class="mark"></span>
-        <span>PRTCL 108</span>
-        <span class="badge" id="accessBadge">access: locked</span>
+
+    <div class="topbar">
+      <div class="brand"><span class="dot"></span><span>PRTCL 108</span></div>
+      <div class="access" id="accessBadge">ACCESS: LOCKED</div>
+    </div>
+
+    <div class="hero">
+      <div class="title">PRTCL 108</div>
+      <div class="sub">COLD PROTOCOL / MIRROR INTERFACE</div>
+
+      <div class="manifest">
+        <p class="manifestText" id="manifestText"></p>
       </div>
-      <nav class="nav">
-        <a href="#top">Вход</a>
-        <a href="#dashboard">Дашборд</a>
-      </nav>
-    </header>
+    </div>
 
-    <!-- HERO / ENTRY -->
-    <section class="hero" id="top">
-      <div class="panel heroLeft">
-        <div class="centerTitle">
-          <h2 class="steelText">PRTCL 108</h2>
-          <div class="steelSub">cold protocol / mirror interface</div>
+    <div class="grid">
+
+      <!-- TERMINAL -->
+      <section class="card">
+        <div class="cap">
+          <h3>TERMINAL</h3>
+          <div class="chip" id="stateChip">ОЖИДАНИЕ ВВОДА</div>
         </div>
 
-        <div class="kicker"><span class="dot"></span> интерфейс наблюдения <span style="opacity:.55">/</span> <span style="font-family:var(--mono);opacity:.78">SCAN</span></div>
-        <h1>Скан персонажа.</h1>
-        <p class="sub">
-          Ты вводишь дату рождения — PRTCL показывает <b>конфигурацию</b>: параметры, навыки, блокеры и путь прокачки.
-          Это не “вера”. Это интерфейс.
-        </p>
+        <div class="body">
+          <div class="row">
+            <label>дата рождения
+              <input id="dob" inputmode="numeric" placeholder="ДД.ММ.ГГГГ">
+            </label>
 
-        <div class="ctaRow">
-          <button class="btn" id="openScan">НАЧАТЬ СКАН</button>
-          <button class="btn btnGhost" id="viewDemo">ПОСМОТРЕТЬ ДАШБОРД</button>
-          <span class="micro">single-player mode<br/>данные не публикуются</span>
-        </div>
+            <label>аватар
+              <select id="avatar">
+                <option value="f">женский</option>
+                <option value="m">мужской</option>
+              </select>
+            </label>
 
-        <div class="divider"></div>
+            <label>имя / ник (опционально)
+              <input id="name" placeholder="например maratina">
+            </label>
 
-        <div class="miniList">
-          <div class="miniItem"><span class="chip">CONFIG</span><div>Базовые параметры + тип реакции системы.</div></div>
-          <div class="miniItem"><span class="chip">SKILLS</span><div>Пассивные/активные навыки и стиль поведения.</div></div>
-          <div class="miniItem"><span class="chip">BLOCKERS</span><div>Где система теряет выбор. Полный разбор — в закрытом доступе.</div></div>
-          <div class="miniItem"><span class="chip">UPGRADE</span><div>Куда прокачивать первым — чтобы результат был в реальности.</div></div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="warn"><span class="red">warning:</span> результат может быть холодным. <b>это нормально</b>.</div>
-      </div>
-
-      <div class="panel heroRight">
-        <div class="characterFrame">
-          <img class="charImg" id="heroImg" src="assets/helm-f.jpg" alt="PRTCL character"/>
-          <div class="hud">
-            <div class="hudTop">
-              <div class="hudTitle">character preview</div>
-              <div class="hudTag" id="hudTag">FEMALE / HELM</div>
-            </div>
-            <div class="hudLine" id="hudLine">Образ — интерфейс. Смысл — холодный и точный.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- DASHBOARD -->
-    <section class="panel dashWrap" id="dashboard">
-      <div class="dashHeader">
-        <h2>RESULT / DASHBOARD</h2>
-        <p>Параметры, режим, навыки, блокеры и конфигурации персонажа. Закрытые слои — под замком.</p>
-      </div>
-
-      <div class="dash">
-        <div class="dashLeft">
-          <span class="tag">current character</span>
-          <img id="dashAvatar" src="assets/helm-f.jpg" alt="character"/>
-        </div>
-
-        <div class="dashRight">
-          <!-- BASE -->
-          <div class="box">
-            <div class="boxTitle">
-              <span>BASE PARAMETERS</span>
-              <span class="pill" id="seedPill">seed: —</span>
-            </div>
-
-            <div class="meter"><div class="name">Energy</div><div class="track"><div class="fill" id="mEnergy"></div></div><div class="val" id="vEnergy">—</div></div>
-            <div class="meter"><div class="name">Focus</div><div class="track"><div class="fill" id="mFocus"></div></div><div class="val" id="vFocus">—</div></div>
-            <div class="meter"><div class="name">Stability</div><div class="track"><div class="fill" id="mStability"></div></div><div class="val" id="vStability">—</div></div>
-            <div class="meter"><div class="meter"><div class="name">Drive</div><div class="track"><div class="fill" id="mDrive"></div></div><div class="val" id="vDrive">—</div></div>
-            <div class="meter"><div class="name">Adaptation</div><div class="track"><div class="fill" id="mAdapt"></div></div><div class="val" id="vAdapt">—</div></div>
-
-            <p class="modeText" id="modeText" style="margin-top:10px;">—</p>
+            <label>место рождения
+              <input id="place" placeholder="город, страна (например Нальчик, Россия)">
+            </label>
           </div>
 
-          <!-- CONFIG -->
-          <div class="box">
-            <div class="boxTitle">
-              <span>CONFIG</span>
-              <span class="pill" id="modePill">—</span>
-            </div>
-
-            <div class="kv">
-              <div class="kvRow"><div class="kvKey">CLASS</div><div class="kvVal"><b id="clsName">—</b><div class="listText" id="clsDesc">—</div></div></div>
-              <div class="kvRow"><div class="kvKey">ROLE</div><div class="kvVal"><b id="roleName">—</b><div class="listText" id="roleDesc">—</div></div></div>
-              <div class="kvRow"><div class="kvKey">TRAIT</div><div class="kvVal"><b id="traitName">—</b><div class="listText" id="traitDesc">—</div></div></div>
-            </div>
+          <div class="actions">
+            <button class="btn primary" id="scanBtn">СКАНИРОВАНИЕ</button>
+            <button class="btn" id="resetBtn">СБРОС</button>
           </div>
 
-          <!-- SKILLS -->
-          <div class="box">
-            <div class="boxTitle">
-              <span>SKILLS & PERKS</span>
-              <span class="pill">public</span>
-            </div>
-            <div class="kv" id="skillsList"></div>
+          <div class="scanBar"><div class="scanFill" id="scanFill"></div></div>
+
+          <div class="warn" id="warn">
+            <b>warning</b>
+            Введи дату в формате <span style="font-family:var(--mono)">ДД.ММ.ГГГГ</span>.
           </div>
 
-          <!-- BLOCKERS -->
-          <div class="box">
-            <div class="boxTitle">
-              <span>BLOCKERS</span>
-              <span class="pill">partial</span>
-            </div>
+          <div class="hr"></div>
 
-            <div class="lockLine">
-              <span class="lockIco">🔒</span>
-              <span><b id="blkName">—</b> / дерево и триггеры — в закрытом слое</span>
-            </div>
+          <div class="lockRow">
+            <div class="lockTag">BLOCKERS</div>
+            <div class="lockTxt">Где система крадёт управление. Полный разбор — в закрытом доступе.</div>
+          </div>
 
-            <p class="blkText" id="blkText" style="margin-top:10px;">—</p>
+          <div class="lockRow">
+            <div class="lockTag">UPGRADE</div>
+            <div class="lockTxt">Путь прокачки: что апгрейдить первым, чтобы результат проявился в реальности.</div>
+          </div>
 
-            <div class="lockedBlock">
-              <div class="blur">
-                <div class="kv">
-                  <div class="kvRow"><div class="kvKey">TRIGGER</div><div class="kvVal"><b id="t1">—</b><div class="listText" id="t1d">—</div></div></div>
-                  <div class="kvRow"><div class="kvKey">LOOP</div><div class="kvVal"><b id="t2">—</b><div class="listText" id="t2d">—</div></div></div>
-                  <div class="kvRow"><div class="kvKey">COUNTER</div><div class="kvVal"><b id="t3">—</b><div class="listText" id="t3d">—</div></div></div>
+          <div class="footerWarn">warning: скан будет холодным. <b>это нормально.</b></div>
+        </div>
+      </section>
+
+      <!-- OUTPUT -->
+      <section class="card">
+        <div class="cap">
+          <h3>MULTIPASS OUTPUT</h3>
+          <div class="chip" id="outChip">НЕ АКТИВНО</div>
+        </div>
+
+        <div class="body">
+          <div id="placeholder" class="hint" style="margin:0;">
+            Открой портал: введи данные → нажми СКАНИРОВАНИЕ → система выдаст MULTIPASS.
+          </div>
+
+          <div class="mp" id="mp">
+            <div class="mpCard">
+              <div class="mpTop">
+                <div class="mpBrand">
+                  <div class="a">PRTCL 108</div>
+                  <div class="b">MULTIPASS • паспорт персонажа</div>
+                </div>
+                <div class="mpStamp">
+                  <div class="l">допуск</div>
+                  <div class="v" id="mpClear">AUTONOMOUS</div>
                 </div>
               </div>
 
-              <div class="overlayLock">
-                <div class="unlockTag">CAMPAIGN MODE / LOCKED</div>
-                <div class="unlockHint">Глубина анализа: дерево блокеров, триггеры, контр-протоколы и маршрут upgrade.</div>
+              <div class="mpGrid">
+                <div class="eye">
+                  <div id="eyeSvg" style="width:100%;height:100%"></div>
+                  <div class="seal">SCAN VERIFIED</div>
+                </div>
+
+                <div class="fields">
+                  <div class="frow"><span class="k">ID</span><span class="v" id="mpId"></span></div>
+                  <div class="frow"><span class="k">дата рождения</span><span class="v" id="mpDob"></span></div>
+                  <div class="frow"><span class="k">место</span><span class="v" id="mpPlace"></span></div>
+                  <div class="frow"><span class="k">ключевая роль</span><span class="v" id="mpRole"></span></div>
+                  <div class="frow"><span class="k">класс</span><span class="v" id="mpClass"></span></div>
+                  <div class="frow"><span class="k">сигнал</span><span class="v" id="mpFlag"></span></div>
+                </div>
+              </div>
+
+              <div class="blocks">
+                <div class="bl">
+                  <div class="h">таланты <span style="opacity:.7;font-weight:700">что у тебя работает само</span></div>
+                  <ul id="mpSkills"></ul>
+                </div>
+
+                <div class="bl">
+                  <div class="h">характеристики <span style="opacity:.7;font-weight:700">цифры билда</span></div>
+                  <div class="stats" id="mpStats"></div>
+                </div>
+
+                <div class="bl d">
+                  <div class="h">дебаффы <span style="opacity:.7;font-weight:700">что режет</span></div>
+                  <ul id="mpDebuffs"></ul>
+                </div>
+
+                <div class="bl">
+                  <div class="h">оптимальный билд <span style="opacity:.7;font-weight:700">как играть</span></div>
+                  <ul id="mpBuild"></ul>
+                </div>
+              </div>
+
+              <div class="mpFoot">
+                <div class="mpHint" id="mpHint"></div>
+                <div class="code">ADM MODE INSIDE</div>
               </div>
             </div>
-
-            <div class="payRow">
-              <button class="btn btnGhost" id="openPaywall">ОТКРЫТЬ ЗАКРЫТЫЙ СЛОЙ</button>
-              <span class="hint">ценник скрыт. это демо-ворота.</span>
-            </div>
-          </div>
-
-          <!-- QUESTS -->
-          <div class="box">
-            <div class="boxTitle">
-              <span>QUESTS</span>
-              <span class="pill">starter</span>
-            </div>
-            <div class="kv" id="questsList"></div>
           </div>
 
         </div>
-      </div>
-    </section>
+      </section>
 
-    <footer class="panel footer">
-      <div class="mono">PRTCL 108</div>
-      <div>UI: <span class="mono">steel / sky / mirror</span></div>
-      <div>© <span id="year"></span></div>
-    </footer>
+    </div>
   </div>
 
-  <!-- SCAN MODAL -->
-  <div class="overlay" id="scanOverlay" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="title">SCAN / INITIALIZATION</div>
-        <button class="x" id="closeScan" aria-label="Close">×</button>
+  <!-- PROCESSING PORTAL -->
+  <div class="modal" id="modal">
+    <div class="win">
+      <div class="winTop">
+        <div class="t">processing</div>
+        <button class="x" id="closeModal" aria-label="close">×</button>
       </div>
-
-      <div class="grid2" style="padding:18px;">
-        <div class="panel scanBox" style="box-shadow:none;">
-          <div class="card" style="padding:18px;">
-            <h2 style="margin:0 0 6px;">Ввод данных</h2>
-            <p style="margin:0 0 12px;">Дата рождения — ключ инициализации. Время (optional) повышает точность модели.</p>
-
-            <form id="scanForm">
-              <div class="row2">
-                <div class="field">
-                  <label for="dob">Дата рождения</label>
-                  <input id="dob" type="date" required/>
-                </div>
-                <div class="field">
-                  <label for="tob">Время (optional)</label>
-                  <input id="tob" type="time"/>
-                </div>
-              </div>
-
-              <div class="field">
-                <label>Мини-договор</label>
-                <div class="contract">
-                  <div class="contractTitle">PRTCL / CONSENT</div>
-                  <p class="contractText">
-                    Я подтверждаю, что прохожу SCAN добровольно.
-                    Я понимаю: результат — интерфейс наблюдения и текущая конфигурация персонажа.
-                    Я беру ответственность за решения после скана.
-                  </p>
-
-                  <div class="sigWrap">
-                    <div class="sigHint" id="sigHint">подпись пальцем / стилусом</div>
-                    <canvas id="sig"></canvas>
-                  </div>
-
-                  <div class="sigActions">
-                    <button class="btnMini" type="button" id="clearSig">Очистить</button>
-                    <span class="hint" id="sigStatus">подпись: не добавлена</span>
-                  </div>
-                </div>
-              </div>
-
-              <button class="btn" type="submit">START SCAN →</button>
-              <div class="hint">Данные сохраняются локально (demo). Дальше подключим аккаунты/бэкенд.</div>
-            </form>
+      <div class="winBody">
+        <div class="procTitle">инициализация модели…</div>
+        <div class="procLine"><span id="procStep">синхронизация доступа</span><span id="procPct">0%</span></div>
+        <div class="scanBar" style="margin-top:10px"><div class="scanFill" id="procFill"></div></div>
+        <div class="procBox">
+          <div class="procMsg" id="procMsg">
+            <b>PRTCL 108</b> поднимает терминал.<br>
+            Система не объясняет. Система фиксирует факт.<br><br>
+            Подготовка профиля персонажа…
           </div>
-        </div>
-
-        <div class="panel" style="box-shadow:none;">
-          <div class="card" style="padding:18px;">
-            <h2 style="margin:0 0 6px;">Что ты увидишь</h2>
-            <p style="margin:0 0 12px;">Это интерфейс наблюдения. Результат — конфигурация персонажа.</p>
-
-            <div class="kv">
-              <div class="kvRow"><div class="kvKey">CONFIG</div><div class="kvVal">класс / роль / реакция</div></div>
-              <div class="kvRow"><div class="kvKey">SKILLS</div><div class="kvVal">навыки и дебаффы</div></div>
-              <div class="kvRow"><div class="kvKey">BLOCKERS</div><div class="kvVal">где система теряет выбор (глубина — locked)</div></div>
-              <div class="kvRow"><div class="kvKey">QUESTS</div><div class="kvVal">путь прокачки вместо мотивации</div></div>
-            </div>
-
-            <div class="divider"></div>
-            <div class="hint">После скана ты попадёшь в дашборд. Оттуда — вход в закрытый слой.</div>
-          </div>
+          <div class="smallNote" id="procNote">режим: ADM MODE • источник: внутренний протокол</div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- PROCESSING OVERLAY -->
-  <div class="overlay processing" id="procOverlay" aria-hidden="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="title">PROCESSING</div>
-        <button class="x" id="cancelProc" aria-label="Close">×</button>
-      </div>
-      <div class="procInner">
-        <h3 class="procTitle">инициализация модели…</h3>
-        <div class="bar"><i id="pbar"></i></div>
-        <div class="log" id="plog"></div>
-        <div class="hint" style="margin-top:10px;">*на проде подключим реальную генерацию профиля</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAYWALL OVERLAY -->
-  <div class="overlay" id="payOverlay" aria-hidden="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="title">CAMPAIGN MODE / ACCESS</div>
-        <button class="x" id="closePay" aria-label="Close">×</button>
-      </div>
-      <div style="padding:18px;">
-        <div class="panel" style="box-shadow:none;">
-          <div class="card" style="padding:18px;">
-            <h2 style="margin:0 0 8px;">PRTCL 108 — CAMPAIGN MODE</h2>
-            <p style="margin:0 0 12px;">
-              Закрытый слой: дерево блокеров, триггеры, контр-протоколы, маршрут upgrade.
-            </p>
-
-            <div class="kv">
-              <div class="kvRow"><div class="kvKey">UNLOCK</div><div class="kvVal">полная карта BLOCKERS</div></div>
-              <div class="kvRow"><div class="kvKey">QUESTS</div><div class="kvVal">пошаговый маршрут на 4–6 недель</div></div>
-              <div class="kvRow"><div class="kvKey">RESCAN</div><div class="kvVal">повторные сканы для динамики</div></div>
-              <div class="kvRow"><div class="kvKey">PATH</div><div class="kvVal">upgrade-маршрут вместо хаоса</div></div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="payRow">
-              <button class="btn" id="activateCampaign">ACTIVATE ACCESS</button>
-              <span class="micro">ценник скрыт. подключим оплату/инвайты позже.</span>
-            </div>
-
-            <div class="hint" style="margin-top:10px;">
-              *сейчас это демо-кнопка. следующий шаг — оплата/инвайты/аккаунт.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script>
-    const $ = (s, r=document) => r.querySelector(s);
+/* Telegram polish */
+if (window.Telegram && Telegram.WebApp){
+  Telegram.WebApp.ready();
+  Telegram.WebApp.expand();
+  Telegram.WebApp.BackButton.hide();
+}
 
-    $("#year").textContent = new Date().getFullYear();
+/* helpers */
+const $ = (id)=>document.getElementById(id);
+const clamp01 = (x)=>Math.max(0,Math.min(1,x));
+function escapeHtml(s){return (s||"").replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[m]));}
+function validDOB(d){
+  const m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec((d||"").trim()); if(!m) return false;
+  const dd=+m[1],mm=+m[2],yy=+m[3];
+  if(mm<1||mm>12||dd<1||dd>31||yy<1900||yy>2100) return false;
+  const dt=new Date(yy,mm-1,dd);
+  return dt && dt.getFullYear()===yy && dt.getMonth()===(mm-1) && dt.getDate()===dd;
+}
+function hashStr(str){
+  let h=2166136261;
+  for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); }
+  return (h>>>0);
+}
+function rng32(seed){
+  return function(){
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  }
+}
+function pick(rng, arr){ return arr[Math.floor(rng()*arr.length)]; }
+function shuffle(rng, arr){
+  const a=arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(rng()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function makeId(dob){
+  const m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(dob);
+  return `PRTCL-108-${m[1]}${m[2]}${m[3].slice(2)}`;
+}
 
-    const scanOverlay = $("#scanOverlay");
-    const procOverlay = $("#procOverlay");
-    const payOverlay  = $("#payOverlay");
+/* manifesto rotates each scan */
+const MANIFEST=[
+  "Если система закрывает двери — я становлюсь дверью.<br>Если система ставит границы — я становлюсь линией разрыва.<small>PRTCL 108 / ADM MODE</small>",
+  "Я не прошу разрешения.<br>Я создаю протокол.<small>PRTCL 108 / ADM MODE</small>",
+  "Никакой магии. Только протокол.<br>Никакой жалости. Только точность.<small>PRTCL 108 / ADM MODE</small>",
+  "Сомнения — это слив ветки.<br>Действие — перенос реальности.<small>PRTCL 108 / ADM MODE</small>"
+];
+$("manifestText").innerHTML = MANIFEST[Math.floor(Math.random()*MANIFEST.length)];
 
-    const openScan  = () => { scanOverlay.style.display = "flex"; initSignature(); };
-    const closeScan = () => { scanOverlay.style.display = "none"; };
+/* game dictionaries (RU, понятно) */
+const ROLES=[
+  "Инициатор Разрыва (запускает движение, когда все стоят)",
+  "Диспетчер Реальности (управляет веткой событий)",
+  "Хирург Связей (режет мёртвое без сожалений)",
+  "Командир Перезапуска (поднимает режим после падения)",
+  "Оператор Прорыва (делает 1 ход, который решает всё)"
+];
+const CLASSES=[
+  "Системный Катализатор (ускоряет процессы вокруг)",
+  "Холодный Оператор (точность вместо эмоций)",
+  "Анти-Паттерн (ломает «как принято»)",
+  "Рерайтер Сценариев (переписывает правила игры)"
+];
+const FLAGS=[
+  "ВНЕ СЕТКИ (плохо управляется системой)",
+  "СМЕЩЕНИЕ КОНТУРА (меняет правила присутствием)",
+  "СИЛОВОЙ СИГНАЛ (люди чувствуют давление)",
+  "ДОСТУП ЧЕРЕЗ ДЕЙСТВИЕ (не через слова)"
+];
+const SKILLS=[
+  "Скан Лжи — видишь несостыковки сразу",
+  "Железная Воля — держишь курс, когда всем страшно",
+  "Сдвиг Реальности — один ход меняет расклад",
+  "Режим Холод — отключаешь шум, включаешь точность",
+  "Разрыв Связей — уходишь без откатов",
+  "Иммунитет к Массе — не заражаешься толпой",
+  "Точечный Удар — минимум действий, максимум эффекта"
+];
+const DEBUFFS=[
+  "Петля Объяснений — тратишь энергию на слова",
+  "Задержка Старта — перегрев от ожидания",
+  "Ловушка Идеала — стоп из-за планки",
+  "Якорь на Людях — лояльность мёртвым связям",
+  "Саботаж Скукой — выключает мотивацию"
+];
+const BUILDS=[
+  "Один Рывок → Пауза (не дави бесконечно)",
+  "Тишина → Удар (сначала очистка, потом действие)",
+  "Срезать → Запустить (убери лишнее и начни)",
+  "Контроль Среды (меняй окружение, не себя)",
+  "Действие вместо анализа (30 секунд на решение)"
+];
+const HINTS=[
+  "Ключ: старт. Если ждёшь — ветка уходит.",
+  "Тебе нельзя объяснять. Тебе можно делать.",
+  "Тишина лечит. Шум ломает.",
+  "Окружение — твой усилитель. Выбирай строго."
+];
 
-    $("#openScan").addEventListener("click", openScan);
-    $("#closeScan").addEventListener("click", closeScan);
+/* Eye SVG (female has lashes) */
+function eyeSVG(variant){
+  const lashes = (variant==="f")
+    ? `<path d="M44 56 q18-18 36 0" stroke="rgba(255,255,255,.20)" stroke-width="3" fill="none"/>
+       <path d="M48 52 l-6-6" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+       <path d="M58 48 l-5-7" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+       <path d="M70 47 l-3-8" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+       <path d="M82 48 l1-8" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
+       <path d="M94 52 l6-6" stroke="rgba(255,255,255,.18)" stroke-width="2"/>`
+    : ``;
 
-    // Крестики справа — у каждого оверлея
-    $("#cancelProc").addEventListener("click", () => procOverlay.style.display = "none");
-    $("#closePay").addEventListener("click", () => payOverlay.style.display = "none");
+  return `
+  <svg viewBox="0 0 180 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="g1" cx="30%" cy="20%" r="80%">
+        <stop offset="0" stop-color="rgba(200,245,255,.20)"/>
+        <stop offset="0.6" stop-color="rgba(217,208,255,.10)"/>
+        <stop offset="1" stop-color="rgba(0,0,0,0)"/>
+      </radialGradient>
+      <linearGradient id="hud" x1="0" x2="1">
+        <stop offset="0" stop-color="rgba(200,245,255,.35)"/>
+        <stop offset="0.5" stop-color="rgba(217,208,255,.28)"/>
+        <stop offset="1" stop-color="rgba(255,84,122,.18)"/>
+      </linearGradient>
+    </defs>
 
-    // закрытие по клику на фон (не на модалку)
-    [scanOverlay, procOverlay, payOverlay].forEach(ov=>{
-      ov.addEventListener("mousedown", (e)=>{
-        if(e.target === ov){
-          ov.style.display = "none";
-        }
-      });
-    });
+    <rect x="0" y="0" width="180" height="240" fill="rgba(5,11,16,.55)"/>
+    <rect x="0" y="0" width="180" height="240" fill="url(#g1)"/>
 
-    $("#viewDemo").addEventListener("click", () => {
-      ensureProfile();
-      showDashboard();
-      document.getElementById("dashboard").scrollIntoView({behavior:"smooth"});
-    });
+    ${Array.from({length:16}).map((_,i)=>`<rect x="0" y="${i*15}" width="180" height="1" fill="rgba(255,255,255,.06)"/>`).join("")}
 
-    $("#openPaywall").addEventListener("click", () => payOverlay.style.display = "flex");
+    <rect x="14" y="16" width="152" height="208" rx="18" fill="none" stroke="rgba(220,235,255,.14)"/>
+    <path d="M24 34 h60" stroke="url(#hud)" stroke-width="2" opacity=".7"/>
+    <path d="M24 206 h90" stroke="url(#hud)" stroke-width="2" opacity=".55"/>
 
-    // Storage
-    const KEY = "prtcl108_profile";
-    const loadState = () => { try { return JSON.parse(localStorage.getItem(KEY) || "{}"); } catch { return {}; } };
-    const saveState = (patch) => {
-      const cur = loadState();
-      const next = {...cur, ...patch};
-      localStorage.setItem(KEY, JSON.stringify(next));
-      return next;
-    };
+    <g transform="translate(0,10)">
+      <ellipse cx="90" cy="110" rx="58" ry="28" fill="rgba(0,0,0,.25)" stroke="rgba(220,235,255,.18)" stroke-width="2"/>
+      <ellipse cx="90" cy="110" rx="46" ry="20" fill="rgba(5,11,16,.55)"/>
+      <ellipse cx="90" cy="110" rx="18" ry="18" fill="rgba(200,245,255,.18)" stroke="rgba(200,245,255,.35)" stroke-width="2"/>
+      <circle cx="90" cy="110" r="7" fill="rgba(0,0,0,.55)"/>
+      <circle cx="96" cy="104" r="3" fill="rgba(255,255,255,.45)"/>
+      <path d="M32 110 q58-52 116 0" fill="none" stroke="rgba(220,235,255,.16)" stroke-width="3"/>
+      <path d="M32 110 q58 52 116 0" fill="none" stroke="rgba(220,235,255,.10)" stroke-width="3"/>
+      ${lashes}
+    </g>
 
-    // Deterministic seed
-    function hashStr(str){
-      let h = 2166136261;
-      for (let i=0; i<str.length; i++){
-        h ^= str.charCodeAt(i);
-        h = Math.imul(h, 16777619);
-      }
-      return (h >>> 0);
-    }
-    function rng(seed){
-      let x = seed || 123456789;
-      return () => {
-        x ^= x << 13; x >>>= 0;
-        x ^= x >> 17; x >>>= 0;
-        x ^= x << 5;  x >>>= 0;
-        return (x >>> 0) / 4294967296;
-      };
-    }
-    const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
-    const pct = (r)=>Math.round(clamp(35 + r()*60, 20, 98));
+    <text x="24" y="58" fill="rgba(234,243,255,.45)" font-family="ui-monospace, Menlo, Monaco, Consolas, monospace" font-size="10" letter-spacing="2">BIO-SCAN</text>
+    <text x="24" y="74" fill="rgba(234,243,255,.35)" font-family="ui-monospace, Menlo, Monaco, Consolas, monospace" font-size="10" letter-spacing="2">PRTCL-108</text>
+    <text x="24" y="90" fill="rgba(234,243,255,.30)" font-family="ui-monospace, Menlo, Monaco, Consolas, monospace" font-size="10" letter-spacing="2">EYE-ID</text>
+  </svg>`;
+}
 
-    const MODES = [
-      {id:"survival",  name:"survival",  text:"Режим: экономия. Система держит безопасность. Неопределённость включает отсрочку."},
-      {id:"stabilize", name:"stabilization", text:"Режим: стабилизация. Движение возможно после сборки опоры и ритма."},
-      {id:"comp",      name:"compensation", text:"Режим: компенсация. Внешние действия закрывают внутренний дефицит. Много усилий — мало удовлетворения."},
-      {id:"growth",    name:"growth",    text:"Режим: рост. Система готова расширяться. Ошибка — распыление."},
-      {id:"overheat",  name:"overheat",  text:"Режим: перегрев. Нужны ограничения и восстановление, иначе будет срыв."},
-    ];
+/* PROCESSING portal steps (смысл, не пустота) */
+const PROC_STEPS=[
+  {p:12, t:"синхронизация доступа", m:"Система поднимает терминал. <b>Ты не просишь доступ — ты его подтверждаешь.</b>"},
+  {p:34, t:"скан параметров", m:"Считывание базы: воля, фокус, хаос, сопротивление."},
+  {p:56, t:"раскладка талантов", m:"Таланты компилируются в билд. <b>Без воды. Без сиропа.</b>"},
+  {p:78, t:"поиск дебаффов", m:"Дебаффы — места, где система крадёт управление."},
+  {p:100,t:"сборка мультипасса", m:"Фиксация факта. <b>MULTIPASS готов.</b>"}
+];
 
-    const CLASSES = [
-      {name:"SENTINEL", desc:"Держит границы и структуру. Сила — устойчивость. Риск — жёсткий контроль."},
-      {name:"ORACLE", desc:"Считывает паттерны раньше других. Сила — точность. Риск — застрять в анализе."},
-      {name:"FORGE", desc:"Собирает результат через действие. Сила — напор. Риск — выгорание."},
-      {name:"SPECTRE", desc:"Меняет форму под среду. Сила — адаптация. Риск — потерять ядро."},
-      {name:"CIPHER", desc:"Живёт в смыслах и кодах. Сила — глубина. Риск — изоляция."},
-    ];
+/* UI refs */
+const dobEl=$("dob"), avatarEl=$("avatar"), nameEl=$("name"), placeEl=$("place");
+const scanBtn=$("scanBtn"), resetBtn=$("resetBtn");
+const warnEl=$("warn"), scanFill=$("scanFill");
+const modal=$("modal"), closeModal=$("closeModal");
+const procFill=$("procFill"), procPct=$("procPct"), procStep=$("procStep"), procMsg=$("procMsg");
+const stateChip=$("stateChip"), outChip=$("outChip");
+const accessBadge=$("accessBadge");
 
-    const ROLES = [
-      {name:"STRATEGIST", desc:"видит систему целиком и выбирает оптимальный ход"},
-      {name:"EXECUTOR", desc:"берёт действие и доводит до результата"},
-      {name:"NEGOTIATOR", desc:"управляет связями и влиянием"},
-      {name:"ARCHITECT", desc:"строит структуру, процессы и правила"},
-      {name:"SCOUT", desc:"находит маршруты и тестирует реальность"},
-    ];
+const mp=$("mp"), placeholder=$("placeholder"), eyeSvg=$("eyeSvg");
+const mpId=$("mpId"), mpDob=$("mpDob"), mpPlace=$("mpPlace"), mpRole=$("mpRole"), mpClass=$("mpClass"), mpFlag=$("mpFlag");
+const mpSkills=$("mpSkills"), mpDebuffs=$("mpDebuffs"), mpBuild=$("mpBuild"), mpStats=$("mpStats"), mpHint=$("mpHint");
 
-    const TRAITS = [
-      {name:"COLD CLARITY", desc:"холодная ясность. быстро видишь ложь и игру"},
-      {name:"SILENT DRIVE", desc:"тихий напор. система движется без шума"},
-      {name:"EDGE CONTROL", desc:"контроль на грани. сила есть, но легко зажать себя"},
-      {name:"NEON INSTINCT", desc:"инстинкт считывает реальность раньше объяснений"},
-      {name:"STEEL HEART", desc:"не ломается под давлением. риск — не чувствовать"},
-    ];
+/* render helpers */
+function setList(ul, items){ ul.innerHTML = items.map(x=>`<li>${escapeHtml(x)}</li>`).join(""); }
+function setStats(container, stats){
+  container.innerHTML = stats.map(s=>{
+    const w=clamp01(s.v/100)*100;
+    return `<div class="stat"><span>${escapeHtml(s.k)}</span><div class="bar"><div class="fill" style="width:${w}%"></div></div><span class="val">${s.v}</span></div>`;
+  }).join("");
+}
+function genProfile(dob,name,place,avatar){
+  const seed=hashStr(`${dob}|${name}|${place}|${avatar}|PRTCL108`);
+  const rng=rng32(seed);
+  const role=pick(rng,ROLES);
+  const cls=pick(rng,CLASSES);
+  const flag=pick(rng,FLAGS);
+  const skills=shuffle(rng,SKILLS).slice(0,4);
+  const debuffs=shuffle(rng,DEBUFFS).slice(0,3);
+  const build=shuffle(rng,BUILDS).slice(0,3);
+  const hint=pick(rng,HINTS);
+  const stats=[
+    {k:"Воля", v: Math.floor(60+rng()*41)},
+    {k:"Фокус", v: Math.floor(45+rng()*56)},
+    {k:"Хаос", v: Math.floor(40+rng()*61)},
+    {k:"Сопротивление", v: Math.floor(35+rng()*66)},
+  ];
+  return {seed, role, cls, flag, skills, debuffs, build, stats, hint};
+}
 
-    const SKILLS = [
-      {tag:"ACTIVE", name:"SCAN PULSE", desc:"считывание паттерна в моменте. +точность, -иллюзии."},
-      {tag:"ACTIVE", name:"BOUNDARY CUT", desc:"отрезать лишнее без оправданий. закрывает утечки энергии."},
-      {tag:"ACTIVE", name:"FOCUS LOCK", desc:"фиксирует цель и защищает от распыления."},
-      {tag:"PASSIVE", name:"NOISE FILTER", desc:"фильтрует чужие ожидания. меньше реактивности."},
-      {tag:"PASSIVE", name:"STABILITY CORE", desc:"держит опору под давлением. повышает устойчивость."},
-      {tag:"PASSIVE", name:"ADAPTIVE SKIN", desc:"быстрая перестройка под среду."},
-      {tag:"DEBUFF", name:"OVERTHINK LOOP", desc:"думаешь вместо дела. снижает импульс."},
-      {tag:"DEBUFF", name:"CONTROL FOG", desc:"перепроверка/отсрочка. скрытый саботаж."},
-      {tag:"DEBUFF", name:"SELF-DEVALUE", desc:"обесценивание как способ снять напряжение."},
-    ];
+/* modal control */
+function showModal(){
+  modal.classList.add("show");
+  procFill.style.width="0%";
+  procPct.textContent="0%";
+  procStep.textContent="синхронизация доступа";
+}
+function hideModal(){ modal.classList.remove("show"); }
+closeModal.addEventListener("click", hideModal);
+modal.addEventListener("click", (e)=>{ if(e.target===modal) hideModal(); });
 
-    const BLOCKERS = [
-      {name:"AVOIDANCE / CONTROL", text:"Защита: избегание через контроль деталей и отсрочки. Иллюзия безопасности → потеря движения."},
-      {name:"SELF-DEVALUATION LOOP", text:"Защита: обесценивание себя/результата, чтобы снять напряжение. Снимает боль → фиксирует остановку."},
-      {name:"OVERTHINKING LOCK", text:"Защита: думать вместо делать. Снижает риск ошибки → лишает опыта."},
-      {name:"PEOPLE-PLEASING MASK", text:"Защита: быть удобным ради безопасности. Теряются границы и голос."},
-      {name:"HYPER-INDEPENDENCE", text:"Защита: не просить и не опираться. Держит силу → закрывает поддержку."},
-    ];
+function runProcessing(onDone){
+  showModal();
+  let i=0;
+  const tick=()=>{
+    const s=PROC_STEPS[i];
+    procStep.textContent=s.t;
+    procMsg.innerHTML=s.m;
+    procFill.style.width=s.p+"%";
+    procPct.textContent=s.p+"%";
+    i++;
+    if(i<PROC_STEPS.length) setTimeout(tick, 520);
+    else setTimeout(()=>{ hideModal(); onDone(); }, 420);
+  };
+  setTimeout(tick, 220);
+}
 
-    const TRIGGERS = [
-      {t:"UNCERTAINTY", d:"неопределённость. защита включается до осознания"},
-      {t:"HIGH STAKES", d:"высокая цена ошибки. включает контроль"},
-      {t:"EXTERNAL PRESSURE", d:"ожидания извне. активирует маску"},
-      {t:"LOSS OF CONTROL", d:"что-то не поддаётся контролю. система «возвращает власть»"},
-      {t:"INTIMACY", d:"приближение. система включает дистанцию/роль"},
-    ];
+/* main actions */
+function scan(){
+  const dob=(dobEl.value||"").trim();
+  const avatar=(avatarEl.value||"f").trim();
+  const name=(nameEl.value||"").trim();
+  const place=((placeEl.value||"").trim() || "НЕ УКАЗАНО");
 
-    const COUNTERS = [
-      {t:"PAUSE PROTOCOL", d:"пауза 12 секунд. вернуть выбор до реакции"},
-      {t:"SINGLE ACTION", d:"одно действие вместо размышлений. разрыв петли"},
-      {t:"ENERGY AUDIT", d:"найти утечку и закрыть её"},
-      {t:"BOUNDARY LINE", d:"одна чёткая граница. без объяснений"},
-      {t:"TRUTH SNAP", d:"одна фраза правды. без украшения"},
-    ];
+  if(!validDOB(dob)){
+    warnEl.style.display="block";
+    return;
+  }
+  warnEl.style.display="none";
 
-    const QUESTS = [
-      {tag:"QUEST", name:"LOG THE TRIGGER", desc:"48 часов отмечать момент активации защиты. без анализа."},
-      {tag:"QUEST", name:"CUT ONE NOISE", desc:"убрать одну лишнюю задачу/контакт. вернуть энергию."},
-      {tag:"QUEST", name:"SINGLE DECISION", desc:"принять решение за 5 минут. без «идеально»."},
-      {tag:"QUEST", name:"BOUNDARY MESSAGE", desc:"одна короткая граница в переписке. без оправданий."},
-      {tag:"QUEST", name:"RECOVERY WINDOW", desc:"30 минут восстановления без стимулов и экрана."},
-    ];
+  stateChip.textContent="ИНИЦИАЛИЗАЦИЯ…";
+  outChip.textContent="PROCESSING";
+  scanFill.style.width="0%";
+  setTimeout(()=>scanFill.style.width="100%",50);
 
-    function pick(r, arr){ return arr[Math.floor(r()*arr.length)]; }
-    function pickN(r, arr, n){
-      const copy = arr.slice();
-      const out = [];
-      for(let i=0;i<n && copy.length;i++){
-        const idx = Math.floor(r()*copy.length);
-        out.push(copy.splice(idx,1)[0]);
-      }
-      return out;
-    }
+  runProcessing(()=>{
+    const profile=genProfile(dob,name,place,avatar);
 
-    function generateProfile(dob, tob){
-      const seedStr = `${dob || "0000-00-00"}|${tob || "00:00"}`;
-      const seed = hashStr(seedStr);
-      const r = rng(seed);
+    eyeSvg.innerHTML = eyeSVG(avatar);
+    mpId.textContent = makeId(dob);
+    mpDob.textContent = dob;
+    mpPlace.textContent = place;
+    mpRole.textContent = profile.role;
+    mpClass.textContent = profile.cls;
+    mpFlag.textContent = profile.flag;
 
-      const params = {
-        energy: pct(r),
-        focus: pct(r),
-        stability: pct(r),
-        drive: pct(r),
-        adapt: pct(r),
-      };
+    setList(mpSkills, profile.skills);
+    setList(mpDebuffs, profile.debuffs);
+    setList(mpBuild, profile.build);
+    setStats(mpStats, profile.stats);
+    mpHint.textContent = profile.hint;
 
-      const mode = pick(r, MODES);
-      const cls  = pick(r, CLASSES);
-      const role = pick(r, ROLES);
-      const trait= pick(r, TRAITS);
+    placeholder.style.display="none";
+    mp.classList.add("show"); mp.style.display="block";
 
-      const skills = [
-        ...pickN(r, SKILLS.filter(s=>s.tag==="ACTIVE"), 2),
-        ...pickN(r, SKILLS.filter(s=>s.tag==="PASSIVE"), 2),
-        ...pickN(r, SKILLS.filter(s=>s.tag==="DEBUFF"), 1),
-      ];
+    stateChip.textContent="СКАН ЗАВЕРШЕН";
+    outChip.textContent="SCAN COMPLETE";
+    accessBadge.textContent="ACCESS: GRANTED";
 
-      const blocker = pick(r, BLOCKERS);
-      const tr = pickN(r, TRIGGERS, 2);
-      const ct = pickN(r, COUNTERS, 1);
+    $("manifestText").innerHTML = MANIFEST[Math.floor(Math.random()*MANIFEST.length)];
+  });
+}
 
-      const qs = pickN(r, QUESTS, 3);
+function reset(){
+  dobEl.value=""; nameEl.value=""; placeEl.value=""; avatarEl.value="f";
+  warnEl.style.display="none";
+  scanFill.style.width="0%";
+  placeholder.style.display="block";
+  mp.style.display="none"; mp.classList.remove("show");
+  stateChip.textContent="ОЖИДАНИЕ ВВОДА";
+  outChip.textContent="НЕ АКТИВНО";
+  accessBadge.textContent="ACCESS: LOCKED";
+  $("manifestText").innerHTML = MANIFEST[Math.floor(Math.random()*MANIFEST.length)];
+}
 
-      return { seedStr, seed, params, mode, cls, role, trait, skills, blocker, deep:{tr, ct}, quests: qs };
-    }
-
-    function ensureProfile(){
-      const st = loadState();
-      if(st && st.dob) return st;
-      const demo = generateProfile("1996-08-01","01:30");
-      return saveState({
-        dob:"1996-08-01", tob:"01:30",
-        seedStr:demo.seedStr, seed:demo.seed,
-        params:demo.params, mode:demo.mode,
-        cls:demo.cls, role:demo.role, trait:demo.trait,
-        skills:demo.skills, blocker:demo.blocker, deep:demo.deep,
-        quests:demo.quests,
-        campaignUnlocked:false,
-        avatar:"helm-f"
-      });
-    }
-
-    function setMeter(fillId, valId, v){
-      $(fillId).style.width = `${v}%`;
-      $(valId).textContent = `${v}/100`;
-    }
-
-    function renderKV(el, items, mode="skill"){
-      el.innerHTML = "";
-      items.forEach(it=>{
-        const row = document.createElement("div");
-        row.className = "kvRow";
-        if(mode==="skill"){
-          row.innerHTML = `<div class="kvKey">${it.tag}</div><div class="kvVal"><b>${it.name}</b><div class="listText">${it.desc}</div></div>`;
-        } else {
-          row.innerHTML = `<div class="kvKey">${it.tag}</div><div class="kvVal"><b>${it.name}</b><div class="listText">${it.desc}</div></div>`;
-        }
-        el.appendChild(row);
-      });
-    }
-
-    function applyDashboard(st){
-      $("#seedPill").textContent = `seed: ${st.dob}${st.tob ? " " + st.tob : ""}`;
-      $("#accessBadge").textContent = st.campaignUnlocked ? "access: campaign" : "access: locked";
-
-      setMeter("#mEnergy","#vEnergy", st.params.energy);
-      setMeter("#mFocus","#vFocus", st.params.focus);
-      setMeter("#mStability","#vStability", st.params.stability);
-      setMeter("#mDrive","#vDrive", st.params.drive);
-      setMeter("#mAdapt","#vAdapt", st.params.adapt);
-
-      $("#modePill").textContent = st.mode.name;
-      $("#modeText").textContent = st.mode.text;
-
-      $("#clsName").textContent = st.cls.name;
-      $("#clsDesc").textContent = st.cls.desc;
-      $("#roleName").textContent = st.role.name;
-      $("#roleDesc").textContent = st.role.desc;
-      $("#traitName").textContent = st.trait.name;
-      $("#traitDesc").textContent = st.trait.desc;
-
-      $("#blkName").textContent = st.blocker.name;
-      $("#blkText").textContent = st.blocker.text;
-
-      $("#t1").textContent = st.deep.tr[0].t;
-      $("#t1d").textContent = st.deep.tr[0].d;
-      $("#t2").textContent = st.deep.tr[1].t;
-      $("#t2d").textContent = st.deep.tr[1].d;
-      $("#t3").textContent = st.deep.ct[0].t;
-      $("#t3d").textContent = st.deep.ct[0].d;
-
-      renderKV($("#skillsList"), st.skills, "skill");
-      renderKV($("#questsList"), st.quests, "quest");
-
-      // avatar swap (female/male)
-      const heroImg = $("#heroImg");
-      const dashAvatar = $("#dashAvatar");
-      const isMale = st.avatar === "helm-m";
-      heroImg.src = isMale ? "assets/helm-m.jpg" : "assets/helm-f.jpg";
-      dashAvatar.src = heroImg.src;
-      $("#hudTag").textContent = isMale ? "MALE / HELM" : "FEMALE / HELM";
-    }
-
-    function showDashboard(){
-      const st = ensureProfile();
-      applyDashboard(st);
-      $("#dashboard").style.display = "block";
-      document.querySelector(".dashWrap").style.display = "block";
-    }
-
-    // Processing (simple)
-    const plog = $("#plog");
-    const pbar = $("#pbar");
-    let procTimer = null;
-
-    function openProcessing(){
-      procOverlay.style.display = "flex";
-      plog.textContent = "";
-      pbar.style.width = "0%";
-    }
-    function closeProcessing(){
-      procOverlay.style.display = "none";
-      if(procTimer) clearInterval(procTimer);
-      procTimer = null;
-    }
-
-    // Signature pad
-    let sigInited = false;
-    let hasSignature = false;
-
-    function initSignature(){
-      if(sigInited) return;
-      sigInited = true;
-
-      const canvas = $("#sig");
-      const hint = $("#sigHint");
-      const status = $("#sigStatus");
-      const clearBtn = $("#clearSig");
-      const ctx = canvas.getContext("2d");
-
-      function resize(){
-        const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.floor(rect.width * dpr);
-        canvas.height = Math.floor(rect.height * dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-        ctx.lineWidth = 2.2;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = "rgba(223,252,255,.85)";
-      }
-      setTimeout(resize,0);
-      window.addEventListener("resize", resize);
-
-      let drawing=false, last=null;
-
-      function setSigned(v){
-        hasSignature = v;
-        if(v){
-          hint.style.display="none";
-          status.textContent="подпись: добавлена";
-        } else {
-          hint.style.display="block";
-          status.textContent="подпись: не добавлена";
-        }
-      }
-
-      function pos(e){
-        const r = canvas.getBoundingClientRect();
-        const p = (e.touches && e.touches[0]) ? e.touches[0] : e;
-        return {x:p.clientX - r.left, y:p.clientY - r.top};
-      }
-
-      function start(e){ e.preventDefault(); drawing=true; last=pos(e); }
-      function move(e){
-        if(!drawing) return;
-        e.preventDefault();
-        const p=pos(e);
-        ctx.beginPath();
-        ctx.moveTo(last.x,last.y);
-        ctx.lineTo(p.x,p.y);
-        ctx.stroke();
-        last=p;
-        setSigned(true);
-      }
-      function end(e){ if(!drawing) return; e.preventDefault(); drawing=false; last=null; }
-
-      canvas.addEventListener("mousedown", start);
-      canvas.addEventListener("mousemove", move);
-      window.addEventListener("mouseup", end);
-
-      canvas.addEventListener("touchstart", start, {passive:false});
-      canvas.addEventListener("touchmove", move, {passive:false});
-      window.addEventListener("touchend", end, {passive:false});
-
-      clearBtn.addEventListener("click", ()=>{
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        setSigned(false);
-      });
-
-      setSigned(false);
-    }
-
-    // Scan submit
-    $("#scanForm").addEventListener("submit", (e)=>{
-      e.preventDefault();
-      const dob = $("#dob").value;
-      const tob = $("#tob").value;
-
-      if(!dob){ alert("Введи дату рождения."); return; }
-      if(!hasSignature){ alert("Поставь подпись в мини-договоре."); return; }
-
-      closeScan();
-      openProcessing();
-
-      const profile = generateProfile(dob, tob);
-
-      const lines = [
-        "reading input…",
-        "initializing model…",
-        "mapping config…",
-        "binding skills…",
-        "detecting blockers…",
-        "generating quests…",
-        "building dashboard…"
-      ];
-
-      let i=0, prog=0;
-      procTimer = setInterval(()=>{
-        if(i < lines.length){
-          plog.textContent += (plog.textContent ? "\n":"") + lines[i];
-          i++;
-          prog = Math.min(100, prog + Math.round(100/lines.length));
-          pbar.style.width = prog + "%";
-        } else {
-          clearInterval(procTimer); procTimer=null;
-          saveState({
-            dob, tob,
-            seedStr:profile.seedStr, seed:profile.seed,
-            params:profile.params, mode:profile.mode,
-            cls:profile.cls, role:profile.role, trait:profile.trait,
-            skills:profile.skills, blocker:profile.blocker, deep:profile.deep,
-            quests:profile.quests,
-            campaignUnlocked:false
-          });
-          closeProcessing();
-          showDashboard();
-          document.getElementById("dashboard").scrollIntoView({behavior:"smooth"});
-        }
-      }, 520);
-    });
-
-    // Demo: activate campaign
-    $("#activateCampaign").addEventListener("click", ()=>{
-      saveState({campaignUnlocked:true});
-      payOverlay.style.display = "none";
-      showDashboard();
-    });
-
-    // Init
-    (function init(){
-      const st = loadState();
-      if(st && st.dob){
-        // preload last
-        $("#accessBadge").textContent = st.campaignUnlocked ? "access: campaign" : "access: locked";
-      }
-    })();
-  </script>
+$("scanBtn").addEventListener("click", scan);
+$("resetBtn").addEventListener("click", reset);
+</script>
 </body>
 </html>
