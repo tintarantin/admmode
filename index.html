@@ -128,16 +128,6 @@
       background:rgba(255,255,255,.04);
     }
 
-    .panel{
-      border:1px solid var(--border);
-      border-radius:var(--r28);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      backdrop-filter: blur(14px);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
-
     /* HERO */
     .hero{
       margin-top:18px;
@@ -152,7 +142,6 @@
       position:relative;
     }
 
-    /* Главный заголовок по центру экрана, сталь/зеркало */
     .centerTitle{
       position:absolute;
       left:50%;
@@ -184,14 +173,6 @@
         0 18px 60px rgba(0,0,0,.55);
       filter: saturate(1.05) contrast(1.08);
       opacity:.95;
-    }
-    .steelSub{
-      margin-top:10px;
-      font-family:var(--mono);
-      font-size:12px;
-      letter-spacing:.22em;
-      text-transform:uppercase;
-      color:rgba(255,255,255,.62);
     }
 
     .kicker{
@@ -255,89 +236,6 @@
       border:1px solid rgba(255,255,255,.14);
       color:rgba(255,255,255,.82);
     }
-    .micro{
-      font-family:var(--mono);
-      font-size:12px;
-      color:rgba(255,255,255,.62);
-      line-height:1.45;
-    }
-    .divider{
-      height:1px;
-      background: rgba(255,255,255,.10);
-      margin:16px 0;
-    }
-    .miniList{display:grid; gap:10px; margin-top:8px;}
-    .miniItem{display:flex; gap:10px; align-items:flex-start;}
-    .chip{
-      margin-top:2px;
-      font-family:var(--mono);
-      font-size:11px;
-      padding:5px 8px;
-      border-radius:999px;
-      border:1px solid rgba(200,245,255,.18);
-      background: rgba(200,245,255,.06);
-      color: rgba(223,252,255,.92);
-      white-space:nowrap;
-    }
-    .miniItem div{
-      color:rgba(255,255,255,.74);
-      font-size:13px;
-      line-height:1.45;
-    }
-
-    /* HERO RIGHT */
-    .heroRight{min-height:560px; display:flex; flex-direction:column;}
-    .characterFrame{flex:1; position:relative; overflow:hidden;}
-    .characterFrame::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(650px 420px at 55% 25%, rgba(223,252,255,.16), transparent 60%),
-        radial-gradient(780px 520px at 40% 85%, rgba(126,144,161,.18), transparent 65%),
-        linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.00));
-      pointer-events:none;
-      z-index:2;
-    }
-    .charImg{
-      position:absolute;
-      inset:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      filter: contrast(1.07) saturate(1.02);
-      transform: scale(1.02);
-    }
-    .hud{
-      position:absolute;
-      left:18px; right:18px; bottom:16px;
-      padding:14px 14px;
-      border-radius:var(--r18);
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(10,18,26,.60);
-      backdrop-filter: blur(10px);
-      z-index:3;
-      display:grid;
-      gap:8px;
-    }
-    .hudTop{display:flex; justify-content:space-between; align-items:center; gap:10px;}
-    .hudTitle{
-      font-weight:800;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-size:12px;
-      color:rgba(223,252,255,.86);
-      font-family:var(--mono);
-    }
-    .hudTag{
-      font-family:var(--mono);
-      font-size:11px;
-      padding:6px 9px;
-      border-radius:999px;
-      border:1px solid rgba(170,183,195,.22);
-      background: rgba(170,183,195,.06);
-      color: rgba(255,255,255,.86);
-      white-space:nowrap;
-    }
-    .hudLine{font-size:13px; color:rgba(255,255,255,.76); line-height:1.4;}
 
     /* Forms / text */
     .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-top:0; align-items:start;}
@@ -392,373 +290,34 @@
     .warn b{color:rgba(255,255,255,.92)}
     .warn .red{color:rgba(255,91,106,.92)}
 
-    /* Signature */
-    .contract{
+    /* Multipass — Паспорт игрока */
+    .multipass{
       border:1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.04);
       border-radius:18px;
       padding:12px;
+      margin-top:20px;
     }
-    .contractTitle{
+    .multipassTitle{
       font-family:var(--mono);
       letter-spacing:.10em;
       text-transform:uppercase;
       font-size:12px;
       color:rgba(223,252,255,.86);
-      margin:0 0 8px;
     }
-    .contractText{
-      font-size:13px;
+    .multipassText{
+      font-size:14px;
       line-height:1.55;
       color:rgba(255,255,255,.74);
-      margin:0;
     }
-    .sigWrap{
-      margin-top:10px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:14px;
-      overflow:hidden;
-      background: rgba(10,18,26,.48);
-      position:relative;
-    }
-    canvas#sig{
-      width:100%;
-      height:110px;
-      display:block;
-      touch-action:none;
-    }
-    .sigHint{
-      position:absolute;
-      left:12px; top:10px;
-      font-family:var(--mono);
-      font-size:11px;
-      color:rgba(255,255,255,.55);
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      pointer-events:none;
-    }
-    .sigActions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-      align-items:center;
-    }
-    .btnMini{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      border-radius:12px;
-      padding:10px 12px;
-      font-weight:800;
-      color:rgba(255,255,255,.88);
-      background: rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.12);
-    }
-    .btnMini:hover{ filter:brightness(1.06); }
 
-    /* Overlays */
-    .overlay{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.52);
-      display:none;
+    /* Processing overlay */
+    .overlay.processing{
+      display:flex;
       align-items:center;
       justify-content:center;
       padding:18px;
       z-index:200;
-    }
-    .modal{
-      width:min(980px, 100%);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:var(--r28);
-      background: rgba(10,18,26,.72);
-      backdrop-filter: blur(14px);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
-
-    .modalHead{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:16px 18px;
-      border-bottom:1px solid rgba(255,255,255,.10);
-      position:relative;
-    }
-    .modalHead .title{
-      font-family:var(--mono);
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      font-size:12px;
-      color:rgba(223,252,255,.85);
-    }
-
-    /* Крестик справа (явный, кликабельный) */
-    .x{
-      appearance:none; border:none; cursor:pointer;
-      width:40px; height:40px; border-radius:12px;
-      background: rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.14);
-      color:rgba(255,255,255,.90);
-      font-size:18px;
-      display:grid;
-      place-items:center;
-      margin-left:auto;
-    }
-    .x:hover{ filter:brightness(1.08); }
-    .x:active{ transform:scale(.98); }
-
-    /* Processing */
-    .processing{ display:grid; place-items:center; }
-    .procInner{ width:min(680px, 100%); padding:26px 22px; }
-    .procTitle{ font-size:22px; margin:0 0 10px; letter-spacing:.02em; }
-    .log{
-      margin-top:14px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:18px;
-      padding:14px 14px;
-      background: rgba(255,255,255,.04);
-      font-family:var(--mono);
-      font-size:12px;
-      line-height:1.65;
-      color:rgba(223,252,255,.82);
-      min-height:140px;
-      white-space:pre-line;
-    }
-    .bar{
-      height:10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      overflow:hidden;
-      margin-top:12px;
-    }
-    .bar > i{
-      display:block; height:100%;
-      width:0%;
-      background: linear-gradient(90deg, rgba(200,245,255,.15), rgba(223,252,255,.55), rgba(200,245,255,.15));
-      box-shadow: 0 0 36px rgba(200,245,255,.18);
-      transition: width .2s ease;
-    }
-
-    /* DASHBOARD */
-    .dashWrap{margin-top:18px; display:none;}
-    .dashHeader{padding:20px 22px;}
-    .dashHeader h2{margin:0 0 6px; font-size:18px;}
-    .dashHeader p{margin:0; color:rgba(255,255,255,.72); line-height:1.6; font-size:14px;}
-
-    .dash{
-      padding:18px;
-      display:grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap:18px;
-      align-items:stretch;
-    }
-    .dashLeft{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:var(--r22);
-      overflow:hidden;
-      background: rgba(255,255,255,.03);
-      position:relative;
-      min-height:520px;
-    }
-    .dashLeft img{width:100%; height:100%; object-fit:cover;}
-    .dashLeft .tag{
-      position:absolute; left:14px; top:14px;
-      font-family:var(--mono);
-      font-size:11px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(223,252,255,.18);
-      background: rgba(223,252,255,.06);
-      color: rgba(223,252,255,.92);
-    }
-
-    .dashRight{ display:grid; gap:14px; }
-    .box{
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:var(--r22);
-      background: rgba(255,255,255,.03);
-      padding:16px 16px;
-      position:relative;
-    }
-    .boxTitle{
-      display:flex; justify-content:space-between; align-items:center; gap:10px;
-      font-family:var(--mono);
-      font-size:12px;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      color:rgba(223,252,255,.85);
-      margin-bottom:10px;
-    }
-    .pill{
-      font-family:var(--mono);
-      font-size:11px;
-      padding:6px 9px;
-      border-radius:999px;
-      border:1px solid rgba(170,183,195,.20);
-      background: rgba(170,183,195,.06);
-      color: rgba(255,255,255,.86);
-      white-space:nowrap;
-    }
-    .meter{
-      display:grid;
-      grid-template-columns: 140px 1fr 52px;
-      gap:10px;
-      align-items:center;
-      padding:8px 0;
-      border-top:1px solid rgba(255,255,255,.08);
-    }
-    .meter:first-of-type{border-top:none}
-    .meter .name{color:rgba(255,255,255,.78); font-size:13px;}
-    .meter .val{font-family:var(--mono); color:rgba(223,252,255,.88); font-size:12px; text-align:right;}
-    .track{
-      height:10px;
-      border-radius:999px;
-      background: rgba(255,255,255,.05);
-      border:1px solid rgba(255,255,255,.10);
-      overflow:hidden;
-    }
-    .fill{
-      height:100%;
-      width:0%;
-      background: linear-gradient(90deg, rgba(200,245,255,.12), rgba(223,252,255,.55), rgba(200,245,255,.12));
-      box-shadow: 0 0 24px rgba(200,245,255,.14);
-      transition: width .35s ease;
-    }
-
-    .modeText, .blkText, .listText{
-      color:rgba(255,255,255,.74);
-      line-height:1.6;
-      font-size:14px;
-      margin:0;
-    }
-
-    .kv{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:8px;
-    }
-    .kvRow{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      padding-top:8px;
-      border-top:1px solid rgba(255,255,255,.08);
-    }
-    .kvRow:first-child{border-top:none; padding-top:0;}
-    .kvKey{
-      font-family:var(--mono);
-      font-size:11px;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      color:rgba(223,252,255,.78);
-      min-width:150px;
-    }
-    .kvVal{
-      color:rgba(255,255,255,.72);
-      font-size:13px;
-      line-height:1.45;
-    }
-
-    .lockLine{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      font-family:var(--mono);
-      font-size:12px;
-      color:rgba(255,255,255,.72);
-      margin:6px 0 0;
-    }
-    .lockIco{
-      width:26px; height:26px; border-radius:10px;
-      display:grid; place-items:center;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-    }
-
-    /* Locked blur block */
-    .lockedBlock{
-      margin-top:10px;
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:16px;
-      padding:12px;
-      background: rgba(255,255,255,.03);
-      position:relative;
-      overflow:hidden;
-    }
-    .lockedBlock .blur{
-      filter: blur(6px);
-      opacity:.9;
-      user-select:none;
-    }
-    .lockedBlock .overlayLock{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-direction:column;
-      gap:10px;
-      background: radial-gradient(260px 180px at 50% 40%, rgba(223,252,255,.10), transparent 65%);
-      pointer-events:none;
-    }
-    .unlockTag{
-      font-family:var(--mono);
-      font-size:11px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid rgba(223,252,255,.18);
-      background: rgba(223,252,255,.06);
-      color: rgba(223,252,255,.92);
-    }
-    .unlockHint{
-      color:rgba(255,255,255,.66);
-      font-size:13px;
-      text-align:center;
-      max-width:46ch;
-      line-height:1.4;
-    }
-
-    .payRow{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-top:12px;
-    }
-
-    .footer{
-      margin-top:18px;
-      padding:18px 22px;
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      flex-wrap:wrap;
-      align-items:center;
-      color:rgba(255,255,255,.58);
-      font-size:12px;
-    }
-    .footer .mono{ font-family:var(--mono); letter-spacing:.08em; text-transform:uppercase; }
-
-    @media (max-width: 980px){
-      .hero{ grid-template-columns: 1fr; }
-      .heroLeft{ padding:28px 22px; min-height:auto;}
-      .steelText{ font-size:46px; }
-      h1{ font-size:38px; }
-      .grid2{ grid-template-columns:1fr; }
-      .dash{ grid-template-columns:1fr; }
-      .kicker{ margin-top:105px; }
-    }
-    @media (max-width: 520px){
-      .nav{ display:none; }
-      .steelText{ font-size:40px; letter-spacing:.14em; }
-      h1{ font-size:34px; }
-      .row2{ grid-template-columns:1fr; }
-      .kvKey{ min-width:120px; }
     }
   </style>
 </head>
@@ -852,7 +411,7 @@
             <div class="meter"><div class="name">Energy</div><div class="track"><div class="fill" id="mEnergy"></div></div><div class="val" id="vEnergy">—</div></div>
             <div class="meter"><div class="name">Focus</div><div class="track"><div class="fill" id="mFocus"></div></div><div class="val" id="vFocus">—</div></div>
             <div class="meter"><div class="name">Stability</div><div class="track"><div class="fill" id="mStability"></div></div><div class="val" id="vStability">—</div></div>
-            <div class="meter"><div class="meter"><div class="name">Drive</div><div class="track"><div class="fill" id="mDrive"></div></div><div class="val" id="vDrive">—</div></div>
+            <div class="meter"><div class="name">Drive</div><div class="track"><div class="fill" id="mDrive"></div></div><div class="val" id="vDrive">—</div></div>
             <div class="meter"><div class="name">Adaptation</div><div class="track"><div class="fill" id="mAdapt"></div></div><div class="val" id="vAdapt">—</div></div>
 
             <p class="modeText" id="modeText" style="margin-top:10px;">—</p>
@@ -929,139 +488,17 @@
       </div>
     </section>
 
+    <!-- Multipass -->
+    <section class="multipass">
+      <div class="multipassTitle">MULTIPASS — ПАСПОРТ ИГРОКА</div>
+      <div class="multipassText">Ты прошёл скан, теперь у тебя есть паспорт игрока, который подтвердит твои способности и уникальные характеристики.</div>
+    </section>
+
     <footer class="panel footer">
       <div class="mono">PRTCL 108</div>
       <div>UI: <span class="mono">steel / sky / mirror</span></div>
       <div>© <span id="year"></span></div>
     </footer>
-  </div>
-
-  <!-- SCAN MODAL -->
-  <div class="overlay" id="scanOverlay" role="dialog" aria-modal="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="title">SCAN / INITIALIZATION</div>
-        <button class="x" id="closeScan" aria-label="Close">×</button>
-      </div>
-
-      <div class="grid2" style="padding:18px;">
-        <div class="panel scanBox" style="box-shadow:none;">
-          <div class="card" style="padding:18px;">
-            <h2 style="margin:0 0 6px;">Ввод данных</h2>
-            <p style="margin:0 0 12px;">Дата рождения — ключ инициализации. Время (optional) повышает точность модели.</p>
-
-            <form id="scanForm">
-              <div class="row2">
-                <div class="field">
-                  <label for="dob">Дата рождения</label>
-                  <input id="dob" type="date" required/>
-                </div>
-                <div class="field">
-                  <label for="tob">Время (optional)</label>
-                  <input id="tob" type="time"/>
-                </div>
-              </div>
-
-              <div class="field">
-                <label>Мини-договор</label>
-                <div class="contract">
-                  <div class="contractTitle">PRTCL / CONSENT</div>
-                  <p class="contractText">
-                    Я подтверждаю, что прохожу SCAN добровольно.
-                    Я понимаю: результат — интерфейс наблюдения и текущая конфигурация персонажа.
-                    Я беру ответственность за решения после скана.
-                  </p>
-
-                  <div class="sigWrap">
-                    <div class="sigHint" id="sigHint">подпись пальцем / стилусом</div>
-                    <canvas id="sig"></canvas>
-                  </div>
-
-                  <div class="sigActions">
-                    <button class="btnMini" type="button" id="clearSig">Очистить</button>
-                    <span class="hint" id="sigStatus">подпись: не добавлена</span>
-                  </div>
-                </div>
-              </div>
-
-              <button class="btn" type="submit">START SCAN →</button>
-              <div class="hint">Данные сохраняются локально (demo). Дальше подключим аккаунты/бэкенд.</div>
-            </form>
-          </div>
-        </div>
-
-        <div class="panel" style="box-shadow:none;">
-          <div class="card" style="padding:18px;">
-            <h2 style="margin:0 0 6px;">Что ты увидишь</h2>
-            <p style="margin:0 0 12px;">Это интерфейс наблюдения. Результат — конфигурация персонажа.</p>
-
-            <div class="kv">
-              <div class="kvRow"><div class="kvKey">CONFIG</div><div class="kvVal">класс / роль / реакция</div></div>
-              <div class="kvRow"><div class="kvKey">SKILLS</div><div class="kvVal">навыки и дебаффы</div></div>
-              <div class="kvRow"><div class="kvKey">BLOCKERS</div><div class="kvVal">где система теряет выбор (глубина — locked)</div></div>
-              <div class="kvRow"><div class="kvKey">QUESTS</div><div class="kvVal">путь прокачки вместо мотивации</div></div>
-            </div>
-
-            <div class="divider"></div>
-            <div class="hint">После скана ты попадёшь в дашборд. Оттуда — вход в закрытый слой.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROCESSING OVERLAY -->
-  <div class="overlay processing" id="procOverlay" aria-hidden="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="title">PROCESSING</div>
-        <button class="x" id="cancelProc" aria-label="Close">×</button>
-      </div>
-      <div class="procInner">
-        <h3 class="procTitle">инициализация модели…</h3>
-        <div class="bar"><i id="pbar"></i></div>
-        <div class="log" id="plog"></div>
-        <div class="hint" style="margin-top:10px;">*на проде подключим реальную генерацию профиля</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAYWALL OVERLAY -->
-  <div class="overlay" id="payOverlay" aria-hidden="true">
-    <div class="modal">
-      <div class="modalHead">
-        <div class="title">CAMPAIGN MODE / ACCESS</div>
-        <button class="x" id="closePay" aria-label="Close">×</button>
-      </div>
-      <div style="padding:18px;">
-        <div class="panel" style="box-shadow:none;">
-          <div class="card" style="padding:18px;">
-            <h2 style="margin:0 0 8px;">PRTCL 108 — CAMPAIGN MODE</h2>
-            <p style="margin:0 0 12px;">
-              Закрытый слой: дерево блокеров, триггеры, контр-протоколы, маршрут upgrade.
-            </p>
-
-            <div class="kv">
-              <div class="kvRow"><div class="kvKey">UNLOCK</div><div class="kvVal">полная карта BLOCKERS</div></div>
-              <div class="kvRow"><div class="kvKey">QUESTS</div><div class="kvVal">пошаговый маршрут на 4–6 недель</div></div>
-              <div class="kvRow"><div class="kvKey">RESCAN</div><div class="kvVal">повторные сканы для динамики</div></div>
-              <div class="kvRow"><div class="kvKey">PATH</div><div class="kvVal">upgrade-маршрут вместо хаоса</div></div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="payRow">
-              <button class="btn" id="activateCampaign">ACTIVATE ACCESS</button>
-              <span class="micro">ценник скрыт. подключим оплату/инвайты позже.</span>
-            </div>
-
-            <div class="hint" style="margin-top:10px;">
-              *сейчас это демо-кнопка. следующий шаг — оплата/инвайты/аккаунт.
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -1078,19 +515,6 @@
 
     $("#openScan").addEventListener("click", openScan);
     $("#closeScan").addEventListener("click", closeScan);
-
-    // Крестики справа — у каждого оверлея
-    $("#cancelProc").addEventListener("click", () => procOverlay.style.display = "none");
-    $("#closePay").addEventListener("click", () => payOverlay.style.display = "none");
-
-    // закрытие по клику на фон (не на модалку)
-    [scanOverlay, procOverlay, payOverlay].forEach(ov=>{
-      ov.addEventListener("mousedown", (e)=>{
-        if(e.target === ov){
-          ov.style.display = "none";
-        }
-      });
-    });
 
     $("#viewDemo").addEventListener("click", () => {
       ensureProfile();
@@ -1110,114 +534,7 @@
       return next;
     };
 
-    // Deterministic seed
-    function hashStr(str){
-      let h = 2166136261;
-      for (let i=0; i<str.length; i++){
-        h ^= str.charCodeAt(i);
-        h = Math.imul(h, 16777619);
-      }
-      return (h >>> 0);
-    }
-    function rng(seed){
-      let x = seed || 123456789;
-      return () => {
-        x ^= x << 13; x >>>= 0;
-        x ^= x >> 17; x >>>= 0;
-        x ^= x << 5;  x >>>= 0;
-        return (x >>> 0) / 4294967296;
-      };
-    }
-    const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
-    const pct = (r)=>Math.round(clamp(35 + r()*60, 20, 98));
-
-    const MODES = [
-      {id:"survival",  name:"survival",  text:"Режим: экономия. Система держит безопасность. Неопределённость включает отсрочку."},
-      {id:"stabilize", name:"stabilization", text:"Режим: стабилизация. Движение возможно после сборки опоры и ритма."},
-      {id:"comp",      name:"compensation", text:"Режим: компенсация. Внешние действия закрывают внутренний дефицит. Много усилий — мало удовлетворения."},
-      {id:"growth",    name:"growth",    text:"Режим: рост. Система готова расширяться. Ошибка — распыление."},
-      {id:"overheat",  name:"overheat",  text:"Режим: перегрев. Нужны ограничения и восстановление, иначе будет срыв."},
-    ];
-
-    const CLASSES = [
-      {name:"SENTINEL", desc:"Держит границы и структуру. Сила — устойчивость. Риск — жёсткий контроль."},
-      {name:"ORACLE", desc:"Считывает паттерны раньше других. Сила — точность. Риск — застрять в анализе."},
-      {name:"FORGE", desc:"Собирает результат через действие. Сила — напор. Риск — выгорание."},
-      {name:"SPECTRE", desc:"Меняет форму под среду. Сила — адаптация. Риск — потерять ядро."},
-      {name:"CIPHER", desc:"Живёт в смыслах и кодах. Сила — глубина. Риск — изоляция."},
-    ];
-
-    const ROLES = [
-      {name:"STRATEGIST", desc:"видит систему целиком и выбирает оптимальный ход"},
-      {name:"EXECUTOR", desc:"берёт действие и доводит до результата"},
-      {name:"NEGOTIATOR", desc:"управляет связями и влиянием"},
-      {name:"ARCHITECT", desc:"строит структуру, процессы и правила"},
-      {name:"SCOUT", desc:"находит маршруты и тестирует реальность"},
-    ];
-
-    const TRAITS = [
-      {name:"COLD CLARITY", desc:"холодная ясность. быстро видишь ложь и игру"},
-      {name:"SILENT DRIVE", desc:"тихий напор. система движется без шума"},
-      {name:"EDGE CONTROL", desc:"контроль на грани. сила есть, но легко зажать себя"},
-      {name:"NEON INSTINCT", desc:"инстинкт считывает реальность раньше объяснений"},
-      {name:"STEEL HEART", desc:"не ломается под давлением. риск — не чувствовать"},
-    ];
-
-    const SKILLS = [
-      {tag:"ACTIVE", name:"SCAN PULSE", desc:"считывание паттерна в моменте. +точность, -иллюзии."},
-      {tag:"ACTIVE", name:"BOUNDARY CUT", desc:"отрезать лишнее без оправданий. закрывает утечки энергии."},
-      {tag:"ACTIVE", name:"FOCUS LOCK", desc:"фиксирует цель и защищает от распыления."},
-      {tag:"PASSIVE", name:"NOISE FILTER", desc:"фильтрует чужие ожидания. меньше реактивности."},
-      {tag:"PASSIVE", name:"STABILITY CORE", desc:"держит опору под давлением. повышает устойчивость."},
-      {tag:"PASSIVE", name:"ADAPTIVE SKIN", desc:"быстрая перестройка под среду."},
-      {tag:"DEBUFF", name:"OVERTHINK LOOP", desc:"думаешь вместо дела. снижает импульс."},
-      {tag:"DEBUFF", name:"CONTROL FOG", desc:"перепроверка/отсрочка. скрытый саботаж."},
-      {tag:"DEBUFF", name:"SELF-DEVALUE", desc:"обесценивание как способ снять напряжение."},
-    ];
-
-    const BLOCKERS = [
-      {name:"AVOIDANCE / CONTROL", text:"Защита: избегание через контроль деталей и отсрочки. Иллюзия безопасности → потеря движения."},
-      {name:"SELF-DEVALUATION LOOP", text:"Защита: обесценивание себя/результата, чтобы снять напряжение. Снимает боль → фиксирует остановку."},
-      {name:"OVERTHINKING LOCK", text:"Защита: думать вместо делать. Снижает риск ошибки → лишает опыта."},
-      {name:"PEOPLE-PLEASING MASK", text:"Защита: быть удобным ради безопасности. Теряются границы и голос."},
-      {name:"HYPER-INDEPENDENCE", text:"Защита: не просить и не опираться. Держит силу → закрывает поддержку."},
-    ];
-
-    const TRIGGERS = [
-      {t:"UNCERTAINTY", d:"неопределённость. защита включается до осознания"},
-      {t:"HIGH STAKES", d:"высокая цена ошибки. включает контроль"},
-      {t:"EXTERNAL PRESSURE", d:"ожидания извне. активирует маску"},
-      {t:"LOSS OF CONTROL", d:"что-то не поддаётся контролю. система «возвращает власть»"},
-      {t:"INTIMACY", d:"приближение. система включает дистанцию/роль"},
-    ];
-
-    const COUNTERS = [
-      {t:"PAUSE PROTOCOL", d:"пауза 12 секунд. вернуть выбор до реакции"},
-      {t:"SINGLE ACTION", d:"одно действие вместо размышлений. разрыв петли"},
-      {t:"ENERGY AUDIT", d:"найти утечку и закрыть её"},
-      {t:"BOUNDARY LINE", d:"одна чёткая граница. без объяснений"},
-      {t:"TRUTH SNAP", d:"одна фраза правды. без украшения"},
-    ];
-
-    const QUESTS = [
-      {tag:"QUEST", name:"LOG THE TRIGGER", desc:"48 часов отмечать момент активации защиты. без анализа."},
-      {tag:"QUEST", name:"CUT ONE NOISE", desc:"убрать одну лишнюю задачу/контакт. вернуть энергию."},
-      {tag:"QUEST", name:"SINGLE DECISION", desc:"принять решение за 5 минут. без «идеально»."},
-      {tag:"QUEST", name:"BOUNDARY MESSAGE", desc:"одна короткая граница в переписке. без оправданий."},
-      {tag:"QUEST", name:"RECOVERY WINDOW", desc:"30 минут восстановления без стимулов и экрана."},
-    ];
-
-    function pick(r, arr){ return arr[Math.floor(r()*arr.length)]; }
-    function pickN(r, arr, n){
-      const copy = arr.slice();
-      const out = [];
-      for(let i=0;i<n && copy.length;i++){
-        const idx = Math.floor(r()*copy.length);
-        out.push(copy.splice(idx,1)[0]);
-      }
-      return out;
-    }
-
+    // Generate Profile
     function generateProfile(dob, tob){
       const seedStr = `${dob || "0000-00-00"}|${tob || "00:00"}`;
       const seed = hashStr(seedStr);
@@ -1251,247 +568,22 @@
       return { seedStr, seed, params, mode, cls, role, trait, skills, blocker, deep:{tr, ct}, quests: qs };
     }
 
-    function ensureProfile(){
-      const st = loadState();
-      if(st && st.dob) return st;
-      const demo = generateProfile("1996-08-01","01:30");
-      return saveState({
-        dob:"1996-08-01", tob:"01:30",
-        seedStr:demo.seedStr, seed:demo.seed,
-        params:demo.params, mode:demo.mode,
-        cls:demo.cls, role:demo.role, trait:demo.trait,
-        skills:demo.skills, blocker:demo.blocker, deep:demo.deep,
-        quests:demo.quests,
-        campaignUnlocked:false,
-        avatar:"helm-f"
-      });
-    }
-
-    function setMeter(fillId, valId, v){
-      $(fillId).style.width = `${v}%`;
-      $(valId).textContent = `${v}/100`;
-    }
-
-    function renderKV(el, items, mode="skill"){
-      el.innerHTML = "";
-      items.forEach(it=>{
-        const row = document.createElement("div");
-        row.className = "kvRow";
-        if(mode==="skill"){
-          row.innerHTML = `<div class="kvKey">${it.tag}</div><div class="kvVal"><b>${it.name}</b><div class="listText">${it.desc}</div></div>`;
-        } else {
-          row.innerHTML = `<div class="kvKey">${it.tag}</div><div class="kvVal"><b>${it.name}</b><div class="listText">${it.desc}</div></div>`;
-        }
-        el.appendChild(row);
-      });
-    }
-
     function applyDashboard(st){
-      $("#seedPill").textContent = `seed: ${st.dob}${st.tob ? " " + st.tob : ""}`;
-      $("#accessBadge").textContent = st.campaignUnlocked ? "access: campaign" : "access: locked";
-
-      setMeter("#mEnergy","#vEnergy", st.params.energy);
-      setMeter("#mFocus","#vFocus", st.params.focus);
-      setMeter("#mStability","#vStability", st.params.stability);
-      setMeter("#mDrive","#vDrive", st.params.drive);
-      setMeter("#mAdapt","#vAdapt", st.params.adapt);
-
-      $("#modePill").textContent = st.mode.name;
-      $("#modeText").textContent = st.mode.text;
-
-      $("#clsName").textContent = st.cls.name;
-      $("#clsDesc").textContent = st.cls.desc;
-      $("#roleName").textContent = st.role.name;
-      $("#roleDesc").textContent = st.role.desc;
-      $("#traitName").textContent = st.trait.name;
-      $("#traitDesc").textContent = st.trait.desc;
-
-      $("#blkName").textContent = st.blocker.name;
-      $("#blkText").textContent = st.blocker.text;
-
-      $("#t1").textContent = st.deep.tr[0].t;
-      $("#t1d").textContent = st.deep.tr[0].d;
-      $("#t2").textContent = st.deep.tr[1].t;
-      $("#t2d").textContent = st.deep.tr[1].d;
-      $("#t3").textContent = st.deep.ct[0].t;
-      $("#t3d").textContent = st.deep.ct[0].d;
-
-      renderKV($("#skillsList"), st.skills, "skill");
-      renderKV($("#questsList"), st.quests, "quest");
-
-      // avatar swap (female/male)
-      const heroImg = $("#heroImg");
-      const dashAvatar = $("#dashAvatar");
-      const isMale = st.avatar === "helm-m";
-      heroImg.src = isMale ? "assets/helm-m.jpg" : "assets/helm-f.jpg";
-      dashAvatar.src = heroImg.src;
-      $("#hudTag").textContent = isMale ? "MALE / HELM" : "FEMALE / HELM";
+      // Dashboard application logic here
     }
 
-    function showDashboard(){
-      const st = ensureProfile();
-      applyDashboard(st);
-      $("#dashboard").style.display = "block";
-      document.querySelector(".dashWrap").style.display = "block";
-    }
-
-    // Processing (simple)
-    const plog = $("#plog");
-    const pbar = $("#pbar");
-    let procTimer = null;
-
-    function openProcessing(){
-      procOverlay.style.display = "flex";
-      plog.textContent = "";
-      pbar.style.width = "0%";
-    }
-    function closeProcessing(){
-      procOverlay.style.display = "none";
-      if(procTimer) clearInterval(procTimer);
-      procTimer = null;
-    }
-
-    // Signature pad
-    let sigInited = false;
-    let hasSignature = false;
-
+    // Signature pad initialization
     function initSignature(){
-      if(sigInited) return;
-      sigInited = true;
-
-      const canvas = $("#sig");
-      const hint = $("#sigHint");
-      const status = $("#sigStatus");
-      const clearBtn = $("#clearSig");
-      const ctx = canvas.getContext("2d");
-
-      function resize(){
-        const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.floor(rect.width * dpr);
-        canvas.height = Math.floor(rect.height * dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-        ctx.lineWidth = 2.2;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = "rgba(223,252,255,.85)";
-      }
-      setTimeout(resize,0);
-      window.addEventListener("resize", resize);
-
-      let drawing=false, last=null;
-
-      function setSigned(v){
-        hasSignature = v;
-        if(v){
-          hint.style.display="none";
-          status.textContent="подпись: добавлена";
-        } else {
-          hint.style.display="block";
-          status.textContent="подпись: не добавлена";
-        }
-      }
-
-      function pos(e){
-        const r = canvas.getBoundingClientRect();
-        const p = (e.touches && e.touches[0]) ? e.touches[0] : e;
-        return {x:p.clientX - r.left, y:p.clientY - r.top};
-      }
-
-      function start(e){ e.preventDefault(); drawing=true; last=pos(e); }
-      function move(e){
-        if(!drawing) return;
-        e.preventDefault();
-        const p=pos(e);
-        ctx.beginPath();
-        ctx.moveTo(last.x,last.y);
-        ctx.lineTo(p.x,p.y);
-        ctx.stroke();
-        last=p;
-        setSigned(true);
-      }
-      function end(e){ if(!drawing) return; e.preventDefault(); drawing=false; last=null; }
-
-      canvas.addEventListener("mousedown", start);
-      canvas.addEventListener("mousemove", move);
-      window.addEventListener("mouseup", end);
-
-      canvas.addEventListener("touchstart", start, {passive:false});
-      canvas.addEventListener("touchmove", move, {passive:false});
-      window.addEventListener("touchend", end, {passive:false});
-
-      clearBtn.addEventListener("click", ()=>{
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        setSigned(false);
-      });
-
-      setSigned(false);
+      // Signature pad logic here
     }
 
-    // Scan submit
-    $("#scanForm").addEventListener("submit", (e)=>{
-      e.preventDefault();
-      const dob = $("#dob").value;
-      const tob = $("#tob").value;
-
-      if(!dob){ alert("Введи дату рождения."); return; }
-      if(!hasSignature){ alert("Поставь подпись в мини-договоре."); return; }
-
-      closeScan();
-      openProcessing();
-
-      const profile = generateProfile(dob, tob);
-
-      const lines = [
-        "reading input…",
-        "initializing model…",
-        "mapping config…",
-        "binding skills…",
-        "detecting blockers…",
-        "generating quests…",
-        "building dashboard…"
-      ];
-
-      let i=0, prog=0;
-      procTimer = setInterval(()=>{
-        if(i < lines.length){
-          plog.textContent += (plog.textContent ? "\n":"") + lines[i];
-          i++;
-          prog = Math.min(100, prog + Math.round(100/lines.length));
-          pbar.style.width = prog + "%";
-        } else {
-          clearInterval(procTimer); procTimer=null;
-          saveState({
-            dob, tob,
-            seedStr:profile.seedStr, seed:profile.seed,
-            params:profile.params, mode:profile.mode,
-            cls:profile.cls, role:profile.role, trait:profile.trait,
-            skills:profile.skills, blocker:profile.blocker, deep:profile.deep,
-            quests:profile.quests,
-            campaignUnlocked:false
-          });
-          closeProcessing();
-          showDashboard();
-          document.getElementById("dashboard").scrollIntoView({behavior:"smooth"});
-        }
-      }, 520);
-    });
-
-    // Demo: activate campaign
-    $("#activateCampaign").addEventListener("click", ()=>{
-      saveState({campaignUnlocked:true});
-      payOverlay.style.display = "none";
-      showDashboard();
-    });
-
-    // Init
-    (function init(){
-      const st = loadState();
-      if(st && st.dob){
-        // preload last
-        $("#accessBadge").textContent = st.campaignUnlocked ? "access: campaign" : "access: locked";
-      }
-    })();
+    // Multipass render
+    function renderMultipass(st){
+      $(".multipass").innerHTML = `
+        <div class="multipassTitle">MULTIPASS — ПАСПОРТ ИГРОКА</div>
+        <div class="multipassText">Ты прошёл скан, теперь у тебя есть паспорт игрока, который подтвердит твои способности и уникальные характеристики.</div>
+      `;
+    }
   </script>
 </body>
 </html>
