@@ -2,1256 +2,1401 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ADM mode: off script.</title>
-  <meta name="description" content="ADM mode: off script. Протокол → MULTIPASS → билд." />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HUMAN ERROR 108 — Протокол</title>
+  <meta name="description" content="HUMAN ERROR 108 — протокол перепрошивки реальности: ясность → выбор → действие. Без мистики. Без бытовухи. Только управление." />
 
   <style>
     :root{
-      --bg-0:#ffffff;
-      --bg-1:#f6f1ff;
-      --bg-2:#efe9ff;
-
-      /* pearly / lilac / iridescent */
-      --p-1:#c9b6ff;
-      --p-2:#b9f0ff;
-      --p-3:#ffd6f7;
-      --p-4:#d6fff3;
-
-      --ink:#0b0c14;
-      --muted:rgba(11,12,20,.68);
-      --shadow: 0 30px 80px rgba(12, 10, 30, .12);
-
-      --radius: 28px;
-      --max: 1120px;
+      --bg0:#05060a;
+      --bg1:#070813;
+      --glass: rgba(255,255,255,.08);
+      --glass2: rgba(255,255,255,.12);
+      --stroke: rgba(255,255,255,.16);
+      --stroke2: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --muted2: rgba(255,255,255,.52);
+      --accent1:#c8b6ff; /* lavender */
+      --accent2:#ffd6ff; /* pearl pink */
+      --accent3:#b8f3ff; /* icy */
+      --danger:#ff4d6d;
+      --ok:#7CFFB2;
+      --shadow: 0 30px 80px rgba(0,0,0,.5);
+      --radius: 22px;
+      --radius2: 30px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, "Segoe UI", Roboto, Arial;
     }
 
     *{ box-sizing:border-box; }
     html,body{ height:100%; }
     body{
       margin:0;
-      color:var(--ink);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-family: var(--sans);
+      color: var(--text);
       background:
-        radial-gradient(1200px 700px at 15% 10%, rgba(185,240,255,.55), transparent 60%),
-        radial-gradient(1000px 650px at 85% 20%, rgba(255,214,247,.52), transparent 62%),
-        radial-gradient(900px 650px at 55% 90%, rgba(201,182,255,.50), transparent 60%),
-        linear-gradient(180deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2));
+        radial-gradient(1200px 900px at 20% 10%, rgba(200,182,255,.16), transparent 55%),
+        radial-gradient(1000px 700px at 80% 30%, rgba(255,214,255,.12), transparent 55%),
+        radial-gradient(900px 700px at 65% 85%, rgba(184,243,255,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
 
-    /* moving pearly light field */
-    .aurora{
-      position:fixed; inset:-40vh -40vw;
+    /* Subtle film grain */
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
       pointer-events:none;
-      filter: blur(44px) saturate(1.25);
-      opacity:.62;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%25" height="100%25" filter="url(%23n)" opacity=".35"/></svg>');
+      mix-blend-mode:overlay;
+      opacity:.05;
+      z-index:0;
+    }
+
+    /* Floating light lines */
+    .aurora{
+      position:fixed; inset:-20%;
       background:
-        conic-gradient(from 140deg,
-          rgba(201,182,255,.0),
-          rgba(201,182,255,.60),
-          rgba(185,240,255,.58),
-          rgba(255,214,247,.55),
-          rgba(214,255,243,.52),
-          rgba(201,182,255,.60),
-          rgba(201,182,255,.0)
-        );
-      animation: drift 16s ease-in-out infinite;
-      mix-blend-mode: soft-light;
-      transform: translate3d(0,0,0);
+        radial-gradient(closest-side at 20% 40%, rgba(200,182,255,.18), transparent 60%),
+        radial-gradient(closest-side at 80% 20%, rgba(255,214,255,.16), transparent 60%),
+        radial-gradient(closest-side at 55% 80%, rgba(184,243,255,.14), transparent 60%);
+      filter: blur(30px);
+      transform: translateZ(0);
+      opacity:.9;
+      z-index:0;
+      animation: drift 14s ease-in-out infinite alternate;
     }
     @keyframes drift{
-      0%{ transform: translate(-6vw,-3vh) rotate(0deg) scale(1); }
-      50%{ transform: translate(6vw,3vh) rotate(18deg) scale(1.06); }
-      100%{ transform: translate(-6vw,-3vh) rotate(0deg) scale(1); }
+      0%{ transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+      100%{ transform: translate3d(1.5%, 1%, 0) scale(1.06); }
     }
 
-    /* nav */
+    /* Layout */
+    .wrap{ position:relative; z-index:1; }
     .nav{
-      position:sticky; top:0; z-index:30;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.38));
-      border-bottom: 1px solid rgba(255,255,255,.55);
+      position:sticky; top:0; z-index:20;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(180deg, rgba(5,6,10,.72), rgba(5,6,10,.25));
+      border-bottom: 1px solid rgba(255,255,255,.10);
     }
-    .nav .wrap{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:14px 18px;
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px;
+    .nav-in{
+      max-width:1180px; margin:0 auto; padding:14px 18px;
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
     }
     .brand{
-      display:flex; align-items:baseline; gap:10px;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      font-weight:900;
+      display:flex; align-items:center; gap:12px;
+      user-select:none;
     }
-    .brand small{
+    .sig{
+      width:38px; height:38px; border-radius:12px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 60%),
+        linear-gradient(135deg, rgba(200,182,255,.85), rgba(255,214,255,.55), rgba(184,243,255,.55));
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.18);
+      position:relative;
+      overflow:hidden;
+    }
+    .sig:after{
+      content:"";
+      position:absolute; inset:-60%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+      transform: rotate(25deg);
+      animation: shimmer 3.2s ease-in-out infinite;
+      opacity:.7;
+    }
+    @keyframes shimmer{
+      0%{ transform: translateX(-25%) rotate(25deg); opacity:.25;}
+      50%{ transform: translateX(35%) rotate(25deg); opacity:.9;}
+      100%{ transform: translateX(80%) rotate(25deg); opacity:.2;}
+    }
+
+    .brand h1{
+      margin:0;
       font-weight:650;
-      letter-spacing:.18em;
-      opacity:.62;
-      text-transform:none;
+      letter-spacing:.04em;
+      font-size:12px;
+      color: rgba(255,255,255,.76);
+      text-transform:uppercase;
     }
+    .brand .sub{
+      font-family: var(--mono);
+      font-size:12px;
+      color: rgba(255,255,255,.52);
+      margin-top:2px;
+    }
+
     .nav a{
-      color:var(--ink);
+      color: rgba(255,255,255,.78);
       text-decoration:none;
-      font-weight:900;
-      opacity:.78;
-      transition: opacity .2s ease;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-size:12px;
+      font-size:13px;
+      padding:10px 10px;
+      border-radius:12px;
+      transition: .2s ease;
+      border: 1px solid transparent;
     }
-    .nav a:hover{ opacity:1; }
-    .nav .links{ display:flex; gap:16px; align-items:center; }
-
-    .wrap{
-      max-width:var(--max);
-      margin:0 auto;
-      padding:0 18px;
+    .nav a:hover{
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.12);
     }
 
-    /* hero */
-    .hero{
-      position:relative;
-      padding:64px 0 18px;
-      isolation:isolate;
-    }
-    .iridescent-bg{
-      position:absolute;
-      inset:-30% -20%;
-      z-index:-1;
-      background:
-        radial-gradient(700px 420px at 20% 30%, rgba(185,240,255,.65), transparent 60%),
-        radial-gradient(600px 380px at 80% 25%, rgba(255,214,247,.60), transparent 62%),
-        radial-gradient(620px 420px at 55% 75%, rgba(201,182,255,.58), transparent 60%),
-        radial-gradient(540px 360px at 40% 60%, rgba(214,255,243,.52), transparent 60%);
-      filter: blur(22px) saturate(1.15);
-      animation: pearlFlow 14s ease-in-out infinite;
-      transform: translate3d(0,0,0);
-      pointer-events:none;
-      mix-blend-mode: soft-light;
-      opacity:.9;
-    }
-    @keyframes pearlFlow{
-      0%{ transform: translate(-2%, -2%) scale(1); }
-      50%{ transform: translate(2%, 2%) scale(1.06); }
-      100%{ transform: translate(-2%, -2%) scale(1); }
-    }
-
-    .title{
-      font-size: clamp(40px, 5.3vw, 84px);
-      line-height: .98;
-      margin:0 0 12px;
-      letter-spacing:-.03em;
-      font-weight:950;
-    }
-    .shimmer{
-      display:inline-block;
-      background:
-        linear-gradient(110deg,
-          rgba(15,14,35,1) 0%,
-          rgba(15,14,35,1) 28%,
-          rgba(255,255,255,.98) 40%,
-          rgba(15,14,35,1) 52%,
-          rgba(15,14,35,1) 100%),
-        conic-gradient(from 140deg, var(--p-1), var(--p-2), var(--p-3), var(--p-4), var(--p-1));
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-      background-size: 220% 100%, 120% 120%;
-      background-position: 0% 50%, 50% 50%;
-      filter: drop-shadow(0 10px 26px rgba(12,10,30,.12));
-      animation: shine 3.8s ease-in-out infinite;
-    }
-    @keyframes shine{
-      0%{ background-position: 0% 50%, 50% 50%; }
-      55%{ background-position: 100% 50%, 50% 50%; }
-      100%{ background-position: 0% 50%, 50% 50%; }
-    }
-
-    .lead{
-      max-width: 880px;
-      font-size: clamp(16px, 1.55vw, 19px);
-      line-height:1.6;
-      color:var(--muted);
-      margin: 0 0 14px;
-      font-weight:750;
-    }
-
-    .chips{
-      display:flex; flex-wrap:wrap; gap:10px;
-      margin: 0 0 16px;
-    }
-    .chip{
-      padding:10px 12px;
-      border-radius: 999px;
-      border:1px solid rgba(255,255,255,.75);
-      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.44));
-      backdrop-filter: blur(14px);
-      box-shadow: 0 14px 44px rgba(12,10,30,.10);
-      font-weight:900;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      color: rgba(11,12,20,.86);
-      position:relative;
-      overflow:hidden;
-      user-select:none;
-      font-size:12px;
-    }
-    .chip::after{
-      content:"";
-      position:absolute; inset:-2px -30%;
-      background: linear-gradient(90deg, transparent, rgba(185,240,255,.55), rgba(255,214,247,.55), transparent);
-      transform: translateX(-40%);
-      animation: chipshine 3.2s ease-in-out infinite;
-      opacity:.9;
-      mix-blend-mode: soft-light;
-    }
-    @keyframes chipshine{
-      0%{ transform: translateX(-60%); }
-      55%{ transform: translateX(60%); }
-      100%{ transform: translateX(-60%); }
-    }
-
-    .ctaRow{
-      display:flex; gap:12px; flex-wrap:wrap;
-      align-items:center;
-      margin: 10px 0 6px;
-    }
     .btn{
-      display:inline-flex; align-items:center; gap:10px;
-      padding: 14px 16px;
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 14px;
       border-radius: 16px;
-      border:1px solid rgba(255,255,255,.75);
-      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.44));
-      backdrop-filter: blur(14px);
-      box-shadow: var(--shadow);
-      color:rgba(11,12,20,.9);
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
       text-decoration:none;
-      font-weight:950;
-      letter-spacing:.06em;
-      transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+      font-weight:650;
+      transition:.18s ease;
+      box-shadow: 0 18px 50px rgba(0,0,0,.28);
       cursor:pointer;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.085);
+      border-color: rgba(255,255,255,.22);
+    }
+    .btn.primary{
+      border: 1px solid rgba(255,255,255,.20);
+      background: linear-gradient(135deg, rgba(200,182,255,.35), rgba(255,214,255,.22), rgba(184,243,255,.20));
       position:relative;
       overflow:hidden;
-      user-select:none;
-      text-transform:uppercase;
-      font-size:12px;
     }
-    .btn:hover{ transform: translateY(-2px); box-shadow: 0 40px 100px rgba(12,10,30,.14); }
-    .btn.primary::before{
+    .btn.primary:after{
       content:"";
-      position:absolute; inset:-3px;
-      background: conic-gradient(from 150deg,
-        rgba(201,182,255,.75),
-        rgba(185,240,255,.75),
-        rgba(255,214,247,.70),
-        rgba(214,255,243,.65),
-        rgba(201,182,255,.75)
-      );
-      filter: blur(14px);
+      position:absolute; inset:-60%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+      transform: rotate(25deg);
+      animation: shimmer 2.9s ease-in-out infinite;
       opacity:.55;
-      animation: halo 4.8s ease-in-out infinite;
-      pointer-events:none;
     }
-    @keyframes halo{
-      0%{ transform: rotate(0deg) scale(1); }
-      50%{ transform: rotate(18deg) scale(1.06); }
-      100%{ transform: rotate(0deg) scale(1); }
-    }
-    .btn span{ position:relative; z-index:1; }
-    .btn.ghost{ opacity:.78; }
-    .btn.ghost:hover{ opacity:1; }
-    .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none !important; }
 
-    /* cards / layout */
-    .grid{
+    /* Hero */
+    .hero{
+      max-width:1180px;
+      margin:0 auto;
+      padding: 54px 18px 26px;
       display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap:18px;
-      margin: 18px 0 22px;
+      grid-template-columns: 1.1fr .9fr;
+      gap:20px;
+      align-items:stretch;
     }
-    @media (max-width: 940px){
-      .grid{ grid-template-columns: 1fr; }
+    @media (max-width: 980px){
+      .hero{ grid-template-columns: 1fr; padding-top: 32px; }
     }
 
     .card{
-      border-radius: var(--radius);
-      border:1px solid rgba(255,255,255,.70);
-      background: linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,.36));
-      backdrop-filter: blur(16px);
+      border-radius: var(--radius2);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.14);
       box-shadow: var(--shadow);
-      overflow:hidden;
+      backdrop-filter: blur(18px);
       position:relative;
+      overflow:hidden;
     }
-    .card::before{
+    .card:before{
       content:"";
-      position:absolute; inset:-2px;
+      position:absolute;
+      inset:-2px;
       background:
-        conic-gradient(from 140deg,
-          rgba(201,182,255,.0),
-          rgba(201,182,255,.65),
-          rgba(185,240,255,.62),
-          rgba(255,214,247,.58),
-          rgba(214,255,243,.50),
-          rgba(201,182,255,.65),
-          rgba(201,182,255,.0)
-        );
-      filter: blur(14px);
-      opacity:.52;
-      animation: borderFlow 7.2s ease-in-out infinite;
+        radial-gradient(900px 300px at 20% 10%, rgba(200,182,255,.18), transparent 55%),
+        radial-gradient(800px 300px at 85% 25%, rgba(255,214,255,.14), transparent 55%),
+        radial-gradient(700px 300px at 55% 90%, rgba(184,243,255,.12), transparent 55%);
+      opacity:.7;
       pointer-events:none;
     }
-    @keyframes borderFlow{
-      0%{ transform: rotate(0deg); }
-      50%{ transform: rotate(26deg); }
-      100%{ transform: rotate(0deg); }
-    }
-    .card > .inner{
-      position:relative;
-      padding: 22px 22px 18px;
-      z-index:1;
-    }
 
-    .h2{
-      margin:0 0 10px;
+    .hero-left{ padding: 28px 26px; }
+    .kicker{
+      display:inline-flex; align-items:center; gap:10px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      font-family: var(--mono);
       font-size: 12px;
-      letter-spacing:.20em;
-      text-transform:uppercase;
-      opacity:.78;
-      font-weight:950;
+      color: rgba(255,255,255,.76);
+    }
+    .dot{
+      width:8px; height:8px; border-radius: 99px;
+      background: linear-gradient(135deg, rgba(200,182,255,1), rgba(255,214,255,1));
+      box-shadow: 0 0 20px rgba(200,182,255,.55);
     }
 
-    .manifest{
-      margin: 0;
-      font-size: clamp(18px, 1.85vw, 22px);
-      line-height: 1.55;
-      letter-spacing: -.01em;
-      color: rgba(11,12,20,.92);
-      font-weight:800;
+    .title{
+      margin: 14px 0 0;
+      font-size: 54px;
+      line-height: 1.02;
+      letter-spacing: -.03em;
+      font-weight: 760;
+    }
+    @media (max-width: 520px){ .title{ font-size: 42px; } }
+
+    .shimmerText{
+      background: linear-gradient(90deg, rgba(255,255,255,.92), rgba(200,182,255,.92), rgba(255,214,255,.92), rgba(184,243,255,.92), rgba(255,255,255,.92));
+      background-size: 220% 100%;
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+      animation: textShine 3.6s ease-in-out infinite;
+    }
+    @keyframes textShine{
+      0%{ background-position: 0% 50%; }
+      50%{ background-position: 100% 50%; }
+      100%{ background-position: 0% 50%; }
     }
 
-    .list{
-      margin:14px 0 0;
-      padding:0;
-      list-style:none;
-      display:grid;
+    .lead{
+      margin: 14px 0 0;
+      color: rgba(255,255,255,.72);
+      font-size: 15.5px;
+      line-height: 1.6;
+      max-width: 58ch;
+    }
+
+    .hero-actions{
+      margin-top: 18px;
+      display:flex;
       gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
     }
-    .item{
-      padding:14px 14px;
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.68);
-      background: linear-gradient(180deg, rgba(255,255,255,.68), rgba(255,255,255,.35));
-      position:relative;
-      overflow:hidden;
-    }
-    .item b{
-      display:flex; align-items:center; justify-content:space-between;
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      opacity:.70;
-      margin-bottom:6px;
-      font-weight:950;
-    }
-    .tag{
-      font-size:11px;
-      letter-spacing:.18em;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.65);
-      background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.32));
-      opacity:.92;
-      text-transform:uppercase;
-      font-weight:900;
-    }
-    .item p{ margin:0; color:var(--muted); line-height:1.45; font-weight:700; }
 
-    /* reveal */
-    .reveal{ opacity:0; transform: translateY(16px); transition: opacity .7s ease, transform .7s ease; }
-    .reveal.on{ opacity:1; transform: translateY(0); }
+    .proofline{
+      margin-top: 16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .pill{
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.76);
+      font-size: 12px;
+      font-family: var(--mono);
+    }
 
-    /* ---------- PROTOCOL SIGNING ---------- */
-    .protocolPanel{ display:grid; gap:12px; }
-    .console{
-      border-radius: 20px;
-      border:1px solid rgba(255,255,255,.70);
-      background: linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,.32));
+    .hero-right{ padding: 20px; display:flex; flex-direction:column; gap:12px; }
+    .panel{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(5,6,10,.30);
       padding: 14px 14px;
       position:relative;
       overflow:hidden;
     }
-    .console::before{
-      content:"";
-      position:absolute; inset:-1px;
-      background: linear-gradient(90deg, transparent 0%, rgba(185,240,255,.25) 35%, rgba(255,214,247,.22) 55%, transparent 100%);
-      transform: translateX(-60%);
-      animation: scan 4.2s ease-in-out infinite;
-      opacity:.55;
-      mix-blend-mode: soft-light;
-      pointer-events:none;
+    .panel h3{
+      margin:0;
+      font-size: 13px;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.72);
     }
-    @keyframes scan{
-      0%{ transform: translateX(-60%); }
-      55%{ transform: translateX(60%); }
-      100%{ transform: translateX(-60%); }
+    .panel p{
+      margin:10px 0 0;
+      color: rgba(255,255,255,.70);
+      font-size: 13.5px;
+      line-height:1.55;
     }
-    .console .row{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    .kv{
-      display:flex; gap:10px; align-items:center;
-      font-weight:950;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-size:12px;
-      opacity:.78;
+    .list{
+      margin:10px 0 0; padding:0;
+      list-style:none;
+      display:grid;
+      gap:10px;
     }
-    .pill{
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.65);
-      background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.30));
-      font-weight:950;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      font-size:11px;
-      opacity:.95;
+    .li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding: 10px 10px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
     }
-    .statusDot{
-      width:10px;height:10px;border-radius:999px;
-      background: rgba(11,12,20,.35);
-      box-shadow: 0 0 0 6px rgba(11,12,20,.06);
+    .tag{
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      white-space:nowrap;
+      color: rgba(255,255,255,.76);
     }
-    .statusDot.on{
-      background: rgba(11,12,20,.78);
-      box-shadow: 0 0 0 6px rgba(185,240,255,.18);
+    .li strong{
+      display:block;
+      font-size: 13px;
+      color: rgba(255,255,255,.90);
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .li span{
+      color: rgba(255,255,255,.66);
+      font-size: 12.8px;
+      line-height: 1.45;
+      display:block;
     }
 
-    .signatureBox{
-      border-radius: 22px;
-      border: 1px dashed rgba(11,12,20,.22);
-      background: rgba(255,255,255,.55);
-      padding: 14px;
-      position:relative;
-      overflow:hidden;
+    /* Sections */
+    section{
+      max-width:1180px;
+      margin:0 auto;
+      padding: 18px 18px 0;
     }
-    .sigTop{
-      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
-      margin-bottom:10px;
+    .grid3{
+      display:grid;
+      grid-template-columns: repeat(3,1fr);
+      gap:14px;
     }
-    .sigLabel{
-      font-weight:950;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      font-size:12px;
-      opacity:.78;
+    @media (max-width: 980px){ .grid3{ grid-template-columns:1fr; } }
+
+    .secTitle{
+      margin: 22px 0 12px;
+      font-size: 18px;
+      letter-spacing: -.01em;
+      font-weight: 750;
+      color: rgba(255,255,255,.90);
     }
-    .sigHint{
-      color:var(--muted);
-      font-weight:700;
-      font-size:13px;
+    .secSub{
+      margin: -2px 0 14px;
+      color: rgba(255,255,255,.66);
+      line-height:1.6;
+      font-size: 14px;
+      max-width: 80ch;
     }
-    canvas#sig{
+
+    .mini{
+      padding: 16px 16px;
+    }
+    .mini h4{
+      margin:0;
+      font-size: 13px;
+      letter-spacing:.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.72);
+    }
+    .mini .big{
+      margin-top:10px;
+      font-size: 15px;
+      color: rgba(255,255,255,.90);
+      font-weight: 740;
+      letter-spacing: -.01em;
+    }
+    .mini .txt{
+      margin-top:8px;
+      color: rgba(255,255,255,.66);
+      line-height:1.6;
+      font-size: 13.8px;
+    }
+
+    .divider{
+      height:1px;
+      margin: 18px 0 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+      border:0;
+    }
+
+    /* Multipass */
+    .mpWrap{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      align-items:start;
+      padding-bottom: 24px;
+    }
+    @media (max-width: 980px){ .mpWrap{ grid-template-columns: 1fr; } }
+
+    .form{
+      padding: 18px 18px;
+    }
+    .formRow{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 520px){ .formRow{ grid-template-columns:1fr; } }
+
+    label{
+      display:block;
+      font-size: 12px;
+      color: rgba(255,255,255,.70);
+      margin-bottom:6px;
+      font-family: var(--mono);
+      letter-spacing:.02em;
+    }
+    input, select, textarea{
       width:100%;
-      height:160px;
-      display:block;
       border-radius: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,.65), rgba(255,255,255,.30));
-      border:1px solid rgba(255,255,255,.65);
-      touch-action:none;
-    }
-
-    .stamp{
-      position:absolute;
-      right:16px;
-      bottom:16px;
-      transform: rotate(-12deg) scale(.9);
-      padding:10px 12px;
-      border-radius: 16px;
-      border: 2px solid rgba(11,12,20,.75);
-      background: rgba(255,255,255,.7);
-      font-weight:1000;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      opacity:0;
-      pointer-events:none;
-      filter: drop-shadow(0 18px 40px rgba(12,10,30,.14));
-    }
-    .stamp.on{
-      opacity:1;
-      animation: stampIn .35s ease-out both, glitch .9s ease-in-out .25s 2;
-    }
-    @keyframes stampIn{
-      0%{ transform: rotate(-18deg) scale(1.25); opacity:0; }
-      100%{ transform: rotate(-12deg) scale(.92); opacity:1; }
-    }
-    @keyframes glitch{
-      0%{ transform: rotate(-12deg) translate(0,0) scale(.92); }
-      20%{ transform: rotate(-12deg) translate(-2px,1px) scale(.92); }
-      40%{ transform: rotate(-12deg) translate(2px,-1px) scale(.92); }
-      60%{ transform: rotate(-12deg) translate(-1px,-2px) scale(.92); }
-      80%{ transform: rotate(-12deg) translate(1px,2px) scale(.92); }
-      100%{ transform: rotate(-12deg) translate(0,0) scale(.92); }
-    }
-
-    .locked{
-      opacity:.35;
-      filter: blur(.2px);
-      pointer-events:none;
-      transition: opacity .35s ease;
-    }
-    .locked.unlock{
-      opacity:1;
-      filter:none;
-      pointer-events:auto;
-    }
-
-    /* ---------- MULTIPASS GENERATOR + OUTPUT ---------- */
-    .formGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 940px){
-      .formGrid{ grid-template-columns:1fr; }
-    }
-    .field{
-      display:grid;
-      gap:6px;
-    }
-    .field span{
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      opacity:.72;
-      font-weight:950;
-    }
-    .field input, .field select{
-      padding:12px 12px;
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.70);
-      background: linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.34));
-      font-weight:900;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.90);
+      padding: 12px 12px;
       outline:none;
-      color: rgba(11,12,20,.88);
+      font-size: 14px;
+      font-family: var(--sans);
     }
-    .field input::placeholder{ color: rgba(11,12,20,.45); }
-
-    .meterRow{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      margin-top:12px;
-    }
-    .meter{
-      display:flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.65);
-      background: linear-gradient(180deg, rgba(255,255,255,.66), rgba(255,255,255,.32));
-      font-weight:950;
-      letter-spacing:.16em;
-      text-transform:uppercase;
-      font-size:11px;
-      opacity:.95;
-      user-select:none;
-    }
-    .bar{
-      width:160px; height:8px;
-      border-radius:999px;
-      background: rgba(11,12,20,.10);
-      overflow:hidden;
-      border:1px solid rgba(255,255,255,.55);
-    }
-    .fill{
-      height:100%;
-      width:0%;
-      border-radius:999px;
-      background: linear-gradient(90deg, rgba(201,182,255,.9), rgba(185,240,255,.85), rgba(255,214,247,.85));
-      transition: width .45s ease;
+    input::placeholder, textarea::placeholder{ color: rgba(255,255,255,.45); }
+    textarea{ min-height: 90px; resize: vertical; }
+    .formActions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top: 12px;
     }
 
-    .result{
-      margin-top:12px;
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.65);
-      background: rgba(255,255,255,.55);
-      padding: 12px;
-      color: rgba(11,12,20,.88);
-      font-weight:800;
-      line-height:1.45;
-      display:none;
+    .preview{
+      padding: 18px 18px;
     }
-    .result.on{ display:block; animation: pop .25s ease-out both; }
-    @keyframes pop{
-      from{ transform: translateY(6px); opacity:0; }
-      to{ transform: translateY(0); opacity:1; }
-    }
-
-    .multipass{
-      border-radius: 22px;
-      border:1px solid rgba(255,255,255,.70);
-      background: linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.30));
-      padding: 14px;
-      position:relative;
-      overflow:hidden;
-    }
-    .multipass::before{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        linear-gradient(90deg, transparent 0%, rgba(185,240,255,.22) 35%, rgba(255,214,247,.20) 55%, transparent 100%);
-      transform: translateX(-60%);
-      animation: multipassScan 3.6s ease-in-out infinite;
-      opacity:.7;
-      mix-blend-mode: soft-light;
-      pointer-events:none;
-    }
-    @keyframes multipassScan{
-      0%{ transform: translateX(-60%); }
-      55%{ transform: translateX(60%); }
-      100%{ transform: translateX(-60%); }
-    }
-    .multipassTop{
-      display:flex;
-      gap:10px;
-      justify-content:space-between;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-      position:relative;
-      z-index:1;
-    }
-    .multipassGrid{
+    .canvGrid{
       display:grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr;
       gap:12px;
-      position:relative;
-      z-index:1;
     }
-    @media (max-width: 940px){
-      .multipassGrid{ grid-template-columns:1fr; }
-    }
-    .mBlock{
-      border-radius: 18px;
-      border:1px solid rgba(255,255,255,.68);
-      background: rgba(255,255,255,.55);
+    .canvBox{
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(5,6,10,.32);
       padding: 12px;
+      overflow:hidden;
     }
-    .mBlock b{
+    canvas{
+      width:100%;
+      height:auto;
       display:block;
-      font-size:12px;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      opacity:.72;
-      margin-bottom:8px;
-      font-weight:1000;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
     }
-    .mRows{ display:grid; gap:8px; }
-    .mRow{
+    .dlRow{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .hint{
+      margin-top: 10px;
+      color: rgba(255,255,255,.56);
+      font-size: 12.8px;
+      line-height: 1.55;
+    }
+
+    /* FAQ */
+    details{
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 14px 14px;
+    }
+    details summary{
+      cursor:pointer;
+      list-style:none;
+      font-weight: 720;
+      color: rgba(255,255,255,.88);
+    }
+    details summary::-webkit-details-marker{ display:none; }
+    details p{
+      margin: 10px 0 0;
+      color: rgba(255,255,255,.66);
+      line-height: 1.6;
+      font-size: 13.8px;
+    }
+    .faqGrid{ display:grid; gap:10px; }
+
+    /* Footer CTA */
+    .cta{
+      margin-top: 18px;
+      padding: 22px 22px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      padding:10px 10px;
-      border-radius: 16px;
-      border:1px solid rgba(255,255,255,.65);
-      background: linear-gradient(180deg, rgba(255,255,255,.70), rgba(255,255,255,.32));
-      font-weight:900;
+      gap:14px;
+      flex-wrap:wrap;
     }
-    .mRow span{ opacity:.78; letter-spacing:.14em; text-transform:uppercase; font-size:11px; font-weight:950; }
-    .mRow i{ font-style:normal; font-weight:950; }
-    .mText{
-      color: rgba(11,12,20,.78);
-      font-weight:800;
-      line-height:1.45;
+    .cta .left{
+      min-width: 260px;
+    }
+    .cta .left .t{
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing:-.01em;
+      margin:0;
+      color: rgba(255,255,255,.92);
+    }
+    .cta .left .s{
+      margin: 8px 0 0;
+      color: rgba(255,255,255,.68);
+      line-height:1.6;
+      font-size: 13.8px;
+      max-width: 72ch;
     }
 
-    /* MULTIPASS SEAL */
-    .mpSeal{
-      position:absolute;
-      right:16px;
-      bottom:16px;
-      transform: rotate(-12deg) scale(.92);
-      padding:12px 14px;
-      border-radius: 18px;
-      border:2px solid rgba(11,12,20,.78);
-      background: rgba(255,255,255,.72);
-      filter: drop-shadow(0 18px 40px rgba(12,10,30,.14));
+    /* Scroll reveal */
+    .reveal{
       opacity:0;
-      pointer-events:none;
-      z-index:2;
+      transform: translateY(14px);
+      transition: .7s cubic-bezier(.2,.8,.2,1);
     }
-    .mpSeal.on{
+    .reveal.on{
       opacity:1;
-      animation: sealIn .34s ease-out both, sealGlitch .9s ease-in-out .22s 2;
-    }
-    .mpSealTop{
-      display:flex;
-      gap:10px;
-      justify-content:space-between;
-      font-weight:1000;
-      letter-spacing:.22em;
-      text-transform:uppercase;
-      font-size:11px;
-      opacity:.9;
-    }
-    .mpSealMid{
-      margin-top:6px;
-      font-weight:1000;
-      letter-spacing:.18em;
-      text-transform:uppercase;
-      font-size:12px;
-    }
-    .mpSealBot{
-      margin-top:6px;
-      font-weight:900;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      font-size:10px;
-      opacity:.75;
-    }
-    @keyframes sealIn{
-      0%{ transform: rotate(-18deg) scale(1.18); opacity:0; }
-      100%{ transform: rotate(-12deg) scale(.92); opacity:1; }
-    }
-    @keyframes sealGlitch{
-      0%{ transform: rotate(-12deg) translate(0,0) scale(.92); }
-      20%{ transform: rotate(-12deg) translate(-2px,1px) scale(.92); }
-      40%{ transform: rotate(-12deg) translate(2px,-1px) scale(.92); }
-      60%{ transform: rotate(-12deg) translate(-1px,-2px) scale(.92); }
-      80%{ transform: rotate(-12deg) translate(1px,2px) scale(.92); }
-      100%{ transform: rotate(-12deg) translate(0,0) scale(.92); }
+      transform: translateY(0);
     }
 
-    footer{
-      padding: 26px 0 40px;
-      color: rgba(11,12,20,.55);
-      text-align:center;
-      font-weight:900;
-      letter-spacing:.10em;
-      text-transform:uppercase;
-      font-size:12px;
+    /* Tiny “system” HUD */
+    .hud{
+      position:fixed;
+      right:14px; bottom:14px;
+      z-index:30;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-end;
+      pointer-events:none;
+    }
+    .hud .chip{
+      pointer-events:none;
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(5,6,10,.48);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.70);
+      backdrop-filter: blur(12px);
     }
   </style>
 </head>
 
 <body>
-  <div class="aurora" aria-hidden="true"></div>
+  <div class="aurora"></div>
 
-  <header class="nav">
-    <div class="wrap">
-      <div class="brand">
-        <div>ADM mode: <span style="opacity:.88">off script.</span></div>
-        <small>new method</small>
-      </div>
-
-      <nav class="links">
-        <a href="#manifest">manifest</a>
-        <a href="#protocol">protocol</a>
-        <a href="#multipassGate">multipass</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <!-- HERO (LIGHT, CLEAR) -->
-    <section class="hero">
-      <div class="iridescent-bg" aria-hidden="true"></div>
-
-      <h1 class="title">
-        <span class="shimmer">adm mode:</span><br/>
-        <span class="shimmer">off script.</span>
-      </h1>
-
-      <p class="lead reveal">
-        новый игровой метод сборки личности.<br/>
-        <b>протокол</b> → <b>multipass</b> → <b>билд</b>.
-      </p>
-
-      <div class="chips reveal">
-        <div class="chip">protocol</div>
-        <div class="chip">multipass</div>
-        <div class="chip">build</div>
-        <div class="chip">access</div>
-        <div class="chip">off script</div>
-      </div>
-
-      <div class="ctaRow reveal">
-        <a class="btn primary" href="#protocol"><span>sign protocol →</span></a>
-        <a class="btn ghost" href="#multipassGate"><span>generate multipass</span></a>
-      </div>
-    </section>
-
-    <!-- MANIFEST -->
-    <section class="grid" id="manifest">
-      <article class="card reveal">
-        <div class="inner">
-          <div class="h2">manifest</div>
-          <p class="manifest">
-            Если система закрывает двери — я становлюсь дверью.<br/>
-            Если система ставит границы — я становлюсь линией разрыва.<br/><br/>
-            Я не прошу разрешения.<br/>
-            Я создаю протокол.
-          </p>
+  <div class="wrap">
+    <header class="nav">
+      <div class="nav-in">
+        <div class="brand">
+          <div class="sig" aria-hidden="true"></div>
+          <div>
+            <h1>HUMAN ERROR 108</h1>
+            <div class="sub">PROTOCOL / VERSION 1.0</div>
+          </div>
         </div>
-      </article>
 
-      <aside class="card reveal">
-        <div class="inner">
-          <div class="h2">rules</div>
+        <nav style="display:flex; gap:2px; align-items:center; flex-wrap:wrap;">
+          <a href="#method">метод</a>
+          <a href="#how">как работает</a>
+          <a href="#multipass">multipass</a>
+          <a href="#faq">faq</a>
+          <a class="btn primary" href="#cta" style="margin-left:6px; pointer-events:auto;">войти в протокол</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="card hero-left reveal">
+        <div class="kicker"><span class="dot"></span> SYSTEM: CLOSED • YOU: OPEN</div>
+
+        <h2 class="title">
+          <span class="shimmerText">протокол</span><br/>
+          перепрошивки реальности
+        </h2>
+
+        <p class="lead">
+          Это не мотивация и не “волшебство”. Это <b>структура управления</b>:
+          ты перестаёшь быть реакцией на внешний мир и становишься причиной.
+          <br/><br/>
+          <b>Я не прошу разрешения.</b><br/>
+          <b>Я создаю протокол.</b>
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn primary" href="#multipass">сгенерировать multipass</a>
+          <button class="btn" id="btnScroll" type="button">показать механику</button>
+        </div>
+
+        <div class="proofline">
+          <div class="pill">ясность → выбор → действие</div>
+          <div class="pill">без бытовухи • как в игре</div>
+          <div class="pill">контроль внимания = контроль реальности</div>
+        </div>
+      </div>
+
+      <div class="card hero-right reveal">
+        <div class="panel">
+          <h3>Что это даёт</h3>
           <ul class="list">
-            <li class="item">
-              <b>you <span class="tag">admin</span></b>
-              <p>ты не NPC. ты — автор правил.</p>
+            <li class="li">
+              <div class="tag">01</div>
+              <div>
+                <strong>Стабильность без “успокойся”</strong>
+                <span>Не “приглушить”, а <b>перенастроить систему</b>: чтобы эмоции стали топливом, а не пожаром.</span>
+              </div>
             </li>
-            <li class="item">
-              <b>system <span class="tag">environment</span></b>
-              <p>система — окружение. ты не обязан(а) ей соответствовать.</p>
+            <li class="li">
+              <div class="tag">02</div>
+              <div>
+                <strong>Результаты через механику</strong>
+                <span>Мы не “верим”. Мы <b>делаем</b>: короткие циклы, проверяемые шаги, измеримые эффекты.</span>
+              </div>
             </li>
-            <li class="item">
-              <b>pressure <span class="tag">fuel</span></b>
-              <p>давление конвертируется в броню и действие.</p>
-            </li>
-            <li class="item">
-              <b>gates <span class="tag">protocol → multipass</span></b>
-              <p>сначала подпись. потом доступ к генерации.</p>
+            <li class="li">
+              <div class="tag">03</div>
+              <div>
+                <strong>Твоя роль — Главный Игрок</strong>
+                <span>Не жертва, не наблюдатель: <b>инициатор событий</b>. Ты пишешь сценарий, не читаешь чужой.</span>
+              </div>
             </li>
           </ul>
         </div>
-      </aside>
+
+        <div class="panel">
+          <h3>Кому подходит</h3>
+          <p>
+            Тем, кто устал “быть хорошим” и хочет <b>управлять</b>:
+            вниманием, выбором, действиями и направлением.
+            Без воды. Без кружев. Без оправданий.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <section id="method">
+      <h3 class="secTitle reveal">Метод (коротко, чётко)</h3>
+      <p class="secSub reveal">
+        HUMAN ERROR 108 — это протокол, который переводит тебя из режима “со мной случается”
+        в режим “я запускаю”. Он устроен как игра: <b>уровни, условия, триггеры и награды</b>.
+        Никаких ссылок на источники. Никаких “высших сил”. Только управляемая механика.
+      </p>
+
+      <div class="grid3">
+        <div class="card mini reveal">
+          <h4>Слой 1</h4>
+          <div class="big">Ясность</div>
+          <div class="txt">
+            Ты перестаёшь гадать “почему так” и видишь схему:
+            что запускает тебя, что сбивает, что удерживает. <b>Прозрачность системы</b>.
+          </div>
+        </div>
+
+        <div class="card mini reveal">
+          <h4>Слой 2</h4>
+          <div class="big">Выбор</div>
+          <div class="txt">
+            Не “мечта”, а <b>решение</b>. Ты фиксируешь роль, цель и правила игры.
+            Это точка, где реальность начинает слушаться.
+          </div>
+        </div>
+
+        <div class="card mini reveal">
+          <h4>Слой 3</h4>
+          <div class="big">Действие</div>
+          <div class="txt">
+            Малые, точные шаги, которые создают цепную реакцию.
+            Не марафон. <b>Удары по системе</b> — и она двигается.
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" />
     </section>
 
-    <!-- PROTOCOL SIGNING -->
-    <section class="card reveal" id="protocol" style="margin-bottom:18px;">
-      <div class="inner">
-        <div class="h2">protocol signing</div>
+    <section id="how">
+      <h3 class="secTitle reveal">Как это работает (без “режима дня” и бытовухи)</h3>
+      <p class="secSub reveal">
+        Тут нет “встань в 7 утра”. Тут есть <b>миссии</b>. Ты выполняешь их, чтобы менять состояние и события.
+        Всё устроено как интерфейс: вход → протокол → выход.
+      </p>
 
-        <div class="protocolPanel">
-          <div class="console">
-            <div class="row">
-              <div class="kv"><span class="statusDot" id="dot"></span> access: <span id="accessTxt">locked</span></div>
-              <div class="pill">adm mode: off script</div>
+      <div class="grid3">
+        <div class="card mini reveal">
+          <h4>Механика</h4>
+          <div class="big">Триггеры</div>
+          <div class="txt">
+            Мы находим то, что каждый раз включает старый сценарий — и ставим на него новый скрипт.
+            Система любит повторять. Мы используем это.
+          </div>
+        </div>
+        <div class="card mini reveal">
+          <h4>Механика</h4>
+          <div class="big">Ставка</div>
+          <div class="txt">
+            Ты выбираешь одну ключевую цель и “ставишь” на неё внимание.
+            <b>Внимание — валюта</b>. Туда, куда ты платишь, туда и растёт.
+          </div>
+        </div>
+        <div class="card mini reveal">
+          <h4>Механика</h4>
+          <div class="big">Цепная реакция</div>
+          <div class="txt">
+            Не “план на год”. А серия точных шагов, после которых
+            реальность вынуждена перестроиться.
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+    </section>
+
+    <section id="multipass">
+      <h3 class="secTitle reveal">MULTIPASS / генератор доступа</h3>
+      <p class="secSub reveal">
+        Это “паспорт персонажа” в стиле будущего: маленькая карта (как права) + full height.
+        Генерирует <b>ID, Clearance, Origin, Seed</b> и профиль.
+      </p>
+
+      <div class="card mpWrap reveal">
+        <!-- FORM -->
+        <div class="form">
+          <div class="panel" style="margin-bottom:12px;">
+            <h3>Ввод данных</h3>
+            <p>Заполни минимум — остальное я сгенерирую автоматически.</p>
+          </div>
+
+          <div class="formRow">
+            <div>
+              <label>Имя / Alias</label>
+              <input id="fName" placeholder="например: MARTINA / ERROR" value="MARTINA" />
             </div>
-            <div style="margin-top:8px; color:var(--muted); font-weight:750; line-height:1.5;">
-              нарисуй подпись → нажми <b>confirm</b> → откроется MULTIPASS генерация.
+            <div>
+              <label>Пол</label>
+              <select id="fGender">
+                <option value="female" selected>девочка</option>
+                <option value="male">мальчик</option>
+              </select>
             </div>
           </div>
 
-          <div class="signatureBox">
-            <div class="sigTop">
-              <div class="sigLabel">signature input</div>
-              <div class="sigHint">touch / mouse</div>
+          <div class="formRow">
+            <div>
+              <label>ORIGIN</label>
+              <input id="fOrigin" placeholder="например: NALCHIK-RU → NOWHERE" value="NOWHERE" />
+            </div>
+            <div>
+              <label>CLEARANCE</label>
+              <select id="fClear">
+                <option>WHITE</option>
+                <option selected>PEARL</option>
+                <option>LAVENDER</option>
+                <option>VOID</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="formRow">
+            <div>
+              <label>SEED</label>
+              <input id="fSeed" placeholder="например: 108" value="108" />
+            </div>
+            <div>
+              <label>Статус</label>
+              <select id="fStatus">
+                <option selected>UNSTOPPABLE</option>
+                <option>ANTI-SYS</option>
+                <option>HUMAN ERROR</option>
+                <option>RAGE MODE</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label>Манифест (коротко)</label>
+            <textarea id="fManifest">Если система закрывает двери — я становлюсь дверью.
+Если система ставит границы — я становлюсь линией разрыва.
+
+Я не прошу разрешения.
+Я создаю протокол.</textarea>
+          </div>
+
+          <div class="formActions">
+            <button class="btn primary" id="btnGen" type="button">сгенерировать</button>
+            <button class="btn" id="btnRandom" type="button">рандом</button>
+          </div>
+
+          <div class="hint">
+            *Если хочешь “ещё жестче/сучее/более бунтарско” — скажи, и я подстрою словарь характеристик.
+          </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="preview">
+          <div class="panel" style="margin-bottom:12px;">
+            <h3>PREVIEW</h3>
+            <p>Ниже две карточки + характеристики справа (в тексте).</p>
+          </div>
+
+          <div class="canvGrid">
+            <div class="canvBox">
+              <label style="margin:0 0 8px; font-family:var(--mono);">SMALL CARD (как права)</label>
+              <canvas id="cvSmall" width="980" height="620"></canvas>
+              <div class="dlRow">
+                <button class="btn" id="dlSmall" type="button">скачать small png</button>
+              </div>
             </div>
 
-            <canvas id="sig"></canvas>
-            <div class="stamp" id="stamp">signed</div>
+            <div class="canvBox">
+              <label style="margin:0 0 8px; font-family:var(--mono);">FULL HEIGHT CARD</label>
+              <canvas id="cvTall" width="980" height="1460"></canvas>
+              <div class="dlRow">
+                <button class="btn" id="dlTall" type="button">скачать tall png</button>
+              </div>
+            </div>
 
-            <div class="ctaRow" style="margin:12px 0 0;">
-              <button class="btn" id="clearBtn" type="button"><span>clear</span></button>
-              <button class="btn primary" id="confirmBtn" type="button"><span>confirm</span></button>
+            <div class="canvBox">
+              <label style="margin:0 0 8px; font-family:var(--mono);">Характеристики (текстом)</label>
+              <div id="traitsOut" style="font-family:var(--mono); font-size:12.5px; line-height:1.7; color:rgba(255,255,255,.75); white-space:pre-wrap;"></div>
             </div>
           </div>
         </div>
       </div>
+
+      <hr class="divider" />
     </section>
 
-    <!-- MULTIPASS GATE -->
-    <section class="card reveal locked" id="multipassGate" style="margin-bottom:18px;">
-      <div class="inner">
-        <div class="h2">multipass generator</div>
+    <section id="faq">
+      <h3 class="secTitle reveal">FAQ (коротко, без воды)</h3>
+      <div class="faqGrid reveal">
+        <details>
+          <summary>Это “психология” или “духовность”?</summary>
+          <p>
+            Это протокол управления вниманием, выбором и действием.
+            Никакой религиозной обвязки. Никакой мистики по умолчанию.
+            Ты либо запускаешь изменения, либо нет.
+          </p>
+        </details>
+        <details>
+          <summary>Почему это должно работать?</summary>
+          <p>
+            Потому что реальность реагирует на <b>повторяемые действия</b>, а не на мечты.
+            Протокол делает твои действия системными, а не случайными — и даёт предсказуемый эффект.
+          </p>
+        </details>
+        <details>
+          <summary>Это подходит, если я в нестабильном состоянии?</summary>
+          <p>
+            Да, потому что мы не “давим эмоции”, а превращаем их в структуру:
+            короткие циклы, маленькие миссии, контроль перегруза.
+          </p>
+        </details>
+      </div>
 
-        <p class="lead" style="margin:0 0 10px;">
-          вводишь дату рождения → система собирает билд → печать MULTIPASS выдаёт доступ.
-        </p>
+      <hr class="divider" />
+    </section>
 
-        <div class="formGrid">
-          <label class="field">
-            <span>date (calendar)</span>
-            <input id="birthDate" type="date" />
-          </label>
-
-          <label class="field">
-            <span>time</span>
-            <input id="birthTime" type="time" value="01:30" />
-          </label>
-
-          <label class="field" style="grid-column: 1 / -1;">
-            <span>origin (city)</span>
-            <input id="birthCity" type="text" placeholder="например: Нальчик, Россия" />
-          </label>
-
-          <label class="field" style="grid-column: 1 / -1;">
-            <span>scan mode</span>
-            <select id="engineMode">
-              <option value="strict">strict scan</option>
-              <option value="myth">myth scan</option>
-              <option value="hard">hardcore off-script</option>
-            </select>
-          </label>
+    <section id="cta">
+      <div class="card cta reveal">
+        <div class="left">
+          <p class="t">Готова войти в протокол?</p>
+          <p class="s">
+            Ты не просишь — ты фиксируешь. Ты не ждёшь — ты запускаешь.
+            Нажми ниже и начни с MULTIPASS.
+          </p>
         </div>
-
-        <div class="ctaRow" style="margin:12px 0 0;">
-          <button class="btn" id="prefillMe" type="button"><span>load my data</span></button>
-          <button class="btn primary" id="genMultipassBtn" type="button"><span>generate multipass</span></button>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="btn primary" href="#multipass">создать multipass</a>
+          <button class="btn" id="btnTop" type="button">наверх</button>
         </div>
+      </div>
 
-        <div class="meterRow">
-          <div class="meter">engine: <span id="engineStatus">standby</span></div>
-          <div class="meter">build meter
-            <span class="bar"><span class="fill" id="buildFill"></span></span>
-            <span id="buildPct">0%</span>
-          </div>
-        </div>
-
-        <div class="result" id="genLog"></div>
-
-        <!-- MULTIPASS OUTPUT -->
-        <div class="multipass locked" id="multipass" style="margin-top:14px;">
-          <div class="multipassTop">
-            <div class="pill" id="mpId">ID: ADM-0000</div>
-            <div class="pill" id="mpClearance">CLEARANCE: UNKNOWN</div>
-            <div class="pill" id="mpOrigin">ORIGIN: —</div>
-            <div class="pill" id="mpSeed">SEED: —</div>
-          </div>
-
-          <div class="multipassGrid">
-            <div class="mBlock">
-              <b>core stats</b>
-              <div class="mRows" id="statRows"></div>
-            </div>
-
-            <div class="mBlock">
-              <b>loadout</b>
-              <div class="mText" id="loadoutText"></div>
-            </div>
-
-            <div class="mBlock">
-              <b>main directive</b>
-              <div class="mText" id="directiveText"></div>
-            </div>
-
-            <div class="mBlock">
-              <b>route (7 days)</b>
-              <div class="mRows" id="routeRows"></div>
-            </div>
-          </div>
-
-          <div class="mpSeal" id="mpSeal">
-            <div class="mpSealTop">
-              <span class="mpSealWord">MULTIPASS</span>
-              <span class="mpSealWord">AUTH</span>
-            </div>
-            <div class="mpSealMid">ACCESS GRANTED</div>
-            <div class="mpSealBot" id="mpSealLine">SEAL: PENDING</div>
-          </div>
-        </div>
+      <div style="max-width:1180px; margin:0 auto; padding: 16px 18px 30px; color: rgba(255,255,255,.45); font-family:var(--mono); font-size:11.5px;">
+        © HUMAN ERROR 108 • PROTOCOL UI • build: 2026-02-09
       </div>
     </section>
 
-    <footer class="reveal">
-      ADM MODE: OFF SCRIPT • PROTOCOL → MULTIPASS → BUILD
-    </footer>
-  </main>
+    <div class="hud" aria-hidden="true">
+      <div class="chip">ACCESS: PEARL</div>
+      <div class="chip">SEED: 108</div>
+    </div>
+  </div>
 
   <script>
-    // reveal on scroll
-    const els = Array.from(document.querySelectorAll('.reveal'));
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); });
-    }, { threshold: 0.12 });
-    els.forEach(el => io.observe(el));
+    // Smooth scroll helpers
+    const $ = (id) => document.getElementById(id);
 
-    // ---------- SIGNATURE CANVAS ----------
-    const canvas = document.getElementById('sig');
-    const ctx = canvas.getContext('2d');
+    $("btnScroll").addEventListener("click", () => {
+      document.querySelector("#method").scrollIntoView({behavior:"smooth", block:"start"});
+    });
+    $("btnTop").addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
 
-    function resizeCanvas(){
-      const rect = canvas.getBoundingClientRect();
-      const dpr = Math.max(1, window.devicePixelRatio || 1);
-      canvas.width = Math.floor(rect.width * dpr);
-      canvas.height = Math.floor(rect.height * dpr);
-      ctx.setTransform(dpr,0,0,dpr,0,0);
-
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = 2.6;
-      ctx.strokeStyle = 'rgba(11,12,20,.78)';
-
-      ctx.clearRect(0,0,rect.width,rect.height);
-
-      // guide line
-      ctx.strokeStyle = 'rgba(11,12,20,.10)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(14, rect.height - 32);
-      ctx.lineTo(rect.width - 14, rect.height - 32);
-      ctx.stroke();
-
-      ctx.strokeStyle = 'rgba(11,12,20,.78)';
-      ctx.lineWidth = 2.6;
-    }
-    window.addEventListener('resize', resizeCanvas, {passive:true});
-    requestAnimationFrame(resizeCanvas);
-
-    let drawing = false;
-    let hasInk = false;
-
-    function getPos(e){
-      const rect = canvas.getBoundingClientRect();
-      const touch = e.touches && e.touches[0];
-      const clientX = touch ? touch.clientX : e.clientX;
-      const clientY = touch ? touch.clientY : e.clientY;
-      return { x: clientX - rect.left, y: clientY - rect.top };
-    }
-
-    function start(e){
-      drawing = true;
-      const p = getPos(e);
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-      hasInk = true;
-      e.preventDefault?.();
-    }
-    function move(e){
-      if(!drawing) return;
-      const p = getPos(e);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-      e.preventDefault?.();
-    }
-    function end(){ drawing = false; }
-
-    canvas.addEventListener('mousedown', start);
-    canvas.addEventListener('mousemove', move);
-    window.addEventListener('mouseup', end);
-
-    canvas.addEventListener('touchstart', start, {passive:false});
-    canvas.addEventListener('touchmove', move, {passive:false});
-    window.addEventListener('touchend', end);
-
-    const clearBtn = document.getElementById('clearBtn');
-    const confirmBtn = document.getElementById('confirmBtn');
-    const stamp = document.getElementById('stamp');
-    const dot = document.getElementById('dot');
-    const accessTxt = document.getElementById('accessTxt');
-
-    const multipassGate = document.getElementById('multipassGate');
-    const engineStatus = document.getElementById('engineStatus');
-
-    function lockSection(section, lock){
-      if(!section) return;
-      if(lock){
-        section.classList.add('locked');
-        section.classList.remove('unlock');
-      }else{
-        section.classList.add('unlock');
-        section.classList.remove('locked');
+    // Reveal on scroll
+    const io = new IntersectionObserver((entries)=>{
+      for(const e of entries){
+        if(e.isIntersecting) e.target.classList.add("on");
       }
-    }
-    lockSection(multipassGate, true);
+    }, {threshold: 0.12});
+    document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
 
-    function onProtocolSigned(){
-      lockSection(multipassGate, false);
-      if(engineStatus) engineStatus.textContent = "online";
-    }
+    // ===== MULTIPASS GENERATOR =====
 
-    clearBtn.addEventListener('click', ()=>{
-      resizeCanvas();
-      stamp.classList.remove('on');
-      dot.classList.remove('on');
-      accessTxt.textContent = 'locked';
-      lockSection(multipassGate, true);
-      if(engineStatus) engineStatus.textContent = "standby";
-      hasInk = false;
-    });
+    const vocab = {
+      archetype: ["FURY","ORACLE","SABOTEUR","ARCHITECT","WITCH-ENGINE","VOIDRUNNER","GLASS QUEEN","IRON SAINT"],
+      drive: ["CONTROL","REVENGE","FREEDOM","POWER","TRUTH","RAGE","SOVEREIGNTY","ASCENT"],
+      weapon: ["VOICE","SILENCE","CHOICE","FOCUS","DISCIPLINE","CUT","RITUAL","PROTOCOL"],
+      weakness: ["OVERHEAT","DISSOCIATION","IMPATIENCE","HYPERFOCUS","TRUST BUG","SLEEP GLITCH","SAVIOR SYNDROME","VOID HUNGER"],
+      perk: ["UNBREAKABLE CORE","SYSTEM-BREAK","COLD FIRE","HYPER CLARITY","MAGNETIC PRESENCE","SIGNAL CONTROL","REALITY SHIFT","NO MERCY MODE"]
+    };
 
-    confirmBtn.addEventListener('click', ()=>{
-      if(!hasInk){
-        confirmBtn.animate([
-          { transform:'translateX(0)' },
-          { transform:'translateX(-3px)' },
-          { transform:'translateX(3px)' },
-          { transform:'translateX(0)' },
-        ], { duration: 240, iterations: 1 });
-        return;
+    function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+    function hashish(str){
+      // tiny deterministic-ish hash for ID
+      let h = 2166136261;
+      for(let i=0;i<str.length;i++){
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
       }
-      stamp.classList.add('on');
-      dot.classList.add('on');
-      accessTxt.textContent = 'granted';
-      onProtocolSigned();
-      setTimeout(()=> multipassGate.scrollIntoView({ behavior:'smooth', block:'start' }), 380);
-    });
-
-    // ---------- MULTIPASS GENERATOR ----------
-    const birthDate = document.getElementById('birthDate');
-    const birthTime = document.getElementById('birthTime');
-    const birthCity = document.getElementById('birthCity');
-    const engineMode = document.getElementById('engineMode');
-
-    const prefillMe = document.getElementById('prefillMe');
-    const genBtn = document.getElementById('genMultipassBtn');
-    const genLog = document.getElementById('genLog');
-
-    const buildFill = document.getElementById('buildFill');
-    const buildPct = document.getElementById('buildPct');
-
-    const multipass = document.getElementById('multipass');
-    const mpId = document.getElementById('mpId');
-    const mpClearance = document.getElementById('mpClearance');
-    const mpOrigin = document.getElementById('mpOrigin');
-    const mpSeed = document.getElementById('mpSeed');
-
-    const statRows = document.getElementById('statRows');
-    const loadoutText = document.getElementById('loadoutText');
-    const directiveText = document.getElementById('directiveText');
-    const routeRows = document.getElementById('routeRows');
-
-    const mpSeal = document.getElementById('mpSeal');
-    const mpSealLine = document.getElementById('mpSealLine');
-
-    function showLog(text){
-      if(!genLog) return;
-      genLog.textContent = text;
-      genLog.classList.add('on');
+      return (h>>>0).toString(16).toUpperCase().slice(0,8);
     }
 
-    // your birth data prefill
-    prefillMe?.addEventListener('click', ()=>{
-      if(birthDate) birthDate.value = "1996-08-01";
-      if(birthTime) birthTime.value = "01:30";
-      if(birthCity) birthCity.value = "Нальчик, Россия";
-      showLog("SYSTEM: input loaded.");
-    });
-
-    function sumDigits(str){
-      return (str || "").replace(/\D/g,'').split('').reduce((a,c)=>a + (c.charCodeAt(0)-48), 0);
-    }
-    function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
-
-    function computeBuildMeter(stats){
-      // 4 stats, each 1..15 => max 60
-      const total = stats.autonomy + stats.rage + stats.clarity + stats.armor;
-      return clamp(Math.round((total / 60) * 100), 0, 100);
+    function makeID(name, seed){
+      const base = `${name}::${seed}::${Date.now()}`;
+      return `HE-${hashish(base)}-${Math.floor(100 + Math.random()*900)}`;
     }
 
-    function generateMultipass({dateStr, timeStr, cityStr, mode}){
-      const dsum = sumDigits(dateStr);
-      const tsum = sumDigits(timeStr);
-      const csum = sumDigits(cityStr);
-      const seed = dsum + tsum + csum;
-
-      let autonomy = (seed % 10) + 5;
-      let rage = ((seed * 3) % 10) + 3;
-      let clarity = ((seed * 5) % 10) + 4;
-      let armor = ((seed * 7) % 10) + 4;
-
-      if(mode === "strict"){ clarity += 2; }
-      if(mode === "myth"){ armor += 1; autonomy += 1; }
-      if(mode === "hard"){ rage += 2; autonomy += 1; }
-
-      autonomy = clamp(autonomy, 1, 15);
-      rage = clamp(rage, 1, 15);
-      clarity = clamp(clarity, 1, 15);
-      armor = clamp(armor, 1, 15);
-
-      const loadouts = [
-        { name:"LOADOUT: ARCHITECT", line:"ты переписываешь карту. правила создаются тобой." },
-        { name:"LOADOUT: SHIELD", line:"давление → броня. контроль снаружи включает твою силу." },
-        { name:"LOADOUT: OPERATOR", line:"ты выигрываешь тишиной. точность выше эмоций." },
-        { name:"LOADOUT: WRAITH", line:"ты исчезаешь из чужих сценариев и входишь только по своим условиям." },
-      ];
-      const lo = loadouts[seed % loadouts.length];
-
-      const directives = [
-        "MAIN DIRECTIVE: собрать протокол автономности и держать его без отката.",
-        "MAIN DIRECTIVE: конвертировать давление в действие и границы.",
-        "MAIN DIRECTIVE: закрыть доступ системе к твоему времени и голосу.",
-        "MAIN DIRECTIVE: собрать броню свободы: правило, граница, дисциплина.",
-      ];
-      const directive = directives[(seed + 1) % directives.length];
-
-      const route = [
-        { k:"DAY 1", v:"SCAN: damage log → 3 скрипта, которые тебя выключают." },
-        { k:"DAY 2", v:"PURGE: 1 триггер → удалить контакт/привычку/шум." },
-        { k:"DAY 3", v:"ARMOR: 1 граница → держать 24h без отката." },
-        { k:"DAY 4", v:"OFF SCRIPT: 1 действие → поступок вне старой роли." },
-        { k:"DAY 5", v:"CHOICE: один риск ради результата." },
-        { k:"DAY 6", v:"PATCH: фиксация → что стало сильнее/чище." },
-        { k:"DAY 7", v:"BOSS CHECK: тест → там, где раньше сдавал(а) позиции." },
-      ];
-
-      const clearance =
-        (autonomy + armor >= rage + clarity) ? "CLEARANCE: ARMOR/AUTONOMY" : "CLEARANCE: RAGE/CLARITY";
-
-      const id = `ID: ADM-${String(seed).padStart(4,'0')}`;
-
-      return {
-        seed,
-        id,
-        clearance,
-        origin: cityStr,
-        stats: { autonomy, rage, clarity, armor },
-        loadout: lo,
-        directive,
-        route
+    function mkTraits(name, gender, origin, clear, seed, status, manifest){
+      // “игровая” генерация характеристик
+      const r = (min,max)=> Math.floor(min + Math.random()*(max-min+1));
+      const stats = {
+        "FOCUS": r(62, 97),
+        "WILL": r(58, 96),
+        "RAGE": r(55, 99),
+        "CHARISMA": r(50, 95),
+        "DISCIPLINE": r(48, 92),
+        "LUCK": r(40, 88),
       };
+
+      const profile = {
+        ID: makeID(name, seed),
+        CLEARANCE: clear,
+        ORIGIN: origin,
+        SEED: seed,
+        STATUS: status,
+        ARCHETYPE: rand(vocab.archetype),
+        DRIVE: rand(vocab.drive),
+        WEAPON: rand(vocab.weapon),
+        PERK: rand(vocab.perk),
+        GLITCH: rand(vocab.weakness),
+      };
+
+      const lines = [];
+      lines.push(`MULTIPASS PROFILE :: ${profile.ID}`);
+      lines.push(`NAME/ALIAS   : ${name}`);
+      lines.push(`GENDER       : ${gender === "female" ? "FEMALE" : "MALE"}`);
+      lines.push(`CLEARANCE    : ${profile.CLEARANCE}`);
+      lines.push(`ORIGIN       : ${profile.ORIGIN}`);
+      lines.push(`SEED         : ${profile.SEED}`);
+      lines.push(`STATUS       : ${profile.STATUS}`);
+      lines.push("");
+      lines.push(`ARCHETYPE    : ${profile.ARCHETYPE}`);
+      lines.push(`DRIVE        : ${profile.DRIVE}`);
+      lines.push(`WEAPON       : ${profile.WEAPON}`);
+      lines.push(`PERK         : ${profile.PERK}`);
+      lines.push(`GLITCH       : ${profile.GLITCH}`);
+      lines.push("");
+      lines.push("STATS");
+      for(const k of Object.keys(stats)){
+        lines.push(`- ${k.padEnd(12)}: ${String(stats[k]).padStart(3)} / 100`);
+      }
+      lines.push("");
+      lines.push("MANIFEST");
+      lines.push(manifest.trim());
+
+      return { profile, stats, text: lines.join("\n") };
     }
 
-    function renderMultipass(mp){
-      multipass.classList.remove('locked');
-      multipass.classList.add('unlock');
+    function drawStamp(ctx, x, y, r, textTop, textBottom){
+      ctx.save();
+      ctx.translate(x,y);
 
-      mpId.textContent = mp.id;
-      mpClearance.textContent = mp.clearance;
-      mpOrigin.textContent = `ORIGIN: ${mp.origin}`;
-      mpSeed.textContent = `SEED: ${mp.seed}`;
+      // outer ring
+      ctx.beginPath();
+      ctx.arc(0,0,r,0,Math.PI*2);
+      ctx.strokeStyle = "rgba(255,77,109,.85)";
+      ctx.lineWidth = 10;
+      ctx.stroke();
 
-      statRows.innerHTML = [
-        {k:"autonomy", v: mp.stats.autonomy},
-        {k:"rage", v: mp.stats.rage},
-        {k:"clarity", v: mp.stats.clarity},
-        {k:"armor", v: mp.stats.armor},
-      ].map(s => `<div class="mRow"><span>${s.k}</span><i>${s.v}/15</i></div>`).join("");
+      ctx.beginPath();
+      ctx.arc(0,0,r-14,0,Math.PI*2);
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
 
-      loadoutText.textContent = `${mp.loadout.name}: ${mp.loadout.line}`;
-      directiveText.textContent = mp.directive;
+      // cross lines
+      ctx.strokeStyle = "rgba(255,77,109,.6)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-r*0.65, 0); ctx.lineTo(r*0.65, 0);
+      ctx.moveTo(0,-r*0.65); ctx.lineTo(0,r*0.65);
+      ctx.stroke();
 
-      routeRows.innerHTML = mp.route.map(r =>
-        `<div class="mRow"><span>${r.k}</span><i>${r.v}</i></div>`
-      ).join("");
+      // text
+      ctx.fillStyle = "rgba(255,77,109,.92)";
+      ctx.font = "700 16px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.textAlign="center";
+      ctx.fillText(textTop, 0, -r*0.18);
+      ctx.font = "800 20px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText(textBottom, 0, r*0.28);
 
-      // build meter
-      const pct = computeBuildMeter(mp.stats);
-      buildFill.style.width = `${pct}%`;
-      buildPct.textContent = `${pct}%`;
-
-      // SEAL / STAMP
-      if(mpSealLine) mpSealLine.textContent = `SEAL: ${mp.id.replace('ID: ','')} • ${mp.clearance.replace('CLEARANCE: ','')}`;
-      if(mpSeal){
-        mpSeal.classList.remove('on');
-        void mpSeal.offsetWidth; // re-trigger animation
-        mpSeal.classList.add('on');
-      }
+      ctx.restore();
     }
 
-    genBtn?.addEventListener('click', ()=>{
-      const ds = birthDate?.value || "";
-      const ts = birthTime?.value || "";
-      const cs = birthCity?.value || "";
-      const mode = engineMode?.value || "strict";
+    function glassRect(ctx, x,y,w,h,r){
+      ctx.save();
+      ctx.beginPath();
+      const rr = r;
+      ctx.moveTo(x+rr,y);
+      ctx.arcTo(x+w,y,x+w,y+h,rr);
+      ctx.arcTo(x+w,y+h,x,y+h,rr);
+      ctx.arcTo(x,y+h,x,y,rr);
+      ctx.arcTo(x,y,x+w,y,rr);
+      ctx.closePath();
 
-      if(!ds || !ts || !cs){
-        showLog("ERROR: date + time + origin required.");
-        genBtn.animate([{transform:'translateX(0)'},{transform:'translateX(-3px)'},{transform:'translateX(3px)'},{transform:'translateX(0)'}],{duration:240});
-        return;
+      // fill glass
+      const g = ctx.createLinearGradient(x,y,x+w,y+h);
+      g.addColorStop(0,"rgba(255,255,255,.12)");
+      g.addColorStop(1,"rgba(255,255,255,.05)");
+      ctx.fillStyle = g;
+      ctx.fill();
+
+      // border
+      ctx.strokeStyle = "rgba(255,255,255,.16)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawCardSmall(data){
+      const cv = $("cvSmall");
+      const ctx = cv.getContext("2d");
+
+      // background
+      ctx.clearRect(0,0,cv.width,cv.height);
+      const bg = ctx.createLinearGradient(0,0,cv.width,cv.height);
+      bg.addColorStop(0,"#060612");
+      bg.addColorStop(.5,"#07081a");
+      bg.addColorStop(1,"#04040b");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0,0,cv.width,cv.height);
+
+      // aurora blobs
+      const blob = (x,y,rx,ry, c)=>{
+        ctx.save();
+        ctx.globalAlpha = .28;
+        const gr = ctx.createRadialGradient(x,y,10,x,y,Math.max(rx,ry));
+        gr.addColorStop(0,c);
+        gr.addColorStop(1,"rgba(0,0,0,0)");
+        ctx.fillStyle = gr;
+        ctx.beginPath();
+        ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      };
+      blob(220,160,240,190,"rgba(200,182,255,1)");
+      blob(780,160,260,220,"rgba(255,214,255,1)");
+      blob(620,520,280,240,"rgba(184,243,255,1)");
+
+      // glass container
+      glassRect(ctx, 36, 36, cv.width-72, cv.height-72, 30);
+
+      // Title
+      ctx.fillStyle = "rgba(255,255,255,.92)";
+      ctx.font = "800 34px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
+      ctx.fillText("MULTIPASS", 70, 98);
+
+      ctx.fillStyle = "rgba(255,255,255,.60)";
+      ctx.font = "600 14px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText("HUMAN ERROR 108 / ACCESS DOCUMENT", 70, 122);
+
+      // left portrait placeholder (stylized)
+      const px=70, py=160, pw=250, ph=330;
+      glassRect(ctx, px, py, pw, ph, 22);
+      ctx.save();
+      ctx.globalAlpha = .75;
+      const pg = ctx.createLinearGradient(px,py,px+pw,py+ph);
+      pg.addColorStop(0,"rgba(200,182,255,.55)");
+      pg.addColorStop(1,"rgba(184,243,255,.35)");
+      ctx.fillStyle = pg;
+      ctx.beginPath();
+      ctx.ellipse(px+pw*0.52, py+ph*0.46, pw*0.26, ph*0.34, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle="rgba(255,255,255,.65)";
+      ctx.font="700 12px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText(data.gender === "female" ? "SUBJECT: FEMALE" : "SUBJECT: MALE", px+14, py+ph+26);
+
+      // Right info
+      const ix = 350, iy = 160;
+      ctx.fillStyle="rgba(255,255,255,.88)";
+      ctx.font="800 30px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
+      ctx.fillText(data.name.toUpperCase(), ix, iy);
+
+      ctx.fillStyle="rgba(255,255,255,.66)";
+      ctx.font="700 13px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText(`ID: ${data.profile.ID}`, ix, iy+30);
+      ctx.fillText(`CLEARANCE: ${data.profile.CLEARANCE}`, ix, iy+52);
+      ctx.fillText(`ORIGIN: ${data.profile.ORIGIN}`, ix, iy+74);
+      ctx.fillText(`SEED: ${data.profile.SEED}`, ix, iy+96);
+      ctx.fillText(`STATUS: ${data.profile.STATUS}`, ix, iy+118);
+
+      // Stat bars
+      let sy = iy+162;
+      const bar = (label, val)=>{
+        ctx.fillStyle="rgba(255,255,255,.70)";
+        ctx.font="700 12px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+        ctx.fillText(label, ix, sy);
+
+        const bx=ix+110, by=sy-10, bw=420, bh=12;
+        ctx.fillStyle="rgba(255,255,255,.10)";
+        ctx.fillRect(bx,by,bw,bh);
+
+        const grad = ctx.createLinearGradient(bx,by,bx+bw,by);
+        grad.addColorStop(0,"rgba(200,182,255,.85)");
+        grad.addColorStop(.5,"rgba(255,214,255,.65)");
+        grad.addColorStop(1,"rgba(184,243,255,.65)");
+        ctx.fillStyle=grad;
+        ctx.fillRect(bx,by,bw*(val/100),bh);
+
+        ctx.fillStyle="rgba(255,255,255,.55)";
+        ctx.fillText(String(val).padStart(3,"0"), bx+bw+10, sy);
+
+        sy += 26;
+      };
+
+      bar("FOCUS", data.stats.FOCUS);
+      bar("WILL", data.stats.WILL);
+      bar("RAGE", data.stats.RAGE);
+
+      // stamp
+      drawStamp(ctx, cv.width-170, cv.height-170, 92, "AUTHORIZED", "STAMP");
+
+      // footer code
+      ctx.fillStyle="rgba(255,255,255,.50)";
+      ctx.font="600 12px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText("ERROR 108 / CITIZEN OF NOWHERE / OWNER OF EVERYTHING", 70, cv.height-60);
+    }
+
+    function drawCardTall(data){
+      const cv = $("cvTall");
+      const ctx = cv.getContext("2d");
+
+      ctx.clearRect(0,0,cv.width,cv.height);
+
+      // background
+      const bg = ctx.createLinearGradient(0,0,cv.width,cv.height);
+      bg.addColorStop(0,"#050511");
+      bg.addColorStop(.6,"#07081d");
+      bg.addColorStop(1,"#03030a");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0,0,cv.width,cv.height);
+
+      // big glow
+      ctx.save();
+      ctx.globalAlpha = .22;
+      const gr = ctx.createRadialGradient(cv.width*0.55, cv.height*0.28, 10, cv.width*0.55, cv.height*0.28, 720);
+      gr.addColorStop(0,"rgba(200,182,255,1)");
+      gr.addColorStop(.5,"rgba(255,214,255,1)");
+      gr.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.fillStyle = gr;
+      ctx.beginPath();
+      ctx.ellipse(cv.width*0.58, cv.height*0.33, 520, 600, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+
+      // container
+      glassRect(ctx, 46, 46, cv.width-92, cv.height-92, 34);
+
+      // Header
+      ctx.fillStyle="rgba(255,255,255,.92)";
+      ctx.font="900 44px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
+      ctx.fillText("HUMAN ERROR 108", 86, 120);
+
+      ctx.fillStyle="rgba(255,255,255,.60)";
+      ctx.font="700 14px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText("MULTIPASS / FULL HEIGHT", 86, 150);
+
+      // left silhouette panel
+      const px=86, py=200, pw=360, ph=980;
+      glassRect(ctx, px, py, pw, ph, 26);
+
+      // silhouette (more “full height”)
+      ctx.save();
+      const sg = ctx.createLinearGradient(px,py,px+pw,py+ph);
+      sg.addColorStop(0,"rgba(255,255,255,.12)");
+      sg.addColorStop(1,"rgba(255,255,255,.04)");
+      ctx.fillStyle=sg;
+      ctx.fillRect(px+16, py+16, pw-32, ph-32);
+
+      ctx.globalAlpha = .9;
+      const col = ctx.createLinearGradient(px,py,px+pw,py+ph);
+      col.addColorStop(0,"rgba(200,182,255,.65)");
+      col.addColorStop(.5,"rgba(255,214,255,.35)");
+      col.addColorStop(1,"rgba(184,243,255,.35)");
+      ctx.fillStyle = col;
+
+      // head
+      ctx.beginPath();
+      ctx.ellipse(px+pw*0.50, py+ph*0.18, pw*0.12, pw*0.12, 0, 0, Math.PI*2);
+      ctx.fill();
+      // torso
+      ctx.beginPath();
+      ctx.ellipse(px+pw*0.50, py+ph*0.42, pw*0.19, ph*0.20, 0, 0, Math.PI*2);
+      ctx.fill();
+      // legs
+      ctx.beginPath();
+      ctx.ellipse(px+pw*0.46, py+ph*0.74, pw*0.13, ph*0.22, 0, 0, Math.PI*2);
+      ctx.ellipse(px+pw*0.56, py+ph*0.74, pw*0.13, ph*0.22, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.restore();
+
+      // Right info area
+      const ix=480, iy=220;
+
+      ctx.fillStyle="rgba(255,255,255,.92)";
+      ctx.font="900 48px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
+      ctx.fillText(data.name.toUpperCase(), ix, iy);
+
+      ctx.fillStyle="rgba(255,255,255,.68)";
+      ctx.font="800 14px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText(`ID: ${data.profile.ID}`, ix, iy+36);
+      ctx.fillText(`CLEARANCE: ${data.profile.CLEARANCE}`, ix, iy+60);
+      ctx.fillText(`ORIGIN: ${data.profile.ORIGIN}`, ix, iy+84);
+      ctx.fillText(`SEED: ${data.profile.SEED}`, ix, iy+108);
+      ctx.fillText(`STATUS: ${data.profile.STATUS}`, ix, iy+132);
+
+      // traits blocks
+      const box = (title, value, y)=>{
+        glassRect(ctx, ix, y, 420, 90, 20);
+        ctx.fillStyle="rgba(255,255,255,.72)";
+        ctx.font="800 12px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+        ctx.fillText(title, ix+16, y+30);
+        ctx.fillStyle="rgba(255,255,255,.92)";
+        ctx.font="900 22px -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui";
+        ctx.fillText(value, ix+16, y+64);
+      };
+      box("ARCHETYPE", data.profile.ARCHETYPE, iy+170);
+      box("DRIVE", data.profile.DRIVE, iy+270);
+      box("WEAPON", data.profile.WEAPON, iy+370);
+      box("PERK", data.profile.PERK, iy+470);
+      box("GLITCH", data.profile.GLITCH, iy+570);
+
+      // stats panel
+      glassRect(ctx, ix, iy+690, 420, 240, 22);
+      ctx.fillStyle="rgba(255,255,255,.78)";
+      ctx.font="900 12px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText("STATS", ix+16, iy+720);
+
+      let sy = iy+750;
+      const drawStat=(k,val)=>{
+        ctx.fillStyle="rgba(255,255,255,.70)";
+        ctx.font="800 12px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+        ctx.fillText(k, ix+16, sy);
+
+        const bx=ix+140, by=sy-11, bw=250, bh=12;
+        ctx.fillStyle="rgba(255,255,255,.10)";
+        ctx.fillRect(bx,by,bw,bh);
+
+        const grad = ctx.createLinearGradient(bx,by,bx+bw,by);
+        grad.addColorStop(0,"rgba(200,182,255,.85)");
+        grad.addColorStop(.5,"rgba(255,214,255,.65)");
+        grad.addColorStop(1,"rgba(184,243,255,.65)");
+        ctx.fillStyle=grad;
+        ctx.fillRect(bx,by,bw*(val/100),bh);
+
+        ctx.fillStyle="rgba(255,255,255,.55)";
+        ctx.fillText(String(val).padStart(3,"0"), bx+bw+10, sy);
+
+        sy += 30;
+      };
+      for(const key of ["FOCUS","WILL","RAGE","CHARISMA","DISCIPLINE","LUCK"]){
+        drawStat(key, data.stats[key]);
       }
 
-      const mp = generateMultipass({dateStr: ds, timeStr: ts, cityStr: cs, mode});
-      showLog("SYSTEM: MULTIPASS generated. access granted.");
-      renderMultipass(mp);
+      // Manifest panel
+      glassRect(ctx, 86, 1205, cv.width-172, 210, 26);
+      ctx.fillStyle="rgba(255,255,255,.78)";
+      ctx.font="900 12px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText("MANIFEST", 106, 1240);
 
-      setTimeout(()=> multipass.scrollIntoView({behavior:'smooth', block:'start'}), 220);
+      ctx.fillStyle="rgba(255,255,255,.86)";
+      ctx.font="800 18px -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui";
+      wrapText(ctx, data.manifest.trim(), 106, 1270, cv.width-220, 26);
+
+      // stamp
+      drawStamp(ctx, cv.width-200, 310, 100, "CLEARANCE", "SEAL");
+
+      // footer
+      ctx.fillStyle="rgba(255,255,255,.50)";
+      ctx.font="700 12px ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      ctx.fillText("CITIZEN OF NOWHERE • OWNER OF EVERYTHING • HUMAN ERROR 108", 86, cv.height-72);
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+      const words = text.split(/\s+/);
+      let line = "";
+      for(let n=0;n<words.length;n++){
+        const testLine = line + words[n] + " ";
+        const w = ctx.measureText(testLine).width;
+        if(w > maxWidth && n > 0){
+          ctx.fillText(line, x, y);
+          line = words[n] + " ";
+          y += lineHeight;
+        }else{
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+    }
+
+    function gen(){
+      const name = $("fName").value.trim() || "ERROR";
+      const gender = $("fGender").value;
+      const origin = $("fOrigin").value.trim() || "NOWHERE";
+      const clear = $("fClear").value;
+      const seed = $("fSeed").value.trim() || "108";
+      const status = $("fStatus").value;
+      const manifest = $("fManifest").value;
+
+      const t = mkTraits(name, gender, origin, clear, seed, status, manifest);
+
+      $("traitsOut").textContent = t.text;
+
+      const payload = {
+        name, gender, origin, clear, seed, status,
+        profile: t.profile,
+        stats: t.stats,
+        manifest
+      };
+
+      drawCardSmall(payload);
+      drawCardTall(payload);
+    }
+
+    $("btnGen").addEventListener("click", gen);
+
+    $("btnRandom").addEventListener("click", ()=>{
+      $("fName").value = rand(["MARTINA","ERROR-108","VOID","FURY","ANTI-SYS","UNSTOPPABLE"]);
+      $("fGender").value = Math.random()>.5 ? "female" : "male";
+      $("fOrigin").value = rand(["NOWHERE","NALCHIK-RU → NOWHERE","SYSTEM BORDER","ZERO DISTRICT","COLD METAL CITY"]);
+      $("fClear").value = rand(["PEARL","LAVENDER","WHITE","VOID"]);
+      $("fSeed").value = rand(["108","0108","1.08","GATE-108","ERROR108"]);
+      $("fStatus").value = rand(["UNSTOPPABLE","ANTI-SYS","HUMAN ERROR","RAGE MODE"]);
+      gen();
     });
+
+    function downloadCanvas(canvasId, filename){
+      const cv = $(canvasId);
+      const link = document.createElement("a");
+      link.download = filename;
+      link.href = cv.toDataURL("image/png");
+      link.click();
+    }
+
+    $("dlSmall").addEventListener("click", ()=> downloadCanvas("cvSmall","multipass-small.png"));
+    $("dlTall").addEventListener("click", ()=> downloadCanvas("cvTall","multipass-tall.png"));
+
+    // initial
+    gen();
   </script>
 </body>
 </html>
