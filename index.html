@@ -3,12 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>OFF SCRIPT</title>
-  <meta name="description" content="OFF SCRIPT — скрытый режим игры. Сканируй свой профиль решений и забери управление обратно." />
+  <title>PRTCL 108</title>
+  <meta name="description" content="PRTCL 108 — скрытый режим игры. Сканируй свой MULTIPASS и получи базовые характеристики. Полный доступ — по unlock." />
+
+  <!-- Export libs (PNG/PDF) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <style>
     :root{
-      /* Pearl / Apple-ish */
+      /* Pearl / Apple-ish (dark) */
       --bg0:#0B0B12;
       --bg1:#0E0C18;
       --bg2:#120E22;
@@ -21,11 +25,11 @@
       --stroke: rgba(255,255,255,.18);
       --stroke2: rgba(255,255,255,.10);
 
-      --p1:#FFFFFF;   /* white */
-      --p2:#F4EFFF;   /* pearl */
-      --p3:#E7D8FF;   /* lilac */
-      --p4:#D7F2FF;   /* icy */
-      --p5:#E9E3FF;   /* soft violet */
+      --p1:#FFFFFF;
+      --p2:#F4EFFF;
+      --p3:#E7D8FF;
+      --p4:#D7F2FF;
+      --p5:#E9E3FF;
 
       --shadow: 0 24px 90px rgba(0,0,0,.55);
       --shadow2: 0 10px 40px rgba(0,0,0,.45);
@@ -35,6 +39,9 @@
 
       --shineSpeed: 2.9s;
       --scanSpeed: 2.3s;
+
+      --brandA: rgba(231,216,255,.85);
+      --brandB: rgba(215,242,255,.85);
     }
 
     *{box-sizing:border-box}
@@ -51,7 +58,7 @@
       overflow-x:hidden;
     }
 
-    /* ===== FX Layers (Future feel) ===== */
+    /* ===== FX Layers ===== */
     .fx{position:fixed; inset:0; pointer-events:none; z-index:0;}
     .fx.vignette{
       background: radial-gradient(80% 70% at 50% 40%, transparent 55%, rgba(0,0,0,.62) 100%);
@@ -89,7 +96,6 @@
       50%{transform:scale(1.02); opacity:.78}
     }
 
-    /* Particle canvas sits above glow but behind UI */
     canvas#particles{
       position:fixed; inset:0;
       z-index:1;
@@ -221,7 +227,6 @@
       box-shadow: var(--shadow2);
     }
 
-    /* Apple-ish title */
     .title{
       margin:0;
       font-weight: 1000;
@@ -242,13 +247,11 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-
       filter: drop-shadow(0 0 18px rgba(231,216,255,.18));
       position:relative;
     }
     @media (max-width: 560px){ .title{font-size:42px} }
 
-    /* Shimmer sweep */
     .title:after{
       content:"";
       position:absolute; inset:-20% -40%;
@@ -281,7 +284,7 @@
       letter-spacing:.10em;
       text-transform:uppercase;
     }
-    .dot{
+    .dot2{
       width:9px; height:9px; border-radius:50%;
       background: rgba(255,255,255,.88);
       box-shadow: 0 0 16px rgba(231,216,255,.26);
@@ -302,7 +305,6 @@
       color: var(--muted);
     }
 
-    /* Proof blocks */
     .proofRow{
       display:grid;
       grid-template-columns: repeat(3, 1fr);
@@ -558,6 +560,376 @@
       text-align:center;
       padding: 14px 0 0;
     }
+
+    /* ===== MULTIPASS MODAL (new) ===== */
+    .modalBack{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 30;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .modalBack.show{display:flex}
+
+    .modal{
+      width:min(1180px, 100%);
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: 26px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow: 0 40px 160px rgba(0,0,0,.65);
+      overflow:hidden;
+      transform: translateY(10px);
+      opacity:0;
+      animation: modalIn .35s ease forwards;
+    }
+    @keyframes modalIn{to{transform:translateY(0);opacity:1}}
+    .modalHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 14px 16px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+    .modalTitle{
+      display:flex; align-items:center; gap:10px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight:900;
+      font-size:12px;
+      color: rgba(248,251,255,.82);
+    }
+    .close{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(248,251,255,.88);
+      border-radius: 999px;
+      padding: 8px 10px;
+      cursor:pointer;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-size:11px;
+    }
+    .modalBody{
+      padding: 16px;
+      display:grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){ .modalBody{grid-template-columns:1fr;} }
+
+    .stack{display:grid; gap:12px;}
+
+    .pass{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: 22px;
+      background: rgba(255,255,255,.05);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .seal{
+      width:76px; height:76px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:
+        radial-gradient(26px 18px at 30% 30%, rgba(255,255,255,.22), transparent 62%),
+        radial-gradient(26px 18px at 70% 70%, rgba(215,242,255,.16), transparent 62%),
+        rgba(255,255,255,.05);
+      box-shadow: 0 0 28px rgba(231,216,255,.18);
+      position:relative;
+      overflow:hidden;
+      flex: 0 0 auto;
+    }
+    .seal:after{
+      content:"STAMP";
+      position:absolute; inset:0;
+      display:grid; place-items:center;
+      font-size:11px;
+      letter-spacing:.20em;
+      font-weight:900;
+      color: rgba(248,251,255,.80);
+      text-transform:uppercase;
+      transform: rotate(-12deg);
+      text-shadow: 0 1px 0 rgba(0,0,0,.25);
+    }
+
+    /* badges */
+    .badgeRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .rarityBadge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      font-size:12px;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color: rgba(248,251,255,.82);
+      user-select:none;
+    }
+    .rarityDot{
+      width:9px; height:9px; border-radius:999px;
+      background: rgba(255,255,255,.75);
+      box-shadow: 0 0 16px rgba(231,216,255,.18);
+    }
+    .rarityCommon .rarityDot{ opacity:.7 }
+    .rarityRare .rarityDot{ background: var(--brandB); box-shadow: 0 0 18px rgba(215,242,255,.20);}
+    .rarityEpic .rarityDot{ background: var(--brandA); box-shadow: 0 0 18px rgba(231,216,255,.22);}
+    .rarityMythic .rarityDot{ background: rgba(255,230,160,.90); box-shadow: 0 0 18px rgba(255,230,160,.20);}
+
+    /* mini card */
+    .miniPass{
+      padding: 14px;
+      display:grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
+      align-items:stretch;
+    }
+    .miniHead{
+      grid-column:1/-1;
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      margin-bottom: 2px;
+    }
+    .miniHead .t1{
+      font-weight: 950;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      font-size:12px;
+      color: rgba(248,251,255,.88);
+    }
+    .miniHead .t2{
+      margin-top:6px;
+      font-size:12px;
+      color: rgba(248,251,255,.66);
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .avatarFace{
+      width:92px; height:110px;
+      border-radius: 18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.04);
+      position:relative;
+    }
+    .avatarFace img{
+      width:100%; height:100%;
+      object-fit:cover;
+      object-position: 50% 25%;
+      transform: scale(1.07);
+      display:block;
+      filter: contrast(1.02) saturate(1.05);
+    }
+
+    .miniInfo{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      align-content:start;
+    }
+    .kv{
+      padding:10px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      position:relative;
+    }
+    .kv .k{
+      font-size:10px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color: rgba(248,251,255,.58);
+      margin-bottom:6px;
+    }
+    .kv .v{
+      font-size:14px;
+      font-weight: 900;
+      color: rgba(248,251,255,.92);
+      word-break:break-word;
+    }
+
+    .miniFoot{
+      grid-column:1/-1;
+      display:flex; justify-content:space-between; gap:10px; align-items:center;
+      border-top: 1px solid rgba(255,255,255,.10);
+      padding-top: 10px;
+      margin-top: 2px;
+      color: rgba(248,251,255,.62);
+      font-size: 12px;
+    }
+    .protoSig{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      letter-spacing:.06em;
+      white-space:nowrap;
+    }
+
+    /* full card */
+    .fullPass{ padding: 14px; display:grid; gap:12px; }
+    .fullHead{
+      display:flex; justify-content:space-between; gap:12px; align-items:flex-start;
+    }
+    .fullHead .t1{
+      font-weight: 950;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      font-size:12px;
+      color: rgba(248,251,255,.86);
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    .fullHead .t2{
+      margin-top:6px;
+      font-size:20px;
+      font-weight: 950;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+      color: rgba(248,251,255,.92);
+    }
+
+    .fullBody{
+      display:grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap:12px;
+      align-items:stretch;
+    }
+    @media (max-width: 560px){ .fullBody{grid-template-columns:1fr;} }
+
+    .avatarFull{
+      border-radius: 20px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.04);
+      min-height: 320px;
+    }
+    .avatarFull img{
+      width:100%; height:100%;
+      object-fit:cover;
+      object-position: 50% 50%;
+      display:block;
+      filter: contrast(1.02) saturate(1.05);
+      transform: scale(1.02);
+    }
+
+    .stats{display:grid; gap:10px; align-content:start;}
+    .line{
+      padding:12px;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      color: rgba(248,251,255,.86);
+      font-size:14px;
+      line-height:1.45;
+      position:relative;
+      overflow:hidden;
+      opacity:1;
+      transform: translateY(0);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+    .line b{color: rgba(248,251,255,.92);}
+    .line.reveal{animation: revealUp .45s ease both;}
+    @keyframes revealUp{from{opacity:0; transform: translateY(8px)} to{opacity:1; transform: translateY(0)}}
+
+    .locked::after{
+      content:"🔒 locked";
+      position:absolute;
+      inset:0;
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 950;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      font-size:12px;
+      color: rgba(248,251,255,.68);
+      background:
+        radial-gradient(300px 160px at 30% 25%, rgba(231,216,255,.10), transparent 60%),
+        radial-gradient(280px 150px at 80% 25%, rgba(215,242,255,.08), transparent 60%),
+        rgba(0,0,0,.28);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity:1;
+      transition: opacity .35s ease, transform .35s ease;
+      border-radius: 18px;
+    }
+    .unlocked.locked::after{opacity:0; transform:scale(1.02); pointer-events:none;}
+
+    /* right terminal */
+    .panel{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 22px;
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .panelHead{
+      padding: 14px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .panelTitle{
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight: 950;
+      color: rgba(248,251,255,.82);
+      display:flex; align-items:center; gap:10px;
+    }
+    .lights{display:flex; gap:8px}
+    .lights span{width:10px; height:10px; border-radius:999px; background: rgba(255,255,255,.14);}
+    .lights span:nth-child(1){ background: rgba(215,242,255,.24); }
+    .lights span:nth-child(2){ background: rgba(231,216,255,.20); }
+    .lights span:nth-child(3){ background: rgba(255,255,255,.12); }
+
+    .panelBody{padding: 14px;}
+    .log{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size:12px;
+      line-height:1.6;
+      color: rgba(248,251,255,.78);
+      margin:0;
+      white-space:pre-wrap;
+    }
+    .log .muted{ color: rgba(248,251,255,.55); }
+    .log .ok{ color: rgba(180,255,240,.85); }
+    .log .warn{ color: rgba(231,216,255,.85); }
+
+    .btnRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    .btn2{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color: rgba(248,251,255,.90);
+      padding: 10px 12px;
+      border-radius: 14px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight: 950;
+      font-size:11px;
+      cursor:pointer;
+      transition: filter .12s ease, transform .12s ease;
+    }
+    .btn2:hover{filter:brightness(1.08)}
+    .btn2:active{transform: translateY(1px)}
+    .btn2.primary{
+      background:
+        linear-gradient(90deg,
+          rgba(255,255,255,.12),
+          rgba(231,216,255,.12),
+          rgba(215,242,255,.10),
+          rgba(255,255,255,.10)
+        );
+      border-color: rgba(255,255,255,.20);
+    }
   </style>
 </head>
 
@@ -574,68 +946,67 @@
         <div class="sig"></div>
         <div>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-            <div style="font-weight:950; letter-spacing:.14em;">OFF SCRIPT</div>
+            <div style="font-weight:950; letter-spacing:.14em;">PRTCL 108</div>
             <div class="chip microglitch" data-g="HUD">HUD</div>
             <div class="chip microglitch" data-g="SCAN">SCAN</div>
           </div>
           <div style="font-size:12px; color:rgba(248,251,255,.62); letter-spacing:.08em; margin-top:4px;">
-            скрытый режим игры: где ты живёшь по сценарию и где у тебя есть ход
+            скрытый режим игры: карта игрока + управление настройками
           </div>
         </div>
       </div>
 
       <div class="chips">
-        <div class="chip">без эзотерики</div>
+        <div class="chip">простые термины</div>
         <div class="chip">без обещаний</div>
-        <div class="chip">только структура</div>
+        <div class="chip">сначала базовый скан</div>
       </div>
     </div>
 
-    <section class="hero scanning" id="hero">
+    <section class="hero" id="hero">
       <div class="heroGrid"></div>
       <div class="scanBeam"></div>
 
       <div class="heroInner">
         <!-- Left -->
         <div class="pane reveal">
-          <h1 class="title">OFF SCRIPT</h1>
+          <h1 class="title">PRTCL 108</h1>
           <div class="subline">
-            <span class="dot"></span>
-            <span>hidden game mode</span>
-            <span style="opacity:.55;">•</span>
-            <span>интерфейс решений</span>
+            <span class="dot2"></span>
+            <span>multipass scan</span>
             <span style="opacity:.55;">•</span>
             <span>карта игрока</span>
+            <span style="opacity:.55;">•</span>
+            <span>unlock доступ</span>
           </div>
 
           <p class="lead">
-            <b>если ты умный, но живёшь не своей жизнью — это не “характер”.</b><br>
-            это сценарий. он работает в фоне и забирает управление так тихо, что ты называешь это “реальностью”.
+            <b>это не “кто ты”. это твой билд.</b><br>
+            коротко и понятно: роль, энергия, сильная сторона — сразу. остальное закрыто до доступа.
           </p>
 
           <p class="mini">
-            OFF SCRIPT показывает не “кто ты”. а <b>где у тебя отняли ход</b>, какие петли тебя крутят,
-            и какой следующий шаг возвращает контроль.
+            PRTCL 108 фиксирует портрет игрока из коллекции <b>144</b> и выдаёт MULTIPASS: мини-карта + полная карта.
           </p>
 
           <div class="proofRow">
             <div class="proof">
-              <div class="k"><span class="p"></span> почему это работает</div>
-              <div class="v">мы не угадываем. мы строим интерфейс из повторяемых паттернов решений и реакций.</div>
+              <div class="k"><span class="p"></span> базовый скан</div>
+              <div class="v">быстрые характеристики без воды.</div>
             </div>
             <div class="proof">
-              <div class="k"><span class="p"></span> без магии</div>
-              <div class="v">никаких “предсказаний”. только логика, структура и читаемая диагностика.</div>
+              <div class="k"><span class="p"></span> unlock</div>
+              <div class="v">замки падают — открываются детали.</div>
             </div>
             <div class="proof">
-              <div class="k"><span class="p"></span> фильтр</div>
-              <div class="v">если тебе нужно утешение — это не сюда. тут — ясность и ход.</div>
+              <div class="k"><span class="p"></span> экспорт</div>
+              <div class="v">сохраняй MULTIPASS в PNG/PDF.</div>
             </div>
           </div>
 
           <div class="mini" style="margin-top:14px;">
-            <span style="opacity:.7">вход занимает</span> <b>60 секунд</b>.
-            <span style="opacity:.7">выход — прежним не будет.</span>
+            <span style="opacity:.7">ввод занимает</span> <b>60 секунд</b>.
+            <span style="opacity:.7">MULTIPASS — сразу после скана.</span>
           </div>
         </div>
 
@@ -643,7 +1014,7 @@
         <div class="pane reveal">
           <div class="formTitle">
             <span>ВХОД В СКАН</span>
-            <span class="statusPill">alpha access</span>
+            <span class="statusPill" id="pill">waiting</span>
           </div>
 
           <label>Дата рождения</label>
@@ -676,145 +1047,534 @@
           <label>Город (опционально)</label>
           <input id="place" type="text" placeholder="например: Москва" />
 
-          <button class="cta" id="go">ENTER OFF SCRIPT</button>
+          <button class="cta" id="go">SCAN MULTIPASS</button>
 
           <div class="mini" style="margin-top:12px;">
-            скан выдаёт: <b>ONE-LINER</b>, <b>CORE</b>, <b>LOOPS</b>, <b>QUEST</b>, <b>ENERGY</b>, <b>SETTINGS</b>.
+            скан выдаёт: <b>роль</b>, <b>энергию</b>, <b>редкость</b>, <b>квест</b>.
+            детали — под замком.
           </div>
 
           <div class="mini" style="margin-top:10px; opacity:.78">
-            если внутри появился скепсис — нормально. он и есть твой охранник у входа.
+            портрет закрепляется на основе ввода (дата/время) и остаётся стабильным.
           </div>
         </div>
       </div>
     </section>
 
-    <!-- WHAT YOU GET -->
+    <!-- WHAT YOU GET (light edited naming) -->
     <section class="section reveal">
-      <h2>что ты получишь за 3 минуты</h2>
+      <h2>что ты получишь</h2>
       <div class="grid">
         <div class="card">
-          <div class="tag"><span class="tDot"></span> ONE-LINER</div>
+          <div class="tag"><span class="tDot"></span> BASIC</div>
           <div class="text">
-            короткий диагноз, который либо попадает — либо ты закрываешь вкладку.
-            компромиссов нет.
+            базовые характеристики и MULTIPASS: быстро, понятно, без пафоса.
           </div>
           <ul class="list">
-            <li>где у тебя отняли ход</li>
-            <li>что ты называешь “характером”</li>
-            <li>какая цена у сценария</li>
+            <li>роль и энергия</li>
+            <li>редкость и номер из 144</li>
+            <li>одна задача “сейчас”</li>
           </ul>
         </div>
 
         <div class="card">
-          <div class="tag"><span class="tDot"></span> LOOPS</div>
+          <div class="tag"><span class="tDot"></span> LOCK</div>
           <div class="text">
-            петли — это не “проблемы”. это повторяющиеся механики поведения, которые включаются сами.
+            часть строк закрыта замком — это намеренно. чтобы отделить “узнать” от “использовать”.
           </div>
           <ul class="list">
-            <li>что тебя триггерит</li>
-            <li>как ты сливаешь ресурс</li>
-            <li>почему “понимание” не помогает</li>
+            <li>как действуешь</li>
+            <li>что триггерит</li>
+            <li>что качать</li>
           </ul>
         </div>
 
         <div class="card">
-          <div class="tag"><span class="tDot"></span> SETTINGS</div>
+          <div class="tag"><span class="tDot"></span> EXPORT</div>
           <div class="text">
-            меню управления: команды, которые возвращают доступ. не мотивация. не “полюби себя”. ход.
+            сохраняй MULTIPASS (mini + full) в PNG или PDF.
           </div>
           <ul class="list">
-            <li>что выключить</li>
-            <li>что включить</li>
-            <li>какой следующий шаг дать системе</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <div class="tag"><span class="tDot"></span> QUEST</div>
-          <div class="text">
-            твой повторяющийся квест: тема, в которую ты заходишь снова и снова, пока не пройдёшь.
-          </div>
-          <ul class="list">
-            <li>какой “босс” возвращается</li>
-            <li>какой выбор ты избегаешь</li>
-            <li>что станет иначе после прохождения</li>
+            <li>PNG для сторис</li>
+            <li>PDF для архива</li>
+            <li>копирование данных</li>
           </ul>
         </div>
 
         <div class="card wide">
-          <div class="tag"><span class="tDot"></span> честный фильтр</div>
+          <div class="tag"><span class="tDot"></span> правило</div>
           <div class="text">
-            OFF SCRIPT не для всех. и это плюс.
-            <ul class="list">
-              <li>если тебе нужно, чтобы тебя пожалели — закрывай</li>
-              <li>если ты хочешь “быстро и без боли” — закрывай</li>
-              <li>если ты готов увидеть правду и сделать ход — оставайся</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- WHY TRUST -->
-    <section class="section reveal">
-      <h2>почему скептик остаётся</h2>
-      <div class="grid">
-        <div class="card">
-          <div class="tag"><span class="tDot"></span> 01</div>
-          <div class="text">
-            мы не продаём “веру”. мы продаём <b>интерфейс</b>. ты видишь структуру — и проверяешь на себе.
-          </div>
-        </div>
-        <div class="card">
-          <div class="tag"><span class="tDot"></span> 02</div>
-          <div class="text">
-            никакой мистики. если тебе “не зашло” — значит, не попало. мы не будем тебя уговаривать.
-          </div>
-        </div>
-        <div class="card wide">
-          <div class="tag"><span class="tDot"></span> 03</div>
-          <div class="text">
-            оффер простой: <b>получи карту</b>. если узнавание есть — дальше решаешь, нужен ли полный доступ.
+            PRTCL 108 — это интерфейс. без названий “учений”, без объяснений “откуда”.
+            только скан, параметры и доступ.
           </div>
         </div>
       </div>
     </section>
 
     <div class="footer">
-      OFF SCRIPT — интерфейс ясности и выбора. не медицина. не терапия. не гадание.
+      PRTCL 108 — интерфейс карты игрока. не медицина. не терапия. не гадание.
+    </div>
+  </div>
+
+  <!-- MULTIPASS MODAL -->
+  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-label="MULTIPASS">
+    <div class="modal">
+      <div class="modalHead">
+        <div class="modalTitle">
+          <span class="dot2"></span>
+          <span>PRTCL 108 / multipass</span>
+        </div>
+        <button class="close" id="closeModal">close</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="stack">
+          <!-- MINI -->
+          <div class="pass" id="miniCard">
+            <div class="miniPass">
+              <div class="miniHead">
+                <div>
+                  <div class="miniHeadTitle">
+                    <div class="t1">MULTIPASS</div>
+                    <div class="t2">
+                      <div class="badgeRow">
+                        <span class="rarityBadge" id="rarityBadgeMini">
+                          <span class="rarityDot"></span>
+                          <span id="rarityTextMini">COMMON</span>
+                        </span>
+                        <span class="rarityBadge" style="gap:6px;">
+                          <span style="opacity:.75">№</span>
+                          <span id="p_no">—</span><span style="opacity:.65">/144</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="seal" aria-hidden="true"></div>
+              </div>
+
+              <div class="avatarFace" title="портрет">
+                <img id="faceImg" src="" alt="портрет игрока">
+              </div>
+
+              <div class="miniInfo">
+                <div class="kv">
+                  <div class="k">id</div>
+                  <div class="v" id="p_id">—</div>
+                </div>
+                <div class="kv">
+                  <div class="k">доступ</div>
+                  <div class="v" id="p_access">BASIC</div>
+                </div>
+                <div class="kv">
+                  <div class="k">роль</div>
+                  <div class="v" id="p_role">—</div>
+                </div>
+                <div class="kv">
+                  <div class="k">энергия</div>
+                  <div class="v" id="p_energy">—</div>
+                </div>
+              </div>
+
+              <div class="miniFoot">
+                <div class="protoSig" id="p_sig">prtc108 // signed</div>
+                <div id="p_time">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FULL -->
+          <div class="pass" id="fullCard">
+            <div class="fullPass">
+              <div class="fullHead">
+                <div>
+                  <div class="t1">
+                    FULL PLAYER CARD
+                    <span class="rarityBadge" id="rarityBadgeFull">
+                      <span class="rarityDot"></span>
+                      <span id="rarityTextFull">COMMON</span>
+                    </span>
+                    <span class="rarityBadge" style="gap:6px;">
+                      <span style="opacity:.75">№</span>
+                      <span id="p_no2">—</span><span style="opacity:.65">/144</span>
+                    </span>
+                  </div>
+                  <div class="t2">характеристики</div>
+                </div>
+                <div class="seal" aria-hidden="true"></div>
+              </div>
+
+              <div class="fullBody">
+                <div class="avatarFull" title="портрет">
+                  <img id="fullImg" src="" alt="портрет игрока">
+                </div>
+
+                <div class="stats" id="statsBox">
+                  <div class="line reveal"><b>Роль:</b> <span id="d_role">—</span></div>
+                  <div class="line reveal"><b>Энергия:</b> <span id="d_energy">—</span></div>
+
+                  <div class="line locked reveal" data-lock="1"><b>Как действуешь:</b> <span id="d_action">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Общение:</b> <span id="d_social">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Сильная сторона:</b> <span id="d_strong">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Слабое место:</b> <span id="d_weak">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Триггер:</b> <span id="d_trigger">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Навык:</b> <span id="d_skill">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Бонус:</b> <span id="d_bonus">—</span></div>
+                  <div class="line locked reveal" data-lock="1"><b>Задача сейчас:</b> <span id="d_quest">—</span></div>
+                </div>
+              </div>
+
+              <div class="btnRow">
+                <button class="btn2 primary" id="unlockBtn">unlock</button>
+                <button class="btn2 primary" id="exportPngBtn">export png</button>
+                <button class="btn2 primary" id="exportPdfBtn">export pdf</button>
+                <button class="btn2" id="regenBtn">rescan</button>
+              </div>
+
+              <div class="mini" style="margin-top:10px;">
+                BASIC показывает базу. UNLOCK открывает скрытые строки.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT TERMINAL -->
+        <div class="panel">
+          <div class="panelHead">
+            <div class="panelTitle">terminal / output</div>
+            <div class="lights" aria-hidden="true"><span></span><span></span><span></span></div>
+          </div>
+          <div class="panelBody">
+<pre class="log" id="termOut"><span class="muted">[scan]</span> waiting...</pre>
+            <div class="btnRow">
+              <button class="btn2 primary" id="unlockBtn2">unlock</button>
+              <button class="btn2" id="copyBtn">copy</button>
+            </div>
+            <div class="mini" style="margin-top:10px; opacity:.78">
+              оплату подключим позже — сейчас это демонстрация механики доступа.
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    // Save input and go to map
-    function makeId(dob, tob){
-      const r = Math.random().toString(16).slice(2,6).toUpperCase();
-      const base = dob.replaceAll('-','') + (tob ? tob.replace(':','') : 'XXXX');
-      return "OS-" + base + "-" + r;
+    /* ========= Core logic (PRTCL 108) ========= */
+
+    const $ = (id)=>document.getElementById(id);
+    const hero = $("hero");
+    const pill = $("pill");
+    const modalBack = $("modalBack");
+    const termOut = $("termOut");
+
+    // portraits
+    const PORTRAITS_COUNT = 144;
+    function pad3(n){ return String(n).padStart(3,"0"); }
+    function portraitUrl(idx){ return `assets/portraits/p${pad3(idx)}.jpg`; }
+
+    // rarity by index (collection logic)
+    // 1-6 MYTHIC, 7-24 EPIC, 25-60 RARE, 61-144 COMMON
+    function rarityByIndex(idx){
+      if(idx <= 6) return "MYTHIC";
+      if(idx <= 24) return "EPIC";
+      if(idx <= 60) return "RARE";
+      return "COMMON";
     }
 
-    document.getElementById('go').addEventListener('click', ()=>{
-      const dob = document.getElementById('dob').value;
-      const tob = document.getElementById('tob').value;
-      const tz = document.getElementById('tz').value;
-      const place = document.getElementById('place').value.trim();
+    // role pools per rarity (portrait ↔ style)
+    const ROLE_COMMON = ["наблюдатель","сборщик","исполнитель","организатор","исследователь","практик"];
+    const ROLE_RARE   = ["стратег","проводник","ускоритель","синхронизатор","медиатор","архитектор"];
+    const ROLE_EPIC   = ["контролёр хаоса","игрок на грани","мастер фокуса","собиратель влияния"];
+    const ROLE_MYTHIC = ["переломщик правил","ядро протокола","носитель доступа"];
 
-      if(!dob){
+    const ENERGY = ["ровная","рывками","высокая","бережная","творческая","боевой режим"];
+    const ACTION = ["сначала думаю, потом делаю","делаю быстро, потом правлю","делаю только когда ясно","делаю через вдохновение"];
+    const SOCIAL = ["узкий круг","легко знакомлюсь","мне нужна дистанция","я веду разговор","я мягко веду"];
+    const STRONG = ["ясность","скорость","интуиция","выдержка","влияние","честность"];
+    const WEAK   = ["перегруз","самокритика","откладывание","резкость","усталость","эмо-качели"];
+    const TRIG   = ["давление","контроль","неопределённость","несправедливость","хаос","обесценивание"];
+    const SKILL  = ["держать границы","видеть суть","резать лишнее","собирать план","поднимать себя","вести людей"];
+    const BONUS  = ["чувство правды","+фокус","+скорость обучения","+стойкость","+интуиция"];
+    const QUEST  = ["настроить режим","почистить окружение","собрать цель","усилить тело","выстроить деньги","сделать шаг в новое"];
+
+    function pick(list, seed){ return list[seed % list.length]; }
+
+    // deterministic seed
+    function hashLike(str){
+      let h = 2166136261;
+      for(let i=0;i<str.length;i++){
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h>>>0);
+    }
+
+    function pad2(n){ return String(n).padStart(2,"0"); }
+    function nowStamp(){
+      const d = new Date();
+      return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    }
+
+    function canScan(){
+      return $("dob").value.trim().length > 0;
+    }
+
+    function setPill(){
+      pill.textContent = canScan() ? "ready" : "waiting";
+    }
+    ["dob","tob","tz","place"].forEach(id => $(id).addEventListener("input", setPill));
+    setPill();
+
+    // lock / unlock
+    let unlocked = false;
+    function applyUnlockState(){
+      document.querySelectorAll("[data-lock='1']").forEach((el, i)=>{
+        if(unlocked){
+          el.classList.add("unlocked");
+          setTimeout(()=>{ el.classList.remove("locked"); }, 140 + i*35);
+        }else{
+          el.classList.add("locked");
+          el.classList.remove("unlocked");
+        }
+      });
+      $("p_access").textContent = unlocked ? "FULL" : "BASIC";
+    }
+
+    function setRarityUI(rarity){
+      const mapClass = {
+        "COMMON":"rarityCommon",
+        "RARE":"rarityRare",
+        "EPIC":"rarityEpic",
+        "MYTHIC":"rarityMythic"
+      };
+      const b1 = $("rarityBadgeMini");
+      const b2 = $("rarityBadgeFull");
+      b1.className = "rarityBadge " + mapClass[rarity];
+      b2.className = "rarityBadge " + mapClass[rarity];
+      $("rarityTextMini").textContent = rarity;
+      $("rarityTextFull").textContent = rarity;
+    }
+
+    function buildPayload(){
+      const dob = $("dob").value.trim();
+      const tob = ($("tob").value.trim() || "00:00");
+      const tz  = $("tz").value;
+      const place = $("place").value.trim();
+
+      const seed = hashLike(`${dob}|${tob}|${tz}|${place}|PRTCL108`);
+      const idx = (seed % PORTRAITS_COUNT) + 1;
+      const rarity = rarityByIndex(idx);
+
+      let rolePool = ROLE_COMMON;
+      if(rarity === "RARE") rolePool = ROLE_RARE;
+      if(rarity === "EPIC") rolePool = ROLE_EPIC;
+      if(rarity === "MYTHIC") rolePool = ROLE_MYTHIC;
+
+      const role = pick(rolePool, seed >>> 1);
+      const energy = pick(ENERGY, seed >>> 2);
+      const action = pick(ACTION, seed >>> 3);
+      const social = pick(SOCIAL, seed >>> 4);
+      const strong = pick(STRONG, seed >>> 5);
+      const weak   = pick(WEAK,   seed >>> 6);
+      const trigger= pick(TRIG,   seed >>> 7);
+      const skill  = pick(SKILL,  seed >>> 8);
+      let bonus    = pick(BONUS,  seed >>> 9);
+      let quest    = pick(QUEST,  seed >>> 10);
+
+      if(rarity === "EPIC") bonus = bonus + " (усилено)";
+      if(rarity === "MYTHIC") { bonus = bonus + " (максимум)"; quest = "уровень доступа"; }
+
+      return {
+        dob, tob, tz, place,
+        seed,
+        id: "PRT-" + String(seed).slice(0,10),
+        portraitIndex: idx,
+        portraitUrl: portraitUrl(idx),
+        rarity,
+        role, energy, action, social, strong, weak, trigger, skill, bonus, quest,
+        sig: "prtc108 // signed",
+        time: nowStamp()
+      };
+    }
+
+    function render(p){
+      $("faceImg").src = p.portraitUrl;
+      $("fullImg").src = p.portraitUrl;
+
+      $("p_no").textContent = pad3(p.portraitIndex);
+      $("p_no2").textContent = pad3(p.portraitIndex);
+
+      $("p_id").textContent = p.id;
+      $("p_role").textContent = p.role;
+      $("p_energy").textContent = p.energy;
+      $("p_sig").textContent = p.sig;
+      $("p_time").textContent = p.time;
+
+      $("d_role").textContent = p.role;
+      $("d_energy").textContent = p.energy;
+      $("d_action").textContent = p.action;
+      $("d_social").textContent = p.social;
+      $("d_strong").textContent = p.strong;
+      $("d_weak").textContent = p.weak;
+      $("d_trigger").textContent = p.trigger;
+      $("d_skill").textContent = p.skill;
+      $("d_bonus").textContent = p.bonus;
+      $("d_quest").textContent = p.quest;
+
+      setRarityUI(p.rarity);
+
+      termOut.innerHTML =
+`<span class="muted">[prtc108]</span> <span class="ok">scan complete</span>
+<span class="muted">[input]</span> dob=${p.dob}  tob=${(p.tob==="00:00" ? "—" : p.tob)}  tz=${p.tz}  place=${p.place||"—"}
+<span class="muted">[id]</span> ${p.id}
+<span class="muted">[portrait]</span> #${pad3(p.portraitIndex)}/144 (${p.rarity})
+<span class="muted">[basic]</span> role=${p.role} | energy=${p.energy}
+<span class="muted">[locked]</span> details locked until unlock
+<span class="muted">[sig]</span> ${p.sig}
+<span class="muted">[time]</span> ${p.time}`;
+
+      // reveal animation reset
+      document.querySelectorAll(".line").forEach((el, i)=>{
+        el.classList.remove("reveal");
+        void el.offsetWidth;
+        setTimeout(()=> el.classList.add("reveal"), 20 + i*30);
+      });
+
+      applyUnlockState();
+    }
+
+    function openModal(){
+      modalBack.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+    function closeModal(){
+      modalBack.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+    $("closeModal").addEventListener("click", closeModal);
+    modalBack.addEventListener("click",(e)=>{ if(e.target===modalBack) closeModal(); });
+
+    let lastPayload = null;
+
+    function startScan(){
+      if(!canScan()){
         alert("введи дату рождения.");
         return;
       }
 
-      const payload = {
-        id: makeId(dob, tob),
-        dob,
-        tob: tob || "",
-        tz,
-        place: place || ""
-      };
+      unlocked = false;
+      applyUnlockState();
 
-      localStorage.setItem("offscript_session", JSON.stringify(payload));
-      window.location.href = "map.html";
+      hero.classList.add("scanning");
+      setTimeout(()=> hero.classList.remove("scanning"), 1300);
+
+      // light scan delay for Apple feel
+      setTimeout(()=>{
+        const p = buildPayload();
+        lastPayload = p;
+        render(p);
+        openModal();
+      }, 860);
+    }
+
+    $("go").addEventListener("click", startScan);
+
+    $("regenBtn").addEventListener("click", ()=>{
+      if(!canScan()) return;
+      unlocked = false;
+      const p = buildPayload();
+      lastPayload = p;
+      render(p);
+    });
+
+    function doUnlock(){
+      unlocked = true;
+      applyUnlockState();
+      termOut.innerHTML += `\n<span class="muted">[unlock]</span> <span class="ok">granted</span>`;
+    }
+    $("unlockBtn").addEventListener("click", doUnlock);
+    $("unlockBtn2").addEventListener("click", doUnlock);
+
+    // Copy
+    $("copyBtn").addEventListener("click", async ()=>{
+      if(!lastPayload) return;
+      const p = lastPayload;
+      const t =
+`PRTCL 108 — MULTIPASS
+№: ${pad3(p.portraitIndex)}/144 (${p.rarity})
+ID: ${p.id}
+Роль: ${p.role}
+Энергия: ${p.energy}
+${unlocked ? `Как действуешь: ${p.action}
+Общение: ${p.social}
+Сильная сторона: ${p.strong}
+Слабое место: ${p.weak}
+Триггер: ${p.trigger}
+Навык: ${p.skill}
+Бонус: ${p.bonus}
+Задача: ${p.quest}` : `DETAILS: locked`}
+Подпись: ${p.sig}
+Время: ${p.time}`;
+      try{
+        await navigator.clipboard.writeText(t);
+        termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="ok">copied</span>`;
+      }catch(e){
+        termOut.innerHTML += `\n<span class="muted">[clipboard]</span> <span class="warn">blocked</span>`;
+      }
+    });
+
+    // Export PNG/PDF
+    async function nodeToPngDataUrl(node){
+      const canvas = await html2canvas(node, {backgroundColor: null, scale: 2});
+      return canvas.toDataURL("image/png");
+    }
+    function downloadDataUrl(dataUrl, filename){
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    $("exportPngBtn").addEventListener("click", async ()=>{
+      if(!lastPayload) return;
+      const n = pad3(lastPayload.portraitIndex);
+      const d1 = await nodeToPngDataUrl($("miniCard"));
+      const d2 = await nodeToPngDataUrl($("fullCard"));
+      downloadDataUrl(d1, `PRTCL108_MULTIPASS_${n}_mini.png`);
+      downloadDataUrl(d2, `PRTCL108_MULTIPASS_${n}_full.png`);
+      termOut.innerHTML += `\n<span class="muted">[export]</span> <span class="ok">png saved</span>`;
+    });
+
+    $("exportPdfBtn").addEventListener("click", async ()=>{
+      if(!lastPayload) return;
+      const { jsPDF } = window.jspdf;
+      const n = pad3(lastPayload.portraitIndex);
+      const d1 = await nodeToPngDataUrl($("miniCard"));
+      const d2 = await nodeToPngDataUrl($("fullCard"));
+
+      const pdf = new jsPDF({ orientation:"p", unit:"pt", format:"a4" });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const margin = 28;
+      const maxW = pageW - margin*2;
+
+      const img1 = new Image(); img1.src = d1;
+      const img2 = new Image(); img2.src = d2;
+      await new Promise(r=> img1.onload = r);
+      await new Promise(r=> img2.onload = r);
+
+      const h1 = (img1.height / img1.width) * maxW;
+      const h2 = (img2.height / img2.width) * maxW;
+
+      let y = margin;
+      pdf.addImage(d1, "PNG", margin, y, maxW, h1);
+      y += h1 + 18;
+      pdf.addImage(d2, "PNG", margin, y, maxW, h2);
+
+      pdf.save(`PRTCL108_MULTIPASS_${n}.pdf`);
+      termOut.innerHTML += `\n<span class="muted">[export]</span> <span class="ok">pdf saved</span>`;
     });
 
     // Scroll reveal
@@ -841,7 +1601,6 @@
     resize();
 
     const rand = (a,b)=>a+Math.random()*(b-a);
-
     const dots = Array.from({length: 60}, ()=>({
       x: rand(0, W), y: rand(0, H),
       r: rand(0.8, 2.2) * DPR,
