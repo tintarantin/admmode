@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>PRTCL 108 — ADM MODE</title>
-  <meta name="description" content="PRTCL 108 — интерфейс самосканирования: параметры, роль, навыки и Boss. Без мистики.">
+  <meta name="description" content="PRTCL 108 — интерфейс самосканирования: параметры, роль, навыки и BOSS. Без мистики.">
 
   <style>
     :root{
@@ -14,6 +14,7 @@
       --glass: rgba(255,255,255,.06);
       --glass2: rgba(255,255,255,.10);
       --stroke: rgba(255,255,255,.16);
+      --stroke2: rgba(255,255,255,.22);
 
       --text:#e9eef7;
       --muted: rgba(233,238,247,.72);
@@ -25,7 +26,7 @@
       --warn:#ffd36a;
       --ok:#86ffd6;
 
-      --shadow: 0 22px 80px rgba(0,0,0,.55);
+      --shadow: 0 24px 90px rgba(0,0,0,.55);
       --radius: 18px;
 
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -39,9 +40,9 @@
       font-family: var(--sans);
       color:var(--text);
       background:
-        radial-gradient(1200px 760px at 50% 0%, rgba(217,198,255,.18), transparent 62%),
-        radial-gradient(900px 660px at 15% 12%, rgba(200,245,255,.16), transparent 60%),
-        radial-gradient(900px 660px at 85% 12%, rgba(200,245,255,.10), transparent 62%),
+        radial-gradient(1200px 700px at 15% 5%, rgba(217,198,255,.22), transparent 60%),
+        radial-gradient(1000px 700px at 85% 10%, rgba(200,245,255,.18), transparent 60%),
+        radial-gradient(900px 600px at 55% 120%, rgba(255,255,255,.06), transparent 60%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       overflow-x:hidden;
     }
@@ -53,15 +54,16 @@
       pointer-events:none;
       background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
       mix-blend-mode: overlay;
-      opacity:.40;
+      opacity:.45;
     }
 
     .wrap{
       width:min(1100px, 92vw);
       margin: 0 auto;
-      padding: 28px 0 80px;
+      padding: 28px 0 70px;
     }
 
+    /* TOP */
     .topbar{
       display:flex;
       align-items:center;
@@ -101,44 +103,47 @@
     }
     .ghost:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.22); }
 
-    /* HERO */
+    /* HERO POSTER */
     .hero{
       position:relative;
-      border:1px solid rgba(255,255,255,.18);
+      border:1px solid var(--stroke);
       border-radius: var(--radius);
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
+      backdrop-filter: blur(16px);
       overflow:hidden;
-      padding: 22px 18px 18px;
-      min-height: min(78vh, 760px);
+      padding: 34px 20px 20px;
+      min-height: min(78vh, 720px);
       display:flex;
-      flex-direction:column;
-      justify-content:center;
       align-items:center;
-      text-align:center;
+      justify-content:center;
     }
 
-    /* steel frame corners */
+    /* steel frame */
     .hero:before{
       content:"";
       position:absolute; inset:10px;
-      border-radius: calc(var(--radius) - 10px);
-      border: 1px solid rgba(255,255,255,.12);
+      border-radius: calc(var(--radius) - 6px);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06) inset,
+        0 0 40px rgba(200,245,255,.06),
+        0 0 60px rgba(217,198,255,.05);
       pointer-events:none;
-      mask-image: linear-gradient(180deg, black, rgba(0,0,0,.65));
+      mask-image: linear-gradient(180deg, black, rgba(0,0,0,.85));
     }
+
     .hero:after{
       content:"";
       position:absolute; inset:-2px;
       background:
-        radial-gradient(650px 260px at 50% 10%, rgba(244,241,255,.10), transparent 60%),
-        radial-gradient(520px 240px at 25% 18%, rgba(217,198,255,.16), transparent 60%),
-        radial-gradient(520px 240px at 75% 18%, rgba(200,245,255,.14), transparent 60%),
-        linear-gradient(90deg, rgba(255,255,255,.12), transparent 35%, rgba(255,255,255,.08));
+        radial-gradient(700px 280px at 50% 22%, rgba(244,241,255,.10), transparent 60%),
+        radial-gradient(520px 260px at 20% 30%, rgba(200,245,255,.14), transparent 60%),
+        radial-gradient(520px 260px at 80% 35%, rgba(217,198,255,.14), transparent 60%),
+        linear-gradient(90deg, rgba(255,255,255,.10), transparent 35%, rgba(255,255,255,.08));
       opacity:.55;
       pointer-events:none;
-      mask-image: radial-gradient(700px 420px at 50% 30%, black, transparent 70%);
+      mask-image: radial-gradient(600px 420px at 50% 20%, black, transparent 70%);
     }
 
     .gridlines{
@@ -147,32 +152,55 @@
         linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
       background-size: 46px 46px;
-      opacity:.16;
+      opacity:.18;
       pointer-events:none;
-      mask-image: radial-gradient(640px 360px at 50% 28%, black, transparent 72%);
+      mask-image: radial-gradient(720px 420px at 50% 25%, black, transparent 72%);
     }
 
-    /* centered poster title */
+    .poster{
+      width: min(900px, 92vw);
+      position:relative;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      text-align:center;
+      gap: 14px;
+    }
+
+    .title{
+      line-height:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 10px;
+    }
+
     .title h1{
       margin:0;
-      font-size: clamp(46px, 9vw, 92px);
-      letter-spacing: -0.03em;
+      font-size: clamp(52px, 9vw, 92px);
+      letter-spacing: -0.04em;
       font-weight: 820;
-      line-height: 1.02;
+      text-transform: uppercase;
     }
+
+    /* mirror shimmer text */
     .shimmer{
       background: linear-gradient(90deg,
-        rgba(244,241,255,.88),
+        rgba(244,241,255,.92),
         rgba(200,245,255,.98),
         rgba(217,198,255,.98),
-        rgba(244,241,255,.88)
+        rgba(244,241,255,.92)
       );
-      background-size: 260% 100%;
+      background-size: 280% 100%;
       -webkit-background-clip: text;
       background-clip:text;
       color: transparent;
       animation: shimmer 6.5s ease-in-out infinite;
-      text-shadow: 0 0 40px rgba(200,245,255,.12);
+      text-shadow:
+        0 0 36px rgba(200,245,255,.10),
+        0 0 70px rgba(217,198,255,.08);
+      filter: drop-shadow(0 18px 30px rgba(0,0,0,.35));
     }
     @keyframes shimmer{
       0%{ background-position: 0% 50%; }
@@ -181,20 +209,31 @@
     }
 
     .sub{
-      margin-top: 12px;
       font-family: var(--mono);
       color: var(--muted);
-      letter-spacing:.14em;
+      letter-spacing:.12em;
       font-size:12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .sub .chip{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.04);
+      padding: 6px 10px;
+      border-radius: 999px;
     }
 
     .mantra{
-      margin-top: 18px;
+      margin-top: 6px;
       font-size: 18px;
-      line-height: 1.35;
+      line-height: 1.38;
       color: rgba(233,238,247,.92);
+      max-width: 70ch;
     }
-    .mantra b{ font-weight: 800; }
+    .mantra b{ font-weight: 780; }
     .mantra .mono{
       font-family: var(--mono);
       font-size: 12px;
@@ -209,16 +248,14 @@
       gap:10px;
       flex-wrap:wrap;
       justify-content:center;
-      margin-top: 22px;
-      position:relative;
-      z-index:2;
+      margin-top: 8px;
     }
 
     .btn{
       border:1px solid rgba(255,255,255,.22);
       background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
       color: var(--text);
-      padding: 12px 16px;
+      padding: 12px 14px;
       border-radius: 14px;
       font-family: var(--mono);
       letter-spacing:.10em;
@@ -227,79 +264,46 @@
       transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
       position:relative;
       overflow:hidden;
+      min-width: 220px;
     }
     .btn:before{
       content:"";
       position:absolute;
       inset:-2px;
-      background: radial-gradient(140px 70px at 20% 20%, rgba(200,245,255,.22), transparent 60%),
-                  radial-gradient(140px 70px at 80% 30%, rgba(217,198,255,.20), transparent 60%);
+      background: radial-gradient(140px 70px at 18% 20%, rgba(200,245,255,.22), transparent 60%),
+                  radial-gradient(140px 70px at 82% 30%, rgba(217,198,255,.20), transparent 60%);
       opacity:.7;
       pointer-events:none;
     }
     .btn:hover{
       transform: translateY(-1px);
       border-color: rgba(255,255,255,.36);
-      box-shadow: 0 18px 44px rgba(0,0,0,.40);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
     }
     .btn.primary{
-      border-color: rgba(200,245,255,.38);
+      border-color: rgba(200,245,255,.35);
       box-shadow: 0 0 0 1px rgba(200,245,255,.10) inset;
     }
 
     .hint{
-      margin-top: 12px;
+      margin-top: 8px;
       font-family: var(--mono);
       color: var(--dim);
       font-size:12px;
       letter-spacing:.06em;
-      position:relative;
-      z-index:2;
-      max-width: 70ch;
-    }
-
-    /* SCAN BEAM overlay */
-    .beam{
-      position:absolute;
-      left:-10%;
-      width:120%;
-      height: 140px;
-      top:-180px;
-      background:
-        linear-gradient(180deg,
-          rgba(200,245,255,0),
-          rgba(200,245,255,.10),
-          rgba(217,198,255,.25),
-          rgba(200,245,255,.10),
-          rgba(200,245,255,0)
-        );
-      filter: blur(1px);
-      transform: skewY(-6deg);
-      opacity: 0;
-      pointer-events:none;
-      z-index:3;
-    }
-    .beam.run{
-      opacity: 1;
-      animation: beamSweep .95s cubic-bezier(.2,.9,.2,1) 1;
-    }
-    @keyframes beamSweep{
-      0%{ top:-220px; opacity:0; }
-      8%{ opacity:1; }
-      65%{ opacity:.95; }
-      100%{ top: 120%; opacity:0; }
     }
 
     /* TERMINAL reveal */
     .terminal{
-      width: min(920px, 92vw);
-      margin-top: 18px;
+      width:min(920px, 92vw);
+      margin-top: 16px;
       border:1px solid rgba(255,255,255,.18);
       border-radius: var(--radius);
       background: rgba(255,255,255,.035);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 18px 55px rgba(0,0,0,.40);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.40);
       overflow:hidden;
+
       transform-origin: top;
       max-height: 0;
       opacity: 0;
@@ -307,11 +311,9 @@
       transition: max-height .65s cubic-bezier(.2,.9,.2,1),
                   opacity .35s ease,
                   transform .45s ease;
-      position:relative;
-      z-index:4;
     }
     .terminal.open{
-      max-height: 560px;
+      max-height: 650px;
       opacity: 1;
       transform: translateY(0) scaleY(1);
     }
@@ -331,17 +333,29 @@
     .l1{ background: rgba(255,120,120,.85); }
     .l2{ background: rgba(255,210,120,.85); }
     .l3{ background: rgba(120,255,200,.85); }
+
     .term-title{
       font-family: var(--mono);
       font-size:12px;
       letter-spacing:.12em;
-      color: rgba(233,238,247,.88);
+      color: rgba(233,238,247,.85);
     }
     .term-right{
       display:flex; align-items:center; gap:10px;
       font-family: var(--mono);
       font-size:12px;
       color: var(--dim);
+      letter-spacing:.06em;
+    }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(233,238,247,.78);
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.04);
+      padding: 2px 8px;
+      border-radius: 999px;
+      display:inline-block;
       letter-spacing:.06em;
     }
 
@@ -356,11 +370,10 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
-
     @media (max-width: 760px){
       .formgrid{ grid-template-columns: 1fr; }
-      .hero{ padding: 18px 14px; min-height: min(82vh, 740px); }
-      .topbar{ gap:10px; }
+      .btn{ min-width: 100%; }
+      .hero{ padding: 28px 14px 18px; }
     }
 
     .field{
@@ -371,7 +384,7 @@
       transition: border-color .15s ease, background .15s ease;
     }
     .field:focus-within{
-      border-color: rgba(200,245,255,.30);
+      border-color: rgba(200,245,255,.28);
       background: rgba(255,255,255,.05);
     }
     label{
@@ -383,16 +396,15 @@
       letter-spacing:.12em;
       color: rgba(233,238,247,.72);
       margin-bottom: 8px;
-      text-transform: uppercase;
     }
     label small{
       color: var(--dim);
       letter-spacing:.06em;
       font-size:11px;
       font-family: var(--mono);
-      text-transform:none;
     }
-    input{
+
+    input, select{
       width:100%;
       border:0;
       outline:0;
@@ -401,8 +413,23 @@
       font-size: 15px;
       padding: 4px 0 2px;
       font-family: var(--sans);
+      appearance:none;
     }
     input::placeholder{ color: rgba(233,238,247,.35); }
+
+    /* small toggle line */
+    .toggleline{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-top: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing:.08em;
+      color: rgba(233,238,247,.70);
+      user-select:none;
+    }
+    .toggleline input{ width:auto; }
 
     .term-footer{
       display:flex;
@@ -412,6 +439,7 @@
       padding: 12px 14px 14px;
       border-top: 1px solid rgba(255,255,255,.10);
     }
+
     .note{
       font-family: var(--mono);
       color: var(--dim);
@@ -419,6 +447,7 @@
       letter-spacing:.06em;
       max-width: 60ch;
     }
+
     .scanbtn{
       border:1px solid rgba(200,245,255,.30);
       background: linear-gradient(180deg, rgba(200,245,255,.16), rgba(255,255,255,.06));
@@ -435,7 +464,7 @@
     .scanbtn:hover{
       transform: translateY(-1px);
       border-color: rgba(200,245,255,.44);
-      box-shadow: 0 18px 44px rgba(0,0,0,.40);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
     }
     .scanbtn:disabled{
       opacity:.55;
@@ -444,7 +473,7 @@
       box-shadow:none;
     }
 
-    /* scan progress bar */
+    /* scanline bar */
     .scanline{
       height: 10px;
       border-radius: 999px;
@@ -457,49 +486,33 @@
       display:block;
       height:100%;
       width:0%;
-      background: linear-gradient(90deg, rgba(217,198,255,.0), rgba(200,245,255,.70), rgba(217,198,255,.35), rgba(217,198,255,.0));
+      background: linear-gradient(90deg, rgba(217,198,255,.0), rgba(200,245,255,.65), rgba(217,198,255,.35), rgba(217,198,255,.0));
       opacity:.95;
       transition: width .7s ease;
     }
 
-    /* EXPLANATION */
-    .section{
-      margin-top: 18px;
-      border:1px solid rgba(255,255,255,.14);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,.03);
-      box-shadow: 0 18px 50px rgba(0,0,0,.25);
-      backdrop-filter: blur(14px);
-      padding: 18px 16px;
+    /* SCAN BEAM overlay */
+    .beam{
+      position:fixed;
+      inset:-20vh -10vw;
+      pointer-events:none;
+      opacity:0;
+      z-index: 999;
+      background:
+        radial-gradient(1200px 380px at 50% 0%, rgba(200,245,255,.14), transparent 70%),
+        linear-gradient(180deg, transparent 0%, rgba(200,245,255,.08) 40%, rgba(217,198,255,.10) 55%, transparent 100%);
+      filter: blur(.2px);
+      transform: translateY(-120%);
     }
-    .section h2{
-      margin:0 0 10px;
-      font-size: 16px;
-      letter-spacing: -.01em;
+    .beam.run{
+      opacity:1;
+      animation: beamSweep .95s ease-in-out 1;
     }
-    .section p{
-      margin:0;
-      color: rgba(233,238,247,.80);
-      line-height:1.55;
-    }
-    .bul{
-      margin: 12px 0 0;
-      padding-left: 18px;
-      color: rgba(233,238,247,.85);
-      line-height:1.6;
-    }
-    .bul li{ margin: 6px 0; }
-
-    .kbd{
-      font-family: var(--mono);
-      font-size: 12px;
-      color: rgba(233,238,247,.78);
-      border:1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.04);
-      padding: 2px 8px;
-      border-radius: 999px;
-      display:inline-block;
-      letter-spacing:.06em;
+    @keyframes beamSweep{
+      0%{ transform: translateY(-120%); opacity:0; }
+      12%{ opacity:1; }
+      55%{ opacity:1; }
+      100%{ transform: translateY(120%); opacity:0; }
     }
 
     /* OUTPUT */
@@ -543,19 +556,18 @@
       position:relative;
       z-index:2;
     }
+    .mp-head .left{ display:flex; flex-direction:column; gap:6px; }
     .mp-title{
       font-family: var(--mono);
       letter-spacing:.12em;
       font-size: 12px;
       color: rgba(233,238,247,.85);
-      text-transform: uppercase;
     }
     .mp-id{
       font-family: var(--mono);
       font-size: 12px;
       color: var(--dim);
-      letter-spacing:.08em;
-      margin-top: 6px;
+      letter-spacing:.10em;
     }
     .mp-status{
       font-family: var(--mono);
@@ -567,7 +579,6 @@
       padding: 6px 10px;
       border-radius: 999px;
       white-space:nowrap;
-      text-transform: uppercase;
     }
 
     .mp-body{
@@ -597,58 +608,57 @@
       letter-spacing:.12em;
       color: rgba(233,238,247,.70);
       margin-bottom: 8px;
-      text-transform: uppercase;
     }
     .v{
       font-size: 15px;
       color: rgba(233,238,247,.90);
       line-height:1.35;
     }
-    .v.mono{ font-family: var(--mono); font-size: 13px; letter-spacing:.06em; color: rgba(233,238,247,.82); }
+    .v.mono{ font-family: var(--mono); font-size: 13px; letter-spacing:.08em; color: rgba(233,238,247,.82); }
 
-    .list{
-      margin: 0;
-      padding-left: 16px;
-      line-height:1.6;
-      color: rgba(233,238,247,.85);
-    }
+    .list{ margin: 0; padding-left: 16px; line-height:1.6; color: rgba(233,238,247,.85); }
     .list li{ margin: 6px 0; }
 
-    /* PARAMETER BARS */
+    /* GAME BARS */
     .bars{ display:grid; gap:10px; }
-    .barrow{
+    .bar{
       display:grid;
-      grid-template-columns: 1fr;
       gap:6px;
+      padding: 10px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
     }
-    .bar-top{
+    .barTop{
       display:flex;
+      align-items:center;
       justify-content:space-between;
-      gap:12px;
-      align-items:baseline;
+      gap:10px;
       font-family: var(--mono);
-      letter-spacing:.08em;
+      letter-spacing:.10em;
       font-size: 11px;
       color: rgba(233,238,247,.78);
-      text-transform: uppercase;
     }
-    .bar{
-      height: 12px;
+    .barTrack{
+      height: 10px;
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.03);
       overflow:hidden;
       position:relative;
     }
-    .bar > i{
-      display:block;
+    .barFill{
       height:100%;
-      width: 0%;
+      width:0%;
+      border-radius: 999px;
       background:
-        linear-gradient(90deg, rgba(217,198,255,.15), rgba(200,245,255,.70), rgba(217,198,255,.35));
-      box-shadow: 0 0 18px rgba(200,245,255,.10);
-      border-right: 1px solid rgba(255,255,255,.20);
-      transition: width .9s cubic-bezier(.2,.9,.2,1);
+        linear-gradient(90deg,
+          rgba(217,198,255,.22),
+          rgba(200,245,255,.55),
+          rgba(217,198,255,.28)
+        );
+      box-shadow: 0 0 22px rgba(200,245,255,.16);
+      transition: width .55s ease;
     }
 
     .seal{
@@ -682,15 +692,10 @@
       letter-spacing:.10em;
       color: rgba(233,238,247,.60);
       text-align:right;
-      text-transform: uppercase;
     }
 
     .aside{ padding: 16px; }
-    .aside h3{
-      margin:0 0 8px;
-      font-size: 14px;
-      letter-spacing:-.01em;
-    }
+    .aside h3{ margin:0 0 8px; font-size: 14px; letter-spacing:-.01em; }
     .aside p{ margin:0; color: rgba(233,238,247,.78); line-height:1.55; }
     .tiny{
       margin-top: 10px;
@@ -729,7 +734,6 @@
       letter-spacing:.12em;
       font-size: 12px;
       color: rgba(233,238,247,.86);
-      text-transform: uppercase;
     }
     .x{
       border:1px solid rgba(255,255,255,.16);
@@ -741,7 +745,6 @@
       font-family: var(--mono);
       letter-spacing:.06em;
       font-size: 12px;
-      text-transform: uppercase;
     }
     .modal-body{
       padding: 14px;
@@ -764,6 +767,8 @@
 </head>
 
 <body>
+  <div class="beam" id="beam" aria-hidden="true"></div>
+
   <div class="wrap">
     <div class="topbar">
       <div class="badge" aria-label="PRTCL 108 status">
@@ -774,17 +779,22 @@
 
       <div class="links">
         <button class="ghost" id="btnFaq" type="button">ОТКРЫТЬ FAQ</button>
-        <button class="ghost" id="btnFocus" type="button">ПЕРЕЙТИ К ИНИЦИАЦИИ</button>
+        <button class="ghost" id="btnFocus" type="button">ИНИЦИАЦИЯ</button>
       </div>
     </div>
 
     <section class="hero" id="hero">
       <div class="gridlines" aria-hidden="true"></div>
-      <div class="beam" id="beam" aria-hidden="true"></div>
 
-      <div class="title" style="position:relative; z-index:2;">
-        <h1 class="shimmer">PRTCL 108</h1>
-        <div class="sub">ADM MODE · ИНТЕРФЕЙС ДОСТУПА</div>
+      <div class="poster">
+        <div class="title">
+          <h1 class="shimmer">PRTCL 108</h1>
+          <div class="sub">
+            <span class="chip">ADM MODE</span>
+            <span class="chip">ЗЕРКАЛО · СТАЛЬ · ПРОТОКОЛ</span>
+            <span class="chip">NO MYSTIC</span>
+          </div>
+        </div>
 
         <div class="mantra">
           <b>Я не запрашиваю допуск.</b><br/>
@@ -796,110 +806,103 @@
           <button class="btn primary" id="btnInit" type="button">ИНИЦИИРОВАТЬ СКАН</button>
         </div>
 
-        <div class="hint">Сканирование занимает ~30 секунд. Результат формируется автоматически.</div>
+        <div class="hint">~30 секунд · результат формируется автоматически · ясность — рарный айтем</div>
+
+        <!-- TERMINAL -->
+        <div class="terminal" id="terminal" aria-hidden="true">
+          <div class="term-head">
+            <div class="term-left">
+              <div class="lights" aria-hidden="true">
+                <span class="light l1"></span>
+                <span class="light l2"></span>
+                <span class="light l3"></span>
+              </div>
+              <div class="term-title">ТЕРМИНАЛ ИНИЦИАЦИИ</div>
+            </div>
+            <div class="term-right">
+              <span class="kbd">ENTER</span><span>запуск</span>
+            </div>
+          </div>
+
+          <div class="term-body">
+            <div class="formgrid">
+              <div class="field">
+                <label for="dob">ДАТА АКТИВАЦИИ <small>дата рождения</small></label>
+                <input id="dob" type="date" autocomplete="bday"/>
+                <div class="toggleline">
+                  <input id="toggleTime" type="checkbox"/>
+                  <span>Указать время (если известно)</span>
+                </div>
+                <div id="timeWrap" class="field" style="margin-top:10px; display:none;">
+                  <label for="tob">ВРЕМЯ АКТИВАЦИИ <small>опционально</small></label>
+                  <input id="tob" type="time" step="60" placeholder="01:30"/>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="origin">ТОЧКА ПРОИСХОЖДЕНИЯ <small>выбор из списка</small></label>
+                <input id="origin" list="cities" placeholder="Начни вводить город…" autocomplete="off"/>
+                <datalist id="cities">
+                  <option value="Нальчик, Россия"></option>
+                  <option value="Москва, Россия"></option>
+                  <option value="Санкт-Петербург, Россия"></option>
+                  <option value="Казань, Россия"></option>
+                  <option value="Екатеринбург, Россия"></option>
+                  <option value="Новосибирск, Россия"></option>
+                  <option value="Краснодар, Россия"></option>
+                  <option value="Сочи, Россия"></option>
+                  <option value="Алматы, Казахстан"></option>
+                  <option value="Астана, Казахстан"></option>
+                  <option value="Тбилиси, Грузия"></option>
+                  <option value="Ереван, Армения"></option>
+                  <option value="Бишкек, Кыргызстан"></option>
+                  <option value="Минск, Беларусь"></option>
+                  <option value="Киев, Украина"></option>
+                  <option value="Ташкент, Узбекистан"></option>
+                  <option value="Дубай, ОАЭ"></option>
+                  <option value="Стамбул, Турция"></option>
+                  <option value="Сеул, Южная Корея"></option>
+                  <option value="Токио, Япония"></option>
+                  <option value="Лондон, Великобритания"></option>
+                  <option value="Берлин, Германия"></option>
+                  <option value="Париж, Франция"></option>
+                  <option value="Нью-Йорк, США"></option>
+                  <option value="Лос-Анджелес, США"></option>
+                  <option value="Майами, США"></option>
+                  <option value="Денвер, США"></option>
+                </datalist>
+              </div>
+
+              <div class="field">
+                <label for="callsign">ИМЯ ПЕРСОНАЖА <small>можно псевдоним</small></label>
+                <input id="callsign" placeholder="Например: MARATINA / ERRORLESS" autocomplete="nickname"/>
+              </div>
+
+              <div class="field">
+                <label for="mode">РЕЖИМ <small>фиксирован</small></label>
+                <input id="mode" value="ADM MODE" readonly/>
+              </div>
+            </div>
+
+            <div class="scanline" aria-label="scan progress"><i id="scanbar"></i></div>
+          </div>
+
+          <div class="term-footer">
+            <div class="note">
+              Данные используются только для формирования персональной конфигурации.
+              Никакие профили не создаются.
+            </div>
+            <button class="scanbtn" id="btnScan" type="button" disabled>ЗАПУСТИТЬ СКАН</button>
+          </div>
+        </div>
       </div>
-
-      <!-- TERMINAL -->
-      <div class="terminal" id="terminal" aria-hidden="true">
-        <div class="term-head">
-          <div class="term-left">
-            <div class="lights" aria-hidden="true">
-              <span class="light l1"></span>
-              <span class="light l2"></span>
-              <span class="light l3"></span>
-            </div>
-            <div class="term-title">ТЕРМИНАЛ ИНИЦИАЦИИ</div>
-          </div>
-          <div class="term-right">
-            <span class="kbd">ENTER</span><span>для запуска</span>
-          </div>
-        </div>
-
-        <div class="term-body">
-          <div class="formgrid">
-            <div class="field">
-              <label for="dobDate">ДАТА АКТИВАЦИИ <small>дата рождения</small></label>
-              <input id="dobDate" type="date" autocomplete="bday"/>
-            </div>
-
-            <div class="field">
-              <label for="dobTime">ВРЕМЯ АКТИВАЦИИ <small>необязательно</small></label>
-              <input id="dobTime" type="time" step="60" placeholder="—" autocomplete="off"/>
-            </div>
-
-            <div class="field">
-              <label for="origin">ГОРОД <small>выбери из списка или введи</small></label>
-              <input id="origin" list="cities" placeholder="Начни вводить город…" autocomplete="off"/>
-              <datalist id="cities">
-                <option value="Москва"></option>
-                <option value="Санкт-Петербург"></option>
-                <option value="Нальчик"></option>
-                <option value="Казань"></option>
-                <option value="Екатеринбург"></option>
-                <option value="Новосибирск"></option>
-                <option value="Краснодар"></option>
-                <option value="Сочи"></option>
-                <option value="Минск"></option>
-                <option value="Алматы"></option>
-                <option value="Астана"></option>
-                <option value="Тбилиси"></option>
-                <option value="Ереван"></option>
-                <option value="Дубай"></option>
-                <option value="Сеул"></option>
-                <option value="Токио"></option>
-                <option value="Лондон"></option>
-                <option value="Париж"></option>
-                <option value="Берлин"></option>
-                <option value="Нью-Йорк"></option>
-                <option value="Лос-Анджелес"></option>
-                <option value="Майами"></option>
-                <option value="Торонто"></option>
-              </datalist>
-            </div>
-
-            <div class="field">
-              <label for="callsign">ИМЯ ПЕРСОНАЖА <small>можно псевдоним</small></label>
-              <input id="callsign" placeholder="Например: MARATINA / ERRORLESS" autocomplete="nickname"/>
-            </div>
-
-            <div class="field" style="grid-column: 1 / -1;">
-              <label for="mode">РЕЖИМ <small>фиксирован</small></label>
-              <input id="mode" value="ADM MODE" readonly/>
-            </div>
-          </div>
-
-          <div class="scanline" aria-label="scan progress"><i id="scanbar"></i></div>
-        </div>
-
-        <div class="term-footer">
-          <div class="note">
-            Данные используются только для формирования персональной конфигурации.
-            Никакие профили не создаются.
-          </div>
-          <button class="scanbtn" id="btnScan" type="button" disabled>ЗАПУСТИТЬ СКАН</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- EXPLANATION (без "что это") -->
-    <section class="section" id="explain">
-      <h2>КАК ЭТО РАБОТАЕТ</h2>
-      <p>
-        PRTCL 108 — это <span class="kbd">экран статуса персонажа</span>.
-        Он показывает текущий билд: параметры, роль, активные/пассивные скиллы и <span class="kbd">BOSS</span> — точку сопротивления этого этапа.
-      </p>
-      <ul class="bul">
-        <li><b>Без мистики.</b> Только структура и понятные термины.</li>
-        <li><b>Не курс.</b> Здесь нет обещаний и “надо срочно менять жизнь”.</li>
-        <li><b>Просто отображение.</b> Ты видишь билд и действуешь точнее.</li>
-      </ul>
     </section>
 
     <!-- OUTPUT -->
     <div class="out" id="output" hidden>
       <div class="card">
         <div class="mp-head">
-          <div>
+          <div class="left">
             <div class="mp-title">MULTIPASS · PRTCL 108</div>
             <div class="mp-id" id="mpId">MP-108-—</div>
           </div>
@@ -913,15 +916,15 @@
               <div class="v" id="outName">—</div>
             </div>
             <div class="kv">
-              <div class="k">АКТИВАЦИЯ</div>
-              <div class="v mono" id="outActivation">—</div>
+              <div class="k">ТОЧКА ПРОИСХОЖДЕНИЯ</div>
+              <div class="v" id="outOrigin">—</div>
             </div>
           </div>
 
           <div class="row">
             <div class="kv">
-              <div class="k">ГОРОД</div>
-              <div class="v" id="outOrigin">—</div>
+              <div class="k">АКТИВАЦИЯ</div>
+              <div class="v mono" id="outActivation">—</div>
             </div>
             <div class="kv">
               <div class="k">КЛЮЧЕВАЯ РОЛЬ</div>
@@ -932,7 +935,7 @@
           <div class="row">
             <div class="kv">
               <div class="k">BOSS</div>
-              <div class="v" id="outOpp">—</div>
+              <div class="v" id="outBoss">—</div>
               <div class="v mono" id="outPhase" style="margin-top:6px;">PHASE: —</div>
             </div>
             <div class="kv">
@@ -942,7 +945,7 @@
           </div>
 
           <div class="kv">
-            <div class="k">ПАРАМЕТРЫ</div>
+            <div class="k">ПАРАМЕТРЫ (ШКАЛЫ)</div>
             <div class="bars" id="outBars"></div>
           </div>
 
@@ -970,14 +973,14 @@
 
       <div class="card">
         <div class="aside">
-          <h3>Дальше</h3>
+          <h3>Готово</h3>
           <p>
-            Это не “ярлык”. Это текущий билд.
-            Если билд виден — решения становятся точнее.
+            Это твой текущий билд. Без мистики. Без трактовок.
+            Просто структура, с которой проще действовать точно.
           </p>
           <div class="tiny">
             Ясность — самый рарный айтем в игре.<br/>
-            Здесь она появляется без мистики: просто структура стала видимой.
+            Здесь она появляется потому что система стала видимой.
           </div>
 
           <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
@@ -996,32 +999,32 @@
       <div class="modal-body">
         <details open>
           <summary>Что такое PRTCL 108?</summary>
-          <p>Это интерфейс самосканирования, который показывает текущую конфигурацию: параметры, роль, навыки и BOSS (точку сопротивления этапа). Без мистики, без трактовок, без “как правильно жить”.</p>
+          <p>Это интерфейс самосканирования. Он показывает текущую конфигурацию: параметры, роль, навыки и <b>BOSS</b>. Без мистики, без обещаний, без «как правильно жить».</p>
         </details>
 
         <details>
           <summary>Что такое MULTIPASS?</summary>
-          <p>Персональное удостоверение-доступ: в нём зафиксированы статус, роль, параметры (шкалы), active/passive skills и текущий вектор.</p>
+          <p>Персональное удостоверение-доступ: в нём зафиксированы статус, ключевая роль, параметры (шкалы), навыки и текущий вектор.</p>
         </details>
 
         <details>
-          <summary>Что такое ADM MODE?</summary>
-          <p>Режим управления. Ты перестаёшь действовать “на автомате” и видишь, из какого билда играешь сейчас.</p>
+          <summary>Дата/время — обязательно?</summary>
+          <p>Дата — да. Время — опционально. Если неизвестно, оставь пустым.</p>
         </details>
 
         <details>
-          <summary>Параметры — это оценка?</summary>
-          <p>Нет. Это рабочие показатели (ресурс, фокус, устойчивость и т.д.). Они показывают текущее состояние, а не “какой ты человек”.</p>
+          <summary>Active / Passive Skills?</summary>
+          <p><b>Active</b> — навыки, которые ты включаешь осознанно. <b>Passive</b> — навыки, которые работают в фоне автоматически.</p>
         </details>
 
         <details>
-          <summary>BOSS — это враг?</summary>
-          <p>Не “враг”. Это точка сопротивления этапа: место, где прогресс даётся сложнее и требует больше точности. Когда ты это видишь — теряешь меньше ресурса.</p>
+          <summary>Что такое BOSS?</summary>
+          <p>Это основная точка сопротивления текущего этапа. Не «проблема» и не «ты сломан». Это место, где прогресс даётся сложнее — и поэтому требует точности.</p>
         </details>
 
         <details>
-          <summary>Это курс?</summary>
-          <p>Нет. Здесь нет обещаний результата и обучения. Это статус-экран: показывает состояние — дальше решаешь ты.</p>
+          <summary>Это тест? Это курс?</summary>
+          <p>Нет. Это статус-экран. Он показывает, что происходит сейчас.</p>
         </details>
       </div>
     </dialog>
@@ -1030,8 +1033,8 @@
 
   <script>
     const $ = (id) => document.getElementById(id);
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-    // deterministic hash from input -> stable "unique" output
     function hashStr(str){
       let h = 2166136261;
       for (let i=0; i<str.length; i++){
@@ -1048,9 +1051,7 @@
         return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
       }
     }
-    function pick(rng, arr){
-      return arr[Math.floor(rng()*arr.length)];
-    }
+    function pick(rng, arr){ return arr[Math.floor(rng()*arr.length)]; }
     function pickN(rng, arr, n){
       const a = arr.slice();
       for (let i=a.length-1; i>0; i--){
@@ -1059,9 +1060,12 @@
       }
       return a.slice(0, n);
     }
-    function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
+    function romanTierFromPct(pct){
+      const x = pct/100*5;
+      const r = ["I","II","III","IV","V"];
+      return r[clamp(Math.round(x)-1,0,4)];
+    }
 
-    // UI
     const btnInit = $("btnInit");
     const terminal = $("terminal");
     const btnScan = $("btnScan");
@@ -1069,8 +1073,11 @@
     const output = $("output");
     const beam = $("beam");
 
-    const dobDate = $("dobDate");
-    const dobTime = $("dobTime");
+    const dob = $("dob");
+    const tob = $("tob");
+    const toggleTime = $("toggleTime");
+    const timeWrap = $("timeWrap");
+
     const origin = $("origin");
     const callsign = $("callsign");
 
@@ -1078,35 +1085,42 @@
     const btnFaq2 = $("btnFaq2");
     const faq = $("faq");
     const closeFaq = $("closeFaq");
+
     const btnFocus = $("btnFocus");
     const btnRescan = $("btnRescan");
 
-    // reveal terminal after click
     let terminalOpened = false;
+
     function openTerminal(){
       if (terminalOpened) return;
       terminalOpened = true;
       terminal.classList.add("open");
       terminal.setAttribute("aria-hidden", "false");
 
-      // little boot flick
       scanbar.style.width = "12%";
       setTimeout(()=> scanbar.style.width = "0%", 260);
 
-      setTimeout(()=> dobDate.focus(), 420);
+      setTimeout(()=> dob.focus(), 420);
       setTimeout(()=> terminal.scrollIntoView({behavior:"smooth", block:"nearest"}), 120);
     }
+
     btnInit.addEventListener("click", openTerminal);
     btnFocus.addEventListener("click", openTerminal);
 
-    // validate
+    toggleTime.addEventListener("change", ()=>{
+      timeWrap.style.display = toggleTime.checked ? "block" : "none";
+      if (!toggleTime.checked) tob.value = "";
+      validate();
+    });
+
     function validate(){
-      const ok = dobDate.value && origin.value.trim().length >= 2 && callsign.value.trim().length >= 2;
+      const ok = dob.value.trim().length > 0 &&
+                 origin.value.trim().length >= 2 &&
+                 callsign.value.trim().length >= 2;
       btnScan.disabled = !ok;
     }
-    [dobDate, dobTime, origin, callsign].forEach(el => el.addEventListener("input", validate));
+    [dob, origin, callsign, tob].forEach(el => el.addEventListener("input", validate));
 
-    // press Enter to scan
     document.addEventListener("keydown", (e)=>{
       if (!terminalOpened) return;
       if (e.key === "Enter" && !btnScan.disabled){
@@ -1115,40 +1129,84 @@
       }
     });
 
-    // vocab
     const ROLES = [
-      "ОПЕРАТОР ПРОЦЕССА","АРХИТЕКТОР СИСТЕМ","КАРТОГРАФ ВАРИАНТОВ","СКАНЕР СРЕДЫ",
-      "ИНИЦИАТОР СДВИГА","СБОРЩИК РЕАЛЬНОСТИ","СТАБИЛИЗАТОР ПОТОКА","МОДУЛЯТОР ПОЛЯ",
-      "АНАЛИТИК ГЛУБИН","ОПЕРАТОР РАЗРЫВА","ДЕРЖАТЕЛЬ КУРСА","ХРАНИТЕЛЬ РЕСУРСА",
-      "НЕЗАРЕГИСТРИРОВАННЫЙ","ВНЕ ПРОТОКОЛА"
+      "ОПЕРАТОР ПРОЦЕССА",
+      "АРХИТЕКТОР СИСТЕМ",
+      "КАРТОГРАФ ВАРИАНТОВ",
+      "СКАНЕР СРЕДЫ",
+      "ИНИЦИАТОР СДВИГА",
+      "СБОРЩИК РЕАЛЬНОСТИ",
+      "СТАБИЛИЗАТОР ПОТОКА",
+      "МОДУЛЯТОР ПОЛЯ",
+      "АНАЛИТИК ГЛУБИН",
+      "ОПЕРАТОР РАЗРЫВА",
+      "ДЕРЖАТЕЛЬ КУРСА",
+      "ХРАНИТЕЛЬ РЕСУРСА",
+      "ВНЕ ПРОТОКОЛА"
     ];
 
     const BOSSES = [
-      "ЧУЖИЕ ПРАВИЛА","РАССЕИВАНИЕ ФОКУСА","ПЕРЕРАСХОД РЕСУРСА","ЦИКЛ ОТКЛАДЫВАНИЯ",
-      "ГИПЕРКОНТРОЛЬ","РАЗДВОЕННАЯ ЦЕЛЬ","ПОТЕРЯ ИМПУЛЬСА","НЕСТАБИЛЬНАЯ СРЕДА",
-      "ЗАДЕРЖКА РЕШЕНИЯ","ВНЕШНИЙ ШУМ"
+      "ЧУЖИЕ ПРАВИЛА",
+      "РАССЕИВАНИЕ ФОКУСА",
+      "ПЕРЕРАСХОД РЕСУРСА",
+      "ЦИКЛ ОТКЛАДЫВАНИЯ",
+      "ГИПЕРКОНТРОЛЬ",
+      "РАЗДВОЕННАЯ ЦЕЛЬ",
+      "ПОТЕРЯ ИМПУЛЬСА",
+      "НЕСТАБИЛЬНАЯ СРЕДА",
+      "ЗАДЕРЖКА РЕШЕНИЯ",
+      "ВНЕШНИЙ ШУМ"
     ];
 
     const ACTIVE_SKILLS = [
-      "ХОЛОДНЫЙ АНАЛИЗ","БЫСТРОЕ РЕШЕНИЕ","КОНТРОЛЬ ВЕКТОРА","СМЕНА ТРАЕКТОРИИ",
-      "РАЗРЫВ ПАТТЕРНА","ОТКЛЮЧЕНИЕ ЧУЖОЙ ЛОГИКИ","СЖАТИЕ СМЫСЛА","ОПЕРЕЖЕНИЕ ХОДА",
-      "ПЕРЕРАСПРЕДЕЛЕНИЕ РЕСУРСА","УДЕРЖАНИЕ ФОКУСА"
+      "ХОЛОДНЫЙ АНАЛИЗ",
+      "БЫСТРОЕ РЕШЕНИЕ",
+      "КОНТРОЛЬ ВЕКТОРА",
+      "СМЕНА ТРАЕКТОРИИ",
+      "РАЗРЫВ ПАТТЕРНА",
+      "ОТКЛЮЧЕНИЕ ЧУЖОЙ ЛОГИКИ",
+      "СЖАТИЕ СМЫСЛА",
+      "ОПЕРЕЖЕНИЕ ХОДА",
+      "ПЕРЕРАСПРЕДЕЛЕНИЕ РЕСУРСА",
+      "УДЕРЖАНИЕ ФОКУСА"
     ];
 
     const PASSIVE_SKILLS = [
-      "ВНУТРЕННИЙ КАРКАС","ЧУВСТВО МОМЕНТА","ВНУТРЕННИЙ ЛОКАТОР","ФИЛЬТРАЦИЯ ШУМА",
-      "ТИХАЯ УСТОЙЧИВОСТЬ","ВОЗВРАТ В ОСЬ","ЭНЕРГОСБЕРЕЖЕНИЕ","КОНТАКТ С СОБОЙ","ВНУТРЕННЯЯ ОПОРА"
+      "ВНУТРЕННИЙ КАРКАС",
+      "ЧУВСТВО МОМЕНТА",
+      "ВНУТРЕННИЙ ЛОКАТОР",
+      "ФИЛЬТРАЦИЯ ШУМА",
+      "ТИХАЯ УСТОЙЧИВОСТЬ",
+      "ВОЗВРАТ В ОСЬ",
+      "ЭНЕРГОСБЕРЕЖЕНИЕ",
+      "КОНТАКТ С СОБОЙ",
+      "ВНУТРЕННЯЯ ОПОРА"
     ];
 
     const VECTORS = [
-      "УКРЕПЛЕНИЕ ФОКУСА","СТАБИЛИЗАЦИЯ РЕСУРСА","ПОВЫШЕНИЕ АВТОНОМНОСТИ","СНИЖЕНИЕ ВНЕШНЕГО ШУМА",
-      "УСКОРЕНИЕ РЕШЕНИЙ","СБОРКА ПОСЛЕДОВАТЕЛЬНОСТИ","ОБНОВЛЕНИЕ ТРАЕКТОРИИ","ИНТЕГРАЦИЯ ОПЫТА"
+      "УКРЕПЛЕНИЕ ФОКУСА",
+      "СТАБИЛИЗАЦИЯ РЕСУРСА",
+      "ПОВЫШЕНИЕ АВТОНОМНОСТИ",
+      "СНИЖЕНИЕ ВНЕШНЕГО ШУМА",
+      "УСКОРЕНИЕ РЕШЕНИЙ",
+      "СБОРКА ПОСЛЕДОВАТЕЛЬНОСТИ",
+      "ОБНОВЛЕНИЕ ТРАЕКТОРИИ",
+      "ИНТЕГРАЦИЯ ОПЫТА"
     ];
 
     const PARAMS = [
-      "РЕСУРС","ФОКУС","УСТОЙЧИВОСТЬ","АДАПТАЦИЯ",
-      "СКОРОСТЬ РЕШЕНИЙ","ТОЧНОСТЬ ВЫБОРА","АВТОНОМНОСТЬ","ФИЛЬТРАЦИЯ ШУМА",
-      "ИМПУЛЬС ДЕЙСТВИЯ","ПОСЛЕДОВАТЕЛЬНОСТЬ","ВНУТРЕННЯЯ ОПОРА","КОНТАКТ С СОБОЙ"
+      "РЕСУРС",
+      "ФОКУС",
+      "УСТОЙЧИВОСТЬ",
+      "АДАПТАЦИЯ",
+      "СКОРОСТЬ РЕШЕНИЙ",
+      "ТОЧНОСТЬ ВЫБОРА",
+      "АВТОНОМНОСТЬ",
+      "ФИЛЬТРАЦИЯ ШУМА",
+      "ИМПУЛЬС ДЕЙСТВИЯ",
+      "ПОСЛЕДОВАТЕЛЬНОСТЬ",
+      "ВНУТРЕННЯЯ ОПОРА",
+      "КОНТАКТ С СОБОЙ"
     ];
 
     function formatId(seed){
@@ -1164,12 +1222,17 @@
       return `PHASE: ${pick(rng, phases)}`;
     }
 
-    // scan beam
+    function activationLabel(){
+      const d = dob.value ? dob.value.split("-").reverse().join(".") : "—";
+      const t = tob.value ? tob.value : "";
+      return t ? `${d} · ${t}` : `${d}`;
+    }
+
     function runBeam(){
       beam.classList.remove("run");
-      // restart animation
       void beam.offsetWidth;
       beam.classList.add("run");
+      setTimeout(()=> beam.classList.remove("run"), 980);
     }
 
     let scanning = false;
@@ -1188,10 +1251,6 @@
       await new Promise(r => setTimeout(r, 380));
       scanbar.style.width = "78%";
       await new Promise(r => setTimeout(r, 420));
-
-      // second beam pulse for “wow”
-      runBeam();
-
       scanbar.style.width = "100%";
       await new Promise(r => setTimeout(r, 240));
 
@@ -1206,21 +1265,11 @@
       scanning = false;
       validate();
     }
+
     btnScan.addEventListener("click", runScan);
 
-    function buildActivation(){
-      const d = dobDate.value;
-      const t = dobTime.value;
-      if (!d) return "—";
-      // d is yyyy-mm-dd
-      const parts = d.split("-");
-      const ddmmyyyy = `${parts[2]}.${parts[1]}.${parts[0]}`;
-      if (!t) return ddmmyyyy;
-      return `${ddmmyyyy} · ${t}`;
-    }
-
     function generate(){
-      const input = `${dobDate.value}|${dobTime.value||""}|${origin.value.trim()}|${callsign.value.trim()}`.toLowerCase();
+      const input = `${dob.value.trim()}|${tob.value.trim()}|${origin.value.trim()}|${callsign.value.trim()}`.toLowerCase();
       const seed = hashStr(input);
       const rng = mulberry32(seed);
 
@@ -1232,49 +1281,48 @@
 
       $("outName").textContent = callsign.value.trim();
       $("outOrigin").textContent = origin.value.trim();
-      $("outActivation").textContent = buildActivation();
+      $("outActivation").textContent = activationLabel();
 
       $("outRole").textContent = pick(rng, ROLES);
-      $("outOpp").textContent = pick(rng, BOSSES);
+      $("outBoss").textContent = pick(rng, BOSSES);
       $("outPhase").textContent = phaseLabel(rng);
+
       $("outVector").textContent = pick(rng, VECTORS);
 
-      // parameter bars (8 shown)
-      const chosen = pickN(rng, PARAMS, 8).map(name=>{
-        const pct = Math.floor(45 + rng()*50); // 45..95
-        return { name, pct };
-      }).sort((a,b)=> b.pct - a.pct);
+      // Bars: show 8 params
+      const chosen = pickN(rng, PARAMS, 8);
+      const barsWrap = $("outBars");
+      barsWrap.innerHTML = "";
 
-      const outBars = $("outBars");
-      outBars.innerHTML = "";
-      chosen.forEach(s=>{
-        const row = document.createElement("div");
-        row.className = "barrow";
-        row.innerHTML = `
-          <div class="bar-top">
-            <span>${s.name}</span>
-            <span>${s.pct}%</span>
+      chosen.forEach(name=>{
+        const pct = Math.floor(45 + rng()*50); // 45..95
+        const tier = romanTierFromPct(pct);
+
+        const el = document.createElement("div");
+        el.className = "bar";
+        el.innerHTML = `
+          <div class="barTop">
+            <span>${name}</span>
+            <span>${tier} / ${pct}%</span>
           </div>
-          <div class="bar"><i style="width:${s.pct}%"></i></div>
+          <div class="barTrack"><div class="barFill" style="width:0%"></div></div>
         `;
-        outBars.appendChild(row);
+        barsWrap.appendChild(el);
+
+        // animate fill
+        const fill = el.querySelector(".barFill");
+        requestAnimationFrame(()=> { fill.style.width = pct + "%"; });
       });
 
-      // skills
       const active = pickN(rng, ACTIVE_SKILLS, 3 + Math.floor(rng()*3)); // 3..5
       const passive = pickN(rng, PASSIVE_SKILLS, 2 + Math.floor(rng()*3)); // 2..4
 
       const ulA = $("outActive"); ulA.innerHTML = "";
-      active.forEach(x=>{
-        const li = document.createElement("li"); li.textContent = x; ulA.appendChild(li);
-      });
+      active.forEach(x=>{ const li=document.createElement("li"); li.textContent=x; ulA.appendChild(li); });
 
       const ulP = $("outPassive"); ulP.innerHTML = "";
-      passive.forEach(x=>{
-        const li = document.createElement("li"); li.textContent = x; ulP.appendChild(li);
-      });
+      passive.forEach(x=>{ const li=document.createElement("li"); li.textContent=x; ulP.appendChild(li); });
 
-      // stamp date
       const now = new Date();
       const dd = String(now.getDate()).padStart(2,"0");
       const mm = String(now.getMonth()+1).padStart(2,"0");
@@ -1283,18 +1331,17 @@
       $("stampLine").textContent = `PRTCL 108 · ${status.replace("STATUS: ","")}`;
     }
 
-    // rescan
     btnRescan.addEventListener("click", () => {
       output.hidden = true;
       openTerminal();
-      setTimeout(()=> terminal.scrollIntoView({behavior:"smooth", block:"nearest"}), 120);
     });
 
-    // FAQ
     function openFaq(){ faq.showModal(); }
+    function closeFaqFn(){ faq.close(); }
+
     btnFaq.addEventListener("click", openFaq);
     btnFaq2.addEventListener("click", openFaq);
-    closeFaq.addEventListener("click", ()=> faq.close());
+    closeFaq.addEventListener("click", closeFaqFn);
 
     faq.addEventListener("click", (e)=>{
       const rect = faq.getBoundingClientRect();
