@@ -1,1122 +1,1250 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>PRTCL 108 — ADM MODE</title>
-<meta name="description" content="PRTCL 108 — терминал сканирования персонажа. MULTIPASS, выбор, сценарии и апгрейд доступа."/>
-<meta name="theme-color" content="#050b10"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>PRTCL 108 — ADM MODE</title>
+  <meta name="description" content="PRTCL 108 — интерфейс самосканирования: параметры, роль, навыки и System Opponent. Без мистики.">
 
-<style>
-:root{
-  --bg0:#050b10; --bg1:#07131c; --bg2:#0a1a25;
-  --txt:#eaf3ff; --mut:rgba(234,243,255,.72); --dim:rgba(234,243,255,.52);
-  --stroke:rgba(220,235,255,.14); --stroke2:rgba(220,235,255,.26);
-  --glass:rgba(240,245,255,.06); --glass2:rgba(240,245,255,.10);
-  --ice:#c8f5ff; --pearl:#d9d0ff; --danger:#ff547a; --ok:#86ffd6;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-  --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
-  --r1:18px; --r2:28px;
-}
+  <style>
+    :root{
+      --bg0:#05070c;
+      --bg1:#070b12;
+      --glass: rgba(255,255,255,.06);
+      --glass2: rgba(255,255,255,.10);
+      --stroke: rgba(255,255,255,.14);
 
-*{box-sizing:border-box}
-html,body{height:100%; overscroll-behavior:none}
-body{
-  margin:0; color:var(--txt); font-family:var(--sans);
-  background:
-    radial-gradient(1200px 800px at 70% 10%, rgba(185,165,255,.22), transparent 55%),
-    radial-gradient(900px 600px at 20% 30%, rgba(200,245,255,.16), transparent 60%),
-    radial-gradient(700px 500px at 70% 75%, rgba(255,84,122,.10), transparent 55%),
-    linear-gradient(180deg, var(--bg0), var(--bg1) 40%, var(--bg2));
-  overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
-  -webkit-tap-highlight-color:transparent;
-  -webkit-user-select:none; user-select:none;
-}
-input,select,textarea{-webkit-user-select:text; user-select:text}
+      --text:#e9eef7;
+      --muted: rgba(233,238,247,.70);
+      --dim: rgba(233,238,247,.50);
 
-.noise:before{
-  content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.08; mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
-}
+      --ice:#c8f5ff;
+      --lilac:#d9c6ff;
+      --pearl:#f4f1ff;
+      --warn:#ffd36a;
+      --ok:#86ffd6;
 
-.wrap{max-width:1100px;margin:0 auto;padding:18px 14px 92px; position:relative; z-index:1;}
-.topbar{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  border:1px solid var(--stroke);
-  background:linear-gradient(180deg, rgba(240,245,255,.08), rgba(240,245,255,.04));
-  border-radius:999px;
-  padding:10px 12px;
-  box-shadow: 0 18px 70px rgba(0,0,0,.45);
-  backdrop-filter: blur(14px);
-}
-.brand{display:flex; align-items:center; gap:10px; font-family:var(--mono); letter-spacing:.18em; text-transform:uppercase; font-weight:900;}
-.dot{
-  width:10px;height:10px;border-radius:50%;
-  background:radial-gradient(circle at 30% 30%, #fff, var(--ice));
-  box-shadow:0 0 14px rgba(200,245,255,.32);
-  animation:pulse 2.4s ease-in-out infinite;
-}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.6);opacity:1}}
-.access{
-  font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase;
-  font-size:12px; color:rgba(234,243,255,.72);
-  border:1px solid rgba(220,235,255,.18);
-  background:rgba(5,11,16,.28);
-  padding:8px 10px; border-radius:999px;
-}
-.mini{display:flex; gap:10px; align-items:center}
-.link{
-  font-family:var(--mono); letter-spacing:.12em; text-transform:uppercase;
-  font-size:11px; color:rgba(234,243,255,.62);
-  padding:8px 10px; border-radius:999px;
-  border:1px solid rgba(220,235,255,.14);
-  background:rgba(5,11,16,.20);
-  cursor:pointer;
-}
-.link:hover{border-color:rgba(220,235,255,.26)}
+      --shadow: 0 20px 70px rgba(0,0,0,.55);
+      --radius: 18px;
 
-.hero{
-  margin-top:14px;
-  border:1px solid var(--stroke);
-  background:linear-gradient(180deg, rgba(240,245,255,.08), rgba(240,245,255,.03));
-  border-radius: var(--r2);
-  padding:18px 16px;
-  box-shadow:0 26px 90px rgba(0,0,0,.55);
-  backdrop-filter: blur(16px);
-  overflow:hidden;
-  position:relative;
-}
-.hero:before{
-  content:""; position:absolute; inset:-1px; pointer-events:none; opacity:.65;
-  background:
-    radial-gradient(520px 220px at 15% 0%, rgba(200,245,255,.14), transparent 55%),
-    radial-gradient(560px 260px at 85% 100%, rgba(217,208,255,.12), transparent 58%),
-    linear-gradient(90deg, rgba(255,255,255,.05), transparent 35%, rgba(255,255,255,.04));
-}
-.title{
-  margin:8px 0 6px;
-  font-size: clamp(34px, 7vw, 64px);
-  font-weight:900; letter-spacing:.10em; text-transform:uppercase;
-  background: linear-gradient(90deg,#fff,var(--ice),var(--pearl),#fff);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-  background-size:220% 100%;
-  animation:shimmer 7s linear infinite;
-  filter: drop-shadow(0 0 28px rgba(200,245,255,.08));
-  position:relative; z-index:1;
-}
-@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:220% 50%}}
-.sub{
-  font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase;
-  color:rgba(234,243,255,.62); font-size:12px;
-  position:relative; z-index:1;
-}
-.pitch{
-  margin-top:10px; position:relative; z-index:1;
-  display:grid; grid-template-columns:1.15fr .85fr; gap:12px;
-}
-@media(max-width:940px){.pitch{grid-template-columns:1fr}}
-.blurb{
-  border:1px solid rgba(220,235,255,.12);
-  background: rgba(5,11,16,.22);
-  border-radius: 18px;
-  padding:14px;
-}
-.blurb p{margin:0; font-size:15px; line-height:1.45; color:rgba(234,243,255,.86)}
-.blurb p b{color:#fff}
-.ticks{display:flex; flex-direction:column; gap:10px}
-.tick{
-  border:1px solid rgba(220,235,255,.10);
-  background: rgba(5,11,16,.18);
-  border-radius: 18px;
-  padding:12px;
-  color:rgba(234,243,255,.82);
-}
-.tick .k{font-family:var(--mono); letter-spacing:.12em; text-transform:uppercase; font-size:11px; color:rgba(234,243,255,.62); margin-bottom:6px}
-.tick .v{font-size:14px; line-height:1.35}
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue", sans-serif;
+    }
 
-.manifest{
-  margin-top:12px;
-  border:1px solid rgba(220,235,255,.12);
-  background: rgba(5,11,16,.22);
-  border-radius: 18px;
-  padding:14px;
-}
-.manifestText{
-  margin:0;
-  font-size:18px;
-  line-height:1.32;
-  font-weight:900;
-  letter-spacing:.01em;
-}
-.manifestText small{
-  display:block;margin-top:10px;font-family:var(--mono);
-  color:var(--dim);font-weight:600;letter-spacing:.10em;text-transform:uppercase;font-size:11px;
-}
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 5%, rgba(217,198,255,.22), transparent 60%),
+        radial-gradient(1000px 700px at 85% 10%, rgba(200,245,255,.18), transparent 60%),
+        radial-gradient(900px 600px at 55% 120%, rgba(255,255,255,.06), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
 
-.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:12px;margin-top:14px;}
-@media(max-width:980px){.grid{grid-template-columns:1fr}}
+    /* subtle noise */
+    body:before{
+      content:"";
+      position:fixed; inset:0;
+      pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+      opacity:.45;
+    }
 
-.card{
-  border:1px solid var(--stroke);
-  background:linear-gradient(180deg, rgba(240,245,255,.07), rgba(240,245,255,.03));
-  border-radius: var(--r2);
-  overflow:hidden;
-  box-shadow:0 22px 80px rgba(0,0,0,.50);
-  backdrop-filter: blur(14px);
-}
+    .wrap{
+      width:min(1100px, 92vw);
+      margin: 0 auto;
+      padding: 34px 0 80px;
+    }
 
-.cap{
-  padding:14px 14px;
-  border-bottom:1px solid rgba(220,235,255,.10);
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  background: linear-gradient(90deg, rgba(200,245,255,.08), rgba(217,208,255,.06), transparent);
-}
-.cap h3{
-  margin:0; font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase;
-  font-size:12px; color:rgba(234,243,255,.72);
-}
-.chip{
-  font-family:var(--mono); letter-spacing:.12em; text-transform:uppercase;
-  font-size:11px; color:rgba(234,243,255,.65);
-  border:1px solid rgba(220,235,255,.18);
-  background:rgba(5,11,16,.24);
-  padding:8px 10px;border-radius:999px;
-}
-.body{padding:14px}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:620px){.row{grid-template-columns:1fr}}
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom: 22px;
+    }
+    .badge{
+      display:flex; align-items:center; gap:10px;
+      padding: 10px 12px;
+      border:1px solid var(--stroke);
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: 0 10px 25px rgba(0,0,0,.25);
+      backdrop-filter: blur(14px);
+    }
+    .dot{
+      width:9px; height:9px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, var(--ok), rgba(134,255,214,.1));
+      box-shadow: 0 0 18px rgba(134,255,214,.35);
+    }
+    .badge b{ font-family:var(--mono); font-size:12px; letter-spacing:.08em; }
+    .badge span{ color:var(--muted); font-size:12px; font-family:var(--mono); letter-spacing:.06em; }
 
-label{
-  display:flex; flex-direction:column; gap:8px;
-  font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase;
-  font-size:11px; color:rgba(234,243,255,.55);
-}
-input,select{
-  width:100%;
-  border:1px solid rgba(220,235,255,.18);
-  background:rgba(5,11,16,.30);
-  color:var(--txt);
-  border-radius:16px;
-  padding:12px 12px;
-  font-size:15px;
-  outline:none;
-}
-input:focus,select:focus{border-color:rgba(200,245,255,.42); box-shadow:0 0 0 4px rgba(200,245,255,.10)}
-.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
-.btn{
-  border:1px solid rgba(220,235,255,.22);
-  background:linear-gradient(180deg, rgba(240,245,255,.12), rgba(240,245,255,.06));
-  color:var(--txt);
-  border-radius:18px;
-  padding:12px 14px;
-  font-family:var(--mono);
-  letter-spacing:.12em; text-transform:uppercase; font-weight:900;
-  cursor:pointer;
-  box-shadow:0 16px 60px rgba(0,0,0,.35);
-  transition:transform .15s ease, border .15s ease, filter .15s ease;
-}
-.btn:active{transform:scale(.99)}
-.btn.primary{
-  border-color: rgba(200,245,255,.34);
-  background: linear-gradient(90deg, rgba(200,245,255,.14), rgba(217,208,255,.12));
-  position:relative; overflow:hidden;
-}
-.btn.primary:before{
-  content:""; position:absolute; inset:-40% -20%; pointer-events:none;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(255,255,255,.22), transparent 40%),
-    radial-gradient(circle at 70% 60%, rgba(200,245,255,.18), transparent 50%);
-  transform:rotate(8deg); opacity:.9;
-  animation:sweep 2.8s ease-in-out infinite;
-}
-@keyframes sweep{0%,100%{transform:translateX(-12%) rotate(8deg);opacity:.55}50%{transform:translateX(12%) rotate(8deg);opacity:.95}}
-.btn.ghost{filter:saturate(.85)}
-.btn.ghost:hover{border-color:rgba(220,235,255,.34)}
-.btn.primary:hover{filter:saturate(1.1)}
+    .links{
+      display:flex; gap:10px; flex-wrap:wrap;
+    }
+    .ghost{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-family: var(--mono);
+      font-size:12px;
+      letter-spacing:.06em;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease;
+    }
+    .ghost:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.22); }
 
-.scanBar{height:10px;background:rgba(240,245,255,.06);border:1px solid rgba(220,235,255,.10);border-radius:999px;overflow:hidden;margin-top:12px}
-.scanFill{height:100%;width:0%;background:linear-gradient(90deg, rgba(200,245,255,.25), rgba(217,208,255,.22), rgba(255,84,122,.16));transition:width 950ms ease}
+    /* HERO */
+    .hero{
+      position:relative;
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      overflow:hidden;
+      padding: 34px 26px 22px;
+    }
+    .hero:after{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(600px 240px at 18% 18%, rgba(217,198,255,.18), transparent 55%),
+        radial-gradient(520px 240px at 75% 22%, rgba(200,245,255,.14), transparent 55%),
+        linear-gradient(90deg, rgba(255,255,255,.10), transparent 35%, rgba(255,255,255,.08));
+      opacity:.55;
+      pointer-events:none;
+      mask-image: linear-gradient(180deg, black, transparent 70%);
+    }
 
-.hint{font-family:var(--mono);color:var(--dim);font-size:12px;letter-spacing:.08em;line-height:1.35}
-.warn{display:none;margin-top:12px;padding:12px;border-radius:18px;border:1px solid rgba(255,84,122,.35);background:rgba(255,84,122,.08);color:rgba(255,210,222,.92);line-height:1.35}
-.warn b{display:block;font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:11px;margin-bottom:6px}
-.hr{height:1px;background:rgba(220,235,255,.08);margin:12px 0}
+    .gridlines{
+      position:absolute; inset:0;
+      background:
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 44px 44px;
+      opacity:.20;
+      pointer-events:none;
+      mask-image: radial-gradient(500px 260px at 30% 22%, black, transparent 70%);
+    }
 
-.lockRow{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:10px 0}
-.lockTag{
-  font-family:var(--mono); letter-spacing:.12em; text-transform:uppercase;
-  font-size:11px; color:rgba(234,243,255,.55);
-  border:1px solid rgba(220,235,255,.14);
-  background: rgba(5,11,16,.20);
-  padding:8px 10px; border-radius:999px;
-}
-.lockTxt{color:rgba(234,243,255,.70); line-height:1.35}
-.footerWarn{margin-top:10px;font-family:var(--mono);letter-spacing:.10em;color:rgba(234,243,255,.55)}
-.footerWarn b{color:rgba(234,243,255,.85)}
+    .hero-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:18px;
+      position:relative;
+      z-index:2;
+    }
 
-.modal{
-  position:fixed; inset:0; display:none; align-items:center; justify-content:center;
-  padding:18px; z-index:9999;
-  background: rgba(0,0,0,.58);
-  backdrop-filter: blur(6px);
-}
-.modal.show{display:flex}
-.win{
-  width:min(560px, 100%);
-  border:1px solid rgba(220,235,255,.18);
-  background: linear-gradient(180deg, rgba(240,245,255,.10), rgba(240,245,255,.05));
-  border-radius: 26px;
-  box-shadow: 0 30px 140px rgba(0,0,0,.75);
-  overflow:hidden;
-}
-.winTop{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:14px 14px;
-  border-bottom:1px solid rgba(220,235,255,.10);
-  background: linear-gradient(90deg, rgba(200,245,255,.08), rgba(217,208,255,.06), transparent);
-}
-.winTop .t{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:12px;color:rgba(234,243,255,.72)}
-.x{
-  width:42px;height:42px;border-radius:16px;
-  border:1px solid rgba(220,235,255,.18);
-  background: rgba(5,11,16,.30);
-  color:rgba(234,243,255,.85);
-  font-size:18px; cursor:pointer;
-}
-.winBody{padding:14px}
-.procTitle{font-size:22px;font-weight:900;letter-spacing:.02em;margin:6px 0 12px}
-.procLine{
-  font-family:var(--mono); letter-spacing:.10em; text-transform:uppercase;
-  font-size:11px; color:rgba(234,243,255,.62);
-  display:flex; justify-content:space-between; gap:12px;
-}
-.procBox{
-  margin-top:12px;
-  border:1px solid rgba(220,235,255,.12);
-  background: rgba(5,11,16,.26);
-  border-radius: 18px;
-  padding:12px;
-  min-height:120px;
-}
-.procMsg{font-size:14px; line-height:1.45; color:rgba(234,243,255,.86)}
-.procMsg b{color:#fff}
-.smallNote{margin-top:10px;font-family:var(--mono);letter-spacing:.08em;font-size:11px;color:rgba(234,243,255,.55)}
+    .title{
+      line-height:1;
+    }
+    .title h1{
+      margin:0;
+      font-size: clamp(34px, 6vw, 56px);
+      letter-spacing: -0.02em;
+      font-weight: 760;
+    }
+    /* shimmering text */
+    .shimmer{
+      background: linear-gradient(90deg,
+        rgba(244,241,255,.85),
+        rgba(200,245,255,.95),
+        rgba(217,198,255,.95),
+        rgba(244,241,255,.85)
+      );
+      background-size: 260% 100%;
+      -webkit-background-clip: text;
+      background-clip:text;
+      color: transparent;
+      animation: shimmer 6.5s ease-in-out infinite;
+      text-shadow: 0 0 30px rgba(200,245,255,.10);
+    }
+    @keyframes shimmer{
+      0%{ background-position: 0% 50%; }
+      50%{ background-position: 100% 50%; }
+      100%{ background-position: 0% 50%; }
+    }
 
-/* MULTIPASS */
-.hidden{display:none !important}
-.mp{display:none}
-.mp.show{display:block; animation:reveal .35s ease-out}
-@keyframes reveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .sub{
+      margin-top:10px;
+      font-family: var(--mono);
+      color: var(--muted);
+      letter-spacing:.10em;
+      font-size:12px;
+    }
 
-.mpCard{
-  border:1px solid rgba(220,235,255,.18);
-  background:
-    linear-gradient(180deg, rgba(240,245,255,.10), rgba(240,245,255,.05)),
-    radial-gradient(1000px 380px at 10% 0%, rgba(200,245,255,.10), transparent 58%),
-    radial-gradient(1000px 420px at 85% 100%, rgba(217,208,255,.09), transparent 62%);
-  border-radius: 26px;
-  box-shadow: 0 22px 80px rgba(0,0,0,.55);
-  overflow:hidden;
-}
-.mpTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:14px;border-bottom:1px solid rgba(220,235,255,.10)}
-.mpBrand{display:flex;flex-direction:column;gap:4px}
-.mpBrand .a{font-family:var(--mono);letter-spacing:.18em;text-transform:uppercase;font-size:13px;font-weight:900;color:rgba(234,243,255,.90)}
-.mpBrand .b{font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.62)}
-.mpStamp{
-  border:1px solid rgba(220,235,255,.22);
-  border-radius:16px; padding:10px;
-  background: rgba(5,11,16,.30);
-  text-align:right; min-width:170px;
-}
-.mpStamp .l{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:10px;color:rgba(234,243,255,.60)}
-.mpStamp .v{margin-top:6px;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:12px;font-weight:900;color:rgba(200,245,255,.92)}
-.mpGrid{display:grid;grid-template-columns:170px 1fr;gap:12px;padding:14px}
-@media(max-width:420px){.mpGrid{grid-template-columns:150px 1fr}}
-.eye{
-  height:210px; min-height:210px;
-  border-radius:18px;overflow:hidden;
-  border:1px solid rgba(220,235,255,.14); background: rgba(5,11,16,.26);
-  position:relative;
-}
-.eye .seal{
-  position:absolute; left:10px; bottom:10px;
-  font-family:var(--mono); letter-spacing:.14em; text-transform:uppercase; font-size:10px;
-  color:rgba(234,243,255,.74);
-  padding:7px 9px; border-radius:999px;
-  border:1px solid rgba(220,235,255,.20);
-  background: rgba(5,11,16,.45);
-}
-/* FIX: SVG всегда виден */
-#eyeSvg, .eyeSvg{width:100%;height:100%}
-#eyeSvg svg, .eyeSvg svg{display:block;width:100%;height:100%}
+    .mantra{
+      margin-top: 18px;
+      font-size: 18px;
+      line-height: 1.35;
+      color: rgba(233,238,247,.92);
+    }
+    .mantra b{ font-weight: 760; }
+    .mantra .mono{
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--dim);
+      letter-spacing:.08em;
+      display:block;
+      margin-top:10px;
+    }
 
-.fields{
-  border:1px solid rgba(220,235,255,.14);
-  border-radius:18px; overflow:hidden;
-  background: rgba(5,11,16,.18);
-}
-.frow{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px dashed rgba(220,235,255,.12)}
-.frow:last-child{border-bottom:none}
-.k{font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.62);white-space:nowrap}
-.v{font-size:13.5px;font-weight:900;color:rgba(234,243,255,.92);text-align:right;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 22px;
+      position:relative;
+      z-index:2;
+    }
 
-.blocks{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 14px 14px}
-@media(max-width:820px){.blocks{grid-template-columns:1fr}}
-.bl{
-  border:1px solid rgba(220,235,255,.14);
-  border-radius:18px; background: rgba(240,245,255,.05);
-  padding:12px;
-}
-.bl.d{border-color: rgba(255,84,122,.22); background: rgba(255,84,122,.06)}
-.bl .h{
-  font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:11px;
-  color:rgba(234,243,255,.72);margin-bottom:10px;display:flex;justify-content:space-between;gap:10px
-}
-.bl.d .h{color:rgba(255,210,222,.90)}
-.bl .h span{opacity:.7;font-weight:700;letter-spacing:.10em;text-transform:none}
-ul{margin:0;padding-left:16px;font-size:14px;line-height:1.45;color:rgba(234,243,255,.88)}
-.stats{display:flex;flex-direction:column;gap:8px}
-.stat{display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:var(--mono);letter-spacing:.10em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.70)}
-.bar{flex:1;height:10px;border-radius:999px;background:rgba(5,11,16,.35);border:1px solid rgba(220,235,255,.12);overflow:hidden}
-.fill{height:100%;width:50%;background:linear-gradient(90deg, rgba(200,245,255,.25), rgba(217,208,255,.22), rgba(255,84,122,.16))}
-.val{width:38px;text-align:right;font-weight:900;font-family:var(--mono);color:rgba(234,243,255,.88)}
-.mpFoot{
-  padding:12px 14px;border-top:1px solid rgba(220,235,255,.10);
-  background: rgba(5,11,16,.18);
-  display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap
-}
-.mpHint{font-weight:900;color:rgba(234,243,255,.88)}
-.code{
-  font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.62);
-  padding:7px 9px;border-radius:999px;border:1px solid rgba(220,235,255,.18);background: rgba(240,245,255,.05)
-}
+    .btn{
+      border:1px solid rgba(255,255,255,.22);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-family: var(--mono);
+      letter-spacing:.08em;
+      font-size: 12px;
+      cursor:pointer;
+      transition: transform .15s ease, background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      position:relative;
+      overflow:hidden;
+    }
+    .btn:before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: radial-gradient(120px 60px at 20% 20%, rgba(200,245,255,.22), transparent 60%),
+                  radial-gradient(120px 60px at 80% 30%, rgba(217,198,255,.20), transparent 60%);
+      opacity:.7;
+      pointer-events:none;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,.36);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    }
+    .btn.primary{
+      border-color: rgba(200,245,255,.35);
+      box-shadow: 0 0 0 1px rgba(200,245,255,.10) inset;
+    }
 
-.scene{
-  margin-top:12px;
-  border:1px solid rgba(220,235,255,.12);
-  background: rgba(5,11,16,.18);
-  border-radius: 22px;
-  padding:14px;
-}
-.sceneTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.sceneId{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.62)}
-.sceneTitle{font-size:18px;font-weight:900;margin-top:6px}
-.sceneTxt{margin-top:10px;color:rgba(234,243,255,.86);line-height:1.45}
-.choiceGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
-.choice{
-  border:1px solid rgba(220,235,255,.14);
-  background: rgba(240,245,255,.05);
-  border-radius: 18px;
-  padding:12px;
-  cursor:pointer;
-  transition:transform .12s ease, border .12s ease;
-}
-.choice:hover{border-color:rgba(220,235,255,.28); transform:translateY(-1px)}
-.choice .ct{font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.62)}
-.choice .cv{margin-top:6px;font-weight:900;color:rgba(234,243,255,.92)}
-.mission{
-  margin-top:12px;
-  border:1px solid rgba(200,245,255,.18);
-  background: linear-gradient(90deg, rgba(200,245,255,.08), rgba(217,208,255,.06), rgba(5,11,16,.10));
-  border-radius: 18px;
-  padding:12px;
-}
-.mission .mt{font-family:var(--mono);letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:rgba(234,243,255,.70)}
-.mission .mv{margin-top:8px;color:rgba(234,243,255,.90);line-height:1.45}
-.missionBtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .hint{
+      margin-top: 10px;
+      font-family: var(--mono);
+      color: var(--dim);
+      font-size:12px;
+      letter-spacing:.06em;
+      position:relative;
+      z-index:2;
+    }
 
-.smallFooter{
-  margin-top:16px;
-  font-family:var(--mono);
-  letter-spacing:.10em;
-  text-transform:uppercase;
-  font-size:11px;
-  color:rgba(234,243,255,.50);
-  text-align:center;
-}
-</style>
+    /* TERMINAL reveal */
+    .terminal{
+      margin-top: 18px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.035);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      overflow:hidden;
+      transform-origin: top;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-10px) scaleY(.98);
+      transition: max-height .65s cubic-bezier(.2,.9,.2,1),
+                  opacity .35s ease,
+                  transform .45s ease;
+    }
+    .terminal.open{
+      max-height: 520px; /* enough for content */
+      opacity: 1;
+      transform: translateY(0) scaleY(1);
+    }
+
+    .term-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 14px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    }
+    .term-left{
+      display:flex; align-items:center; gap:10px;
+    }
+    .lights{ display:flex; gap:6px; }
+    .light{ width:10px; height:10px; border-radius:50%; opacity:.85; }
+    .l1{ background: rgba(255,120,120,.85); }
+    .l2{ background: rgba(255,210,120,.85); }
+    .l3{ background: rgba(120,255,200,.85); }
+    .term-title{
+      font-family: var(--mono);
+      font-size:12px;
+      letter-spacing:.10em;
+      color: rgba(233,238,247,.85);
+    }
+    .term-right{
+      display:flex; align-items:center; gap:10px;
+      font-family: var(--mono);
+      font-size:12px;
+      color: var(--dim);
+      letter-spacing:.06em;
+    }
+
+    .term-body{
+      padding: 14px;
+      display:grid;
+      gap: 12px;
+    }
+
+    .formgrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 760px){
+      .formgrid{ grid-template-columns: 1fr; }
+      .hero{ padding: 28px 16px 18px; }
+    }
+
+    .field{
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      background: rgba(255,255,255,.035);
+      padding: 12px;
+      transition: border-color .15s ease, background .15s ease;
+    }
+    .field:focus-within{
+      border-color: rgba(200,245,255,.28);
+      background: rgba(255,255,255,.05);
+    }
+    label{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-family: var(--mono);
+      font-size:11px;
+      letter-spacing:.10em;
+      color: rgba(233,238,247,.72);
+      margin-bottom: 8px;
+    }
+    label small{
+      color: var(--dim);
+      letter-spacing:.06em;
+      font-size:11px;
+      font-family: var(--mono);
+    }
+    input{
+      width:100%;
+      border:0;
+      outline:0;
+      background: transparent;
+      color: var(--text);
+      font-size: 15px;
+      padding: 4px 0 2px;
+      font-family: var(--sans);
+    }
+    input::placeholder{ color: rgba(233,238,247,.35); }
+
+    .term-footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 12px 14px 14px;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+
+    .note{
+      font-family: var(--mono);
+      color: var(--dim);
+      font-size:11px;
+      letter-spacing:.06em;
+      max-width: 60ch;
+    }
+
+    .scanbtn{
+      border:1px solid rgba(200,245,255,.30);
+      background: linear-gradient(180deg, rgba(200,245,255,.16), rgba(255,255,255,.06));
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-family: var(--mono);
+      letter-spacing:.10em;
+      font-size:12px;
+      cursor:pointer;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+      white-space:nowrap;
+    }
+    .scanbtn:hover{
+      transform: translateY(-1px);
+      border-color: rgba(200,245,255,.44);
+      box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    }
+    .scanbtn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    /* scanning line */
+    .scanline{
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      overflow:hidden;
+      position:relative;
+    }
+    .scanline > i{
+      display:block;
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(217,198,255,.0), rgba(200,245,255,.65), rgba(217,198,255,.35), rgba(217,198,255,.0));
+      filter: blur(.0px);
+      opacity:.95;
+      transition: width .7s ease;
+    }
+
+    /* CONTENT sections */
+    .section{
+      margin-top: 18px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.03);
+      box-shadow: 0 18px 50px rgba(0,0,0,.25);
+      backdrop-filter: blur(14px);
+      padding: 18px 16px;
+    }
+    .section h2{
+      margin:0 0 10px;
+      font-size: 16px;
+      letter-spacing: -.01em;
+    }
+    .section p{
+      margin:0;
+      color: rgba(233,238,247,.80);
+      line-height:1.55;
+    }
+    .bul{
+      margin: 12px 0 0;
+      padding-left: 18px;
+      color: rgba(233,238,247,.85);
+      line-height:1.6;
+    }
+    .bul li{ margin: 6px 0; }
+    .kbd{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(233,238,247,.78);
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.04);
+      padding: 2px 8px;
+      border-radius: 999px;
+      display:inline-block;
+      letter-spacing:.06em;
+    }
+
+    /* MULTIPASS preview */
+    .out{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 12px;
+    }
+    @media (max-width: 980px){
+      .out{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border:1px solid rgba(255,255,255,.16);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow: 0 22px 70px rgba(0,0,0,.35);
+      backdrop-filter: blur(16px);
+      overflow:hidden;
+      position:relative;
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(420px 220px at 20% 10%, rgba(200,245,255,.16), transparent 60%),
+        radial-gradient(420px 220px at 80% 20%, rgba(217,198,255,.14), transparent 60%),
+        linear-gradient(90deg, rgba(255,255,255,.08), transparent 35%, rgba(255,255,255,.06));
+      opacity:.55;
+      pointer-events:none;
+      mask-image: linear-gradient(180deg, black, transparent 72%);
+    }
+    .mp-head{
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      position:relative;
+      z-index:2;
+    }
+    .mp-head .left{
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .mp-title{
+      font-family: var(--mono);
+      letter-spacing:.12em;
+      font-size: 12px;
+      color: rgba(233,238,247,.85);
+    }
+    .mp-id{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--dim);
+      letter-spacing:.08em;
+    }
+    .mp-status{
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing:.10em;
+      color: rgba(134,255,214,.85);
+      border:1px solid rgba(134,255,214,.22);
+      background: rgba(134,255,214,.06);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space:nowrap;
+    }
+
+    .mp-body{
+      padding: 14px 16px 16px;
+      position:relative;
+      z-index:2;
+      display:grid;
+      gap: 12px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px){
+      .row{ grid-template-columns: 1fr; }
+    }
+    .kv{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      padding: 12px;
+    }
+    .k{
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing:.10em;
+      color: rgba(233,238,247,.70);
+      margin-bottom: 8px;
+    }
+    .v{
+      font-size: 15px;
+      color: rgba(233,238,247,.90);
+      line-height:1.35;
+    }
+    .v.mono{ font-family: var(--mono); font-size: 13px; letter-spacing:.06em; color: rgba(233,238,247,.82); }
+
+    .list{
+      margin: 0;
+      padding-left: 16px;
+      line-height:1.6;
+      color: rgba(233,238,247,.85);
+    }
+    .list li{ margin: 6px 0; }
+
+    .seal{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      border-top: 1px solid rgba(255,255,255,.10);
+      padding: 12px 16px;
+      position:relative;
+      z-index:2;
+    }
+    .stamp{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      border:1px dashed rgba(200,245,255,.30);
+      background: rgba(200,245,255,.04);
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-family: var(--mono);
+      letter-spacing:.10em;
+      font-size: 11px;
+      color: rgba(233,238,247,.82);
+      text-transform: uppercase;
+    }
+    .stamp b{ color: rgba(200,245,255,.92); letter-spacing:.12em; }
+    .sig{
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing:.10em;
+      color: rgba(233,238,247,.60);
+      text-align:right;
+    }
+
+    .aside{
+      padding: 16px;
+    }
+    .aside h3{
+      margin:0 0 8px;
+      font-size: 14px;
+      letter-spacing:-.01em;
+    }
+    .aside p{ margin:0; color: rgba(233,238,247,.78); line-height:1.55; }
+    .tiny{
+      margin-top: 10px;
+      font-family: var(--mono);
+      color: rgba(233,238,247,.55);
+      font-size: 11px;
+      letter-spacing:.06em;
+    }
+
+    /* FAQ modal */
+    dialog{
+      width:min(920px, 92vw);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 18px;
+      background: rgba(8,10,16,.82);
+      color: var(--text);
+      box-shadow: 0 40px 120px rgba(0,0,0,.65);
+      backdrop-filter: blur(18px);
+      padding: 0;
+    }
+    dialog::backdrop{
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(3px);
+    }
+    .modal-head{
+      padding: 14px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+    }
+    .modal-head b{
+      font-family: var(--mono);
+      letter-spacing:.12em;
+      font-size: 12px;
+      color: rgba(233,238,247,.86);
+    }
+    .x{
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      font-family: var(--mono);
+      letter-spacing:.06em;
+      font-size: 12px;
+    }
+    .modal-body{
+      padding: 14px;
+      display:grid;
+      gap: 10px;
+    }
+    details{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      background: rgba(255,255,255,.03);
+      padding: 12px 12px;
+    }
+    summary{
+      cursor:pointer;
+      font-weight: 650;
+    }
+    details p{
+      margin: 10px 0 0;
+      color: rgba(233,238,247,.78);
+      line-height:1.55;
+    }
+  </style>
 </head>
-<body class="noise">
+
+<body>
   <div class="wrap">
-
     <div class="topbar">
-      <div class="brand"><span class="dot"></span><span>PRTCL 108</span></div>
-      <div class="mini">
-        <div class="access" id="accessBadge">ACCESS: LOCKED</div>
-        <div class="link" id="helpBtn">как это работает</div>
+      <div class="badge" aria-label="PRTCL 108 status">
+        <span class="dot"></span>
+        <b>PRTCL 108</b>
+        <span>ADM MODE</span>
+      </div>
+
+      <div class="links">
+        <button class="ghost" id="btnFaq" type="button">ОТКРЫТЬ FAQ</button>
+        <button class="ghost" id="btnFocus" type="button">ПЕРЕЙТИ К ИНИЦИАЦИИ</button>
       </div>
     </div>
 
-    <div class="hero">
-      <div class="title">PRTCL 108</div>
-      <div class="sub">COLD PROTOCOL / MIRROR INTERFACE</div>
+    <section class="hero" id="hero">
+      <div class="gridlines" aria-hidden="true"></div>
 
-      <div class="pitch">
-        <div class="blurb">
-          <p>
-            Это не “мотивация” и не “советы”.<br>
-            <b>PRTCL 108</b> — терминал, который собирает твою конфигурацию и показывает,
-            где ты реально теряешь управление, а где можешь его вернуть одним ходом.
-          </p>
+      <div class="hero-head">
+        <div class="title">
+          <h1 class="shimmer">PRTCL 108</h1>
+          <div class="sub">ADM MODE · ИНТЕРФЕЙС ДОСТУПА</div>
+
+          <div class="mantra">
+            <b>Я не запрашиваю допуск.</b><br/>
+            <b>Я создаю протокол.</b>
+            <span class="mono">STATUS: READY</span>
+          </div>
+
+          <div class="hero-actions">
+            <button class="btn primary" id="btnInit" type="button">ИНИЦИИРОВАТЬ СКАН</button>
+            <button class="btn" id="btnExplain" type="button">ЧТО ЭТО</button>
+          </div>
+
+          <div class="hint">Сканирование занимает ~30 секунд. Результат формируется автоматически.</div>
         </div>
-        <div class="ticks">
-          <div class="tick">
-            <div class="k">без воды</div>
-            <div class="v">коротко. жёстко. понятно. игровыми терминами.</div>
-          </div>
-          <div class="tick">
-            <div class="k">без публичности</div>
-            <div class="v">single-player mode: данные остаются у тебя.</div>
-          </div>
-          <div class="tick">
-            <div class="k">сюжет</div>
-            <div class="v">ты входишь в мир выбора. ветка меняется от решений.</div>
-          </div>
+
+        <div class="badge" style="align-self:flex-start">
+          <span class="dot" style="background: radial-gradient(circle at 30% 30%, var(--warn), rgba(255,211,106,.1)); box-shadow:0 0 18px rgba(255,211,106,.25)"></span>
+          <b>NO MYSTIC</b>
+          <span>только структура</span>
         </div>
       </div>
-
-      <div class="manifest">
-        <p class="manifestText" id="manifestText"></p>
-      </div>
-    </div>
-
-    <div class="grid">
 
       <!-- TERMINAL -->
-      <section class="card">
-        <div class="cap">
-          <h3>TERMINAL</h3>
-          <div class="chip" id="stateChip">ОЖИДАНИЕ ВВОДА</div>
+      <div class="terminal" id="terminal" aria-hidden="true">
+        <div class="term-head">
+          <div class="term-left">
+            <div class="lights" aria-hidden="true">
+              <span class="light l1"></span>
+              <span class="light l2"></span>
+              <span class="light l3"></span>
+            </div>
+            <div class="term-title">ТЕРМИНАЛ ИНИЦИАЦИИ</div>
+          </div>
+          <div class="term-right">
+            <span class="kbd">ENTER</span><span>для запуска</span>
+          </div>
         </div>
 
-        <div class="body">
+        <div class="term-body">
+          <div class="formgrid">
+            <div class="field">
+              <label for="dob">ДАТА АКТИВАЦИИ <small>дата рождения</small></label>
+              <input id="dob" inputmode="numeric" placeholder="ДД.ММ.ГГГГ" autocomplete="bday"/>
+            </div>
+            <div class="field">
+              <label for="origin">ТОЧКА ПРОИСХОЖДЕНИЯ <small>город, страна</small></label>
+              <input id="origin" placeholder="Например: Нальчик, Россия" autocomplete="off"/>
+            </div>
+            <div class="field">
+              <label for="callsign">ИМЯ ПЕРСОНАЖА <small>можно псевдоним</small></label>
+              <input id="callsign" placeholder="Например: MARATINA / ERRORLESS" autocomplete="nickname"/>
+            </div>
+            <div class="field">
+              <label for="mode">РЕЖИМ <small>фиксирован</small></label>
+              <input id="mode" value="ADM MODE" readonly/>
+            </div>
+          </div>
+
+          <div class="scanline" aria-label="scan progress"><i id="scanbar"></i></div>
+        </div>
+
+        <div class="term-footer">
+          <div class="note">
+            Данные используются только для формирования персональной конфигурации.
+            Никакие профили не создаются.
+          </div>
+          <button class="scanbtn" id="btnScan" type="button" disabled>ЗАПУСТИТЬ СКАН</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPLANATION -->
+    <section class="section" id="explain">
+      <h2>Что это</h2>
+      <p>
+        PRTCL 108 — это <span class="kbd">экран статуса персонажа</span>.
+        Он показывает текущее состояние так же ясно, как в игре показывают героя:
+        параметры, скиллы, утечки ресурса и точку сопротивления — <span class="kbd">System Opponent</span>.
+      </p>
+      <ul class="bul">
+        <li><b>Это не советы.</b> Не прогноз. Не интерпретация.</li>
+        <li><b>Это текущий билд.</b> С ним проще действовать точно, а не на ощупь.</li>
+        <li><b>Без мистики.</b> Только структура и понятные термины.</li>
+      </ul>
+    </section>
+
+    <!-- OUTPUT -->
+    <div class="out" id="output" hidden>
+      <div class="card">
+        <div class="mp-head">
+          <div class="left">
+            <div class="mp-title">MULTIPASS · PRTCL 108</div>
+            <div class="mp-id" id="mpId">MP-108-—</div>
+          </div>
+          <div class="mp-status" id="mpStatus">STATUS: ACTIVE</div>
+        </div>
+
+        <div class="mp-body">
           <div class="row">
-            <label>дата рождения
-              <input id="dob" inputmode="numeric" placeholder="ДД.ММ.ГГГГ" autocomplete="bday">
-            </label>
-
-            <label>аватар
-              <select id="avatar">
-                <option value="f">женский</option>
-                <option value="m">мужской</option>
-              </select>
-            </label>
-
-            <label>имя / ник (опционально)
-              <input id="name" placeholder="например maratina">
-            </label>
-
-            <label>место рождения
-              <input id="place" placeholder="город, страна (например Нальчик, Россия)">
-            </label>
-          </div>
-
-          <div class="actions">
-            <button class="btn primary" id="scanBtn">НАЧАТЬ СКАН</button>
-            <button class="btn ghost" id="resetBtn">СБРОС</button>
-          </div>
-
-          <div class="scanBar"><div class="scanFill" id="scanFill"></div></div>
-
-          <div class="warn" id="warn">
-            <b>warning</b>
-            Введи дату в формате <span style="font-family:var(--mono)">ДД.ММ.ГГГГ</span>.
-          </div>
-
-          <div class="hr"></div>
-
-          <div class="lockRow">
-            <div class="lockTag">CONFIG</div>
-            <div class="lockTxt">Базовые параметры + реакция системы. Входит в бесплатный скан.</div>
-          </div>
-
-          <div class="lockRow">
-            <div class="lockTag">SKILLS</div>
-            <div class="lockTxt">Игровые таланты и стиль поведения. Входит в бесплатный скан.</div>
-          </div>
-
-          <div class="lockRow">
-            <div class="lockTag">BLOCKERS</div>
-            <div class="lockTxt">Где система крадёт управление. Полный разбор — в закрытом доступе.</div>
-          </div>
-
-          <div class="lockRow">
-            <div class="lockTag">UPGRADE</div>
-            <div class="lockTxt">Путь прокачки: что апгрейдить первым, чтобы результат проявился в реальности.</div>
-          </div>
-
-          <div class="footerWarn">note: формат результата — <b>точный и нейтральный</b>.</div>
-        </div>
-      </section>
-
-      <!-- OUTPUT -->
-      <section class="card">
-        <div class="cap">
-          <h3>MULTIPASS</h3>
-          <div class="chip" id="outChip">НЕ АКТИВНО</div>
-        </div>
-
-        <div class="body">
-          <div id="placeholder" class="hint" style="margin:0;">
-            Введи данные → нажми <b>НАЧАТЬ СКАН</b> → система соберёт MULTIPASS и откроет SCENE 00.
-          </div>
-
-          <div class="mp" id="mp">
-            <div class="mpCard">
-              <div class="mpTop">
-                <div class="mpBrand">
-                  <div class="a">PRTCL 108</div>
-                  <div class="b">MULTIPASS • паспорт персонажа</div>
-                </div>
-                <div class="mpStamp">
-                  <div class="l">допуск</div>
-                  <div class="v" id="mpClear">ACCESS: GRANTED</div>
-                </div>
-              </div>
-
-              <div class="mpGrid">
-                <div class="eye">
-                  <div id="eyeSvg" class="eyeSvg"></div>
-                  <div class="seal">SCAN VERIFIED</div>
-                </div>
-
-                <div class="fields">
-                  <div class="frow"><span class="k">ID</span><span class="v" id="mpId"></span></div>
-                  <div class="frow"><span class="k">дата рождения</span><span class="v" id="mpDob"></span></div>
-                  <div class="frow"><span class="k">место</span><span class="v" id="mpPlace"></span></div>
-                  <div class="frow"><span class="k">ключевая роль</span><span class="v" id="mpRole"></span></div>
-                  <div class="frow"><span class="k">класс</span><span class="v" id="mpClass"></span></div>
-                  <div class="frow"><span class="k">сигнал</span><span class="v" id="mpFlag"></span></div>
-                </div>
-              </div>
-
-              <div class="blocks">
-                <div class="bl">
-                  <div class="h">таланты <span>что у тебя работает само</span></div>
-                  <ul id="mpSkills"></ul>
-                </div>
-
-                <div class="bl">
-                  <div class="h">характеристики <span>цифры билда</span></div>
-                  <div class="stats" id="mpStats"></div>
-                </div>
-
-                <div class="bl d">
-                  <div class="h">дебаффы <span>что режет управление</span></div>
-                  <ul id="mpDebuffs"></ul>
-                </div>
-
-                <div class="bl">
-                  <div class="h">оптимальный билд <span>как играть</span></div>
-                  <ul id="mpBuild"></ul>
-                </div>
-              </div>
-
-              <div class="mpFoot">
-                <div class="mpHint" id="mpHint"></div>
-                <div class="code">ADM MODE INSIDE</div>
-              </div>
+            <div class="kv">
+              <div class="k">ИМЯ ПЕРСОНАЖА</div>
+              <div class="v" id="outName">—</div>
             </div>
-
-            <!-- SCENE 00 -->
-            <div class="scene" id="scene">
-              <div class="sceneTop">
-                <div>
-                  <div class="sceneId">SCENE 00 / вход</div>
-                  <div class="sceneTitle">Мир выбора активирован.</div>
-                </div>
-                <div class="chip" id="sceneState">ОЖИДАНИЕ ВЫБОРА</div>
-              </div>
-
-              <div class="sceneTxt" id="sceneTxt">
-                Ты вошёл(ла) в режим, где решения имеют вес. Здесь нет “правильно”. Есть последствия.
-                Выбери, как ты проходишь первый узел.
-              </div>
-
-              <div class="choiceGrid" id="choices"></div>
-
-              <div class="mission" id="mission" style="display:none;">
-                <div class="mt">миссия 00 / 24h</div>
-                <div class="mv" id="missionTxt"></div>
-                <div class="missionBtns">
-                  <button class="btn primary" id="doneBtn">Я ВЫПОЛНИЛ(А)</button>
-                  <button class="btn ghost" id="skipBtn">ПРОПУСТИЛ(А)</button>
-                </div>
-              </div>
+            <div class="kv">
+              <div class="k">ТОЧКА ПРОИСХОЖДЕНИЯ</div>
+              <div class="v" id="outOrigin">—</div>
             </div>
           </div>
 
-          <div class="smallFooter">PRTCL 108 • метод позиционируется как новый протокол • без ссылок на источники</div>
-        </div>
-      </section>
-
-    </div>
-  </div>
-
-  <!-- PROCESSING PORTAL -->
-  <div class="modal" id="modal">
-    <div class="win">
-      <div class="winTop">
-        <div class="t">processing</div>
-        <button class="x" id="closeModal" aria-label="close">×</button>
-      </div>
-      <div class="winBody">
-        <div class="procTitle">инициализация модели…</div>
-        <div class="procLine"><span id="procStep">синхронизация доступа</span><span id="procPct">0%</span></div>
-        <div class="scanBar" style="margin-top:10px"><div class="scanFill" id="procFill"></div></div>
-        <div class="procBox">
-          <div class="procMsg" id="procMsg">
-            <b>PRTCL 108</b> поднимает терминал.<br>
-            Система не убеждает. Система фиксирует факт.<br><br>
-            Подготовка профиля персонажа…
+          <div class="row">
+            <div class="kv">
+              <div class="k">КЛЮЧЕВАЯ РОЛЬ</div>
+              <div class="v" id="outRole">—</div>
+            </div>
+            <div class="kv">
+              <div class="k">SYSTEM OPPONENT</div>
+              <div class="v" id="outOpp">—</div>
+              <div class="v mono" id="outPhase" style="margin-top:6px;">PHASE: —</div>
+            </div>
           </div>
-          <div class="smallNote" id="procNote">режим: ADM MODE • протокол: PRTCL 108</div>
+
+          <div class="kv">
+            <div class="k">ПАРАМЕТРЫ</div>
+            <ul class="list" id="outStats"></ul>
+          </div>
+
+          <div class="row">
+            <div class="kv">
+              <div class="k">ACTIVE SKILLS</div>
+              <ul class="list" id="outActive"></ul>
+            </div>
+            <div class="kv">
+              <div class="k">PASSIVE SKILLS</div>
+              <ul class="list" id="outPassive"></ul>
+            </div>
+          </div>
+
+          <div class="kv">
+            <div class="k">ТЕКУЩИЙ ВЕКТОР</div>
+            <div class="v" id="outVector">—</div>
+          </div>
+        </div>
+
+        <div class="seal">
+          <div class="stamp">
+            <b>ACCESS VERIFIED</b>
+            <span id="stampLine">PRTCL 108 · ADM MODE</span>
+            <span id="stampDate">—</span>
+          </div>
+          <div class="sig">PRTCL 108<br/>SIGN: VERIFIED</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="aside">
+          <h3>Что теперь</h3>
+          <p>
+            Это не «диагноз» и не «ярлык». Это твой текущий билд.
+            С ним проще понять, что усиливать, а что перестать делать.
+          </p>
+          <div class="tiny">
+            Ясность — самый рарный айтем в игре.<br/>
+            Здесь она появляется без мистики — просто потому что структура стала видимой.
+          </div>
+
+          <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="ghost" id="btnRescan" type="button">ПЕРЕСКАНИРОВАТЬ</button>
+            <button class="ghost" id="btnFaq2" type="button">СЛОВАРЬ / FAQ</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <dialog id="faq">
+      <div class="modal-head">
+        <b>БАЗА ПРОТОКОЛА · FAQ</b>
+        <button class="x" id="closeFaq" type="button">ЗАКРЫТЬ</button>
+      </div>
+      <div class="modal-body">
+        <details open>
+          <summary>Что такое PRTCL 108?</summary>
+          <p>Это интерфейс самосканирования, который показывает текущую конфигурацию: параметры, роль, навыки и точку сопротивления (System Opponent). Без мистики, без трактовок, без «как правильно жить».</p>
+        </details>
+
+        <details>
+          <summary>Что такое MULTIPASS?</summary>
+          <p>Персональное удостоверение-доступ: в нём зафиксированы твой статус, ключевая роль, параметры, активные/пассивные навыки и текущий вектор.</p>
+        </details>
+
+        <details>
+          <summary>Что такое ADM MODE?</summary>
+          <p>Режим управления. Система перестаёт работать «на автомате», и ты начинаешь видеть, из какого билда действуешь.</p>
+        </details>
+
+        <details>
+          <summary>Параметры — это что?</summary>
+          <p>Это рабочие показатели персонажа (например: ресурс, фокус, устойчивость). Они не «оценка человека», а отображение текущего состояния.</p>
+        </details>
+
+        <details>
+          <summary>Active / Passive Skills?</summary>
+          <p><b>Active</b> — навыки, которые ты включаешь осознанно. <b>Passive</b> — навыки, которые работают в фоне автоматически.</p>
+        </details>
+
+        <details>
+          <summary>Что такое System Opponent?</summary>
+          <p>Основная точка сопротивления текущего этапа. Не враг и не «проблема». Это место, где прогресс даётся сложнее — и поэтому требует точности.</p>
+        </details>
+
+        <details>
+          <summary>Это тест? Это курс?</summary>
+          <p>Нет. Здесь нет обучения, обещаний и «волшебных результатов». Это статус-экран: он показывает, что происходит сейчас.</p>
+        </details>
+      </div>
+    </dialog>
+
   </div>
+
   <script>
-/* Telegram Mini App polish */
-try{
-  if (window.Telegram && Telegram.WebApp){
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    Telegram.WebApp.BackButton.hide();
-  }
-}catch(e){}
+    // --------- helpers ----------
+    const $ = (id) => document.getElementById(id);
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
-/* helpers */
-const $ = (id)=>document.getElementById(id);
-const clamp01 = (x)=>Math.max(0,Math.min(1,x));
-function escapeHtml(s){return (s||"").replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[m]));}
-
-function validDOB(d){
-  const m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec((d||"").trim()); if(!m) return false;
-  const dd=+m[1],mm=+m[2],yy=+m[3];
-  if(mm<1||mm>12||dd<1||dd>31||yy<1900||yy>2100) return false;
-  const dt=new Date(yy,mm-1,dd);
-  return dt && dt.getFullYear()===yy && dt.getMonth()===(mm-1) && dt.getDate()===dd;
-}
-function hashStr(str){
-  let h=2166136261;
-  for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); }
-  return (h>>>0);
-}
-function rng32(seed){
-  return function(){
-    let t = seed += 0x6D2B79F5;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  }
-}
-function pick(rng, arr){ return arr[Math.floor(rng()*arr.length)]; }
-function shuffle(rng, arr){
-  const a=arr.slice();
-  for(let i=a.length-1;i>0;i--){
-    const j=Math.floor(rng()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
-  return a;
-}
-function makeId(dob){
-  const m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(dob);
-  return `PRTCL-108-${m[1]}${m[2]}${m[3].slice(2)}`;
-}
-
-/* manifesto rotates */
-const MANIFEST=[
-  "Если система закрывает двери — я становлюсь дверью.<br>Если система ставит границы — я становлюсь линией разрыва.<small>PRTCL 108 / ADM MODE</small>",
-  "Я не прошу разрешения.<br>Я создаю протокол.<small>PRTCL 108 / ADM MODE</small>",
-  "Никакой воды. Только протокол.<br>Никаких уговоров. Только выбор.<small>PRTCL 108 / ADM MODE</small>",
-  "Сценарий меняется не от мыслей.<br>Сценарий меняется от хода.<small>PRTCL 108 / ADM MODE</small>"
-];
-$("manifestText").innerHTML = MANIFEST[Math.floor(Math.random()*MANIFEST.length)];
-
-/* game dictionaries */
-const ROLES=[
-  "Инициатор Разрыва (запускает движение, когда все стоят)",
-  "Диспетчер Реальности (управляет веткой событий)",
-  "Хирург Связей (режет мёртвое без сожалений)",
-  "Командир Перезапуска (поднимает режим после падения)",
-  "Оператор Прорыва (делает 1 ход, который решает всё)"
-];
-const CLASSES=[
-  "Системный Катализатор (ускоряет процессы вокруг)",
-  "Холодный Оператор (точность вместо эмоций)",
-  "Анти-Паттерн (ломает «как принято»)",
-  "Рерайтер Сценариев (переписывает правила игры)"
-];
-const FLAGS=[
-  "ВНЕ СЕТКИ (плохо управляется системой)",
-  "СМЕЩЕНИЕ КОНТУРА (меняет правила присутствием)",
-  "СИЛОВОЙ СИГНАЛ (люди чувствуют давление)",
-  "ДОСТУП ЧЕРЕЗ ДЕЙСТВИЕ (не через слова)"
-];
-const SKILLS=[
-  "Скан Лжи — видишь несостыковки сразу",
-  "Железная Воля — держишь курс, когда всем страшно",
-  "Сдвиг Реальности — один ход меняет расклад",
-  "Режим Холод — отключаешь шум, включаешь точность",
-  "Разрыв Связей — уходишь без откатов",
-  "Иммунитет к Массе — не заражаешься толпой",
-  "Точечный Удар — минимум действий, максимум эффекта",
-  "Нулевая Поза — умеешь стоять, когда другие суетятся"
-];
-const DEBUFFS=[
-  "Петля Объяснений — тратишь энергию на слова",
-  "Задержка Старта — перегрев от ожидания",
-  "Ловушка Идеала — стоп из-за планки",
-  "Якорь на Людях — лояльность мёртвым связям",
-  "Саботаж Скукой — выключает мотивацию",
-  "Слив Через Тревогу — скачки вместо курса"
-];
-const BUILDS=[
-  "Один Рывок → Пауза (не дави бесконечно)",
-  "Тишина → Удар (сначала очистка, потом действие)",
-  "Срезать → Запустить (убери лишнее и начни)",
-  "Контроль Среды (меняй окружение, не себя)",
-  "Действие вместо анализа (30 секунд на решение)",
-  "Правило 1 Хода (один конкретный шаг в день)"
-];
-const HINTS=[
-  "Ключ: старт. Если ждёшь — ветка уходит.",
-  "Тебе нельзя объяснять. Тебе можно делать.",
-  "Тишина лечит. Шум ломает.",
-  "Окружение — твой усилитель. Выбирай строго.",
-  "Система уважает только действие."
-];
-
-/* Eye SVG: female has lashes */
-function eyeSVG(variant){
-  const lashes = (variant==="f")
-    ? `<path d="M44 56 q18-18 36 0" stroke="rgba(255,255,255,.20)" stroke-width="3" fill="none"/>
-       <path d="M48 52 l-6-6" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-       <path d="M58 48 l-5-7" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-       <path d="M70 47 l-3-8" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-       <path d="M82 48 l1-8" stroke="rgba(255,255,255,.18)" stroke-width="2"/>
-       <path d="M94 52 l6-6" stroke="rgba(255,255,255,.18)" stroke-width="2"/>`
-    : ``;
-
-  return `
-  <svg viewBox="0 0 180 240" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="g1" cx="30%" cy="20%" r="80%">
-        <stop offset="0" stop-color="rgba(200,245,255,.20)"/>
-        <stop offset="0.6" stop-color="rgba(217,208,255,.10)"/>
-        <stop offset="1" stop-color="rgba(0,0,0,0)"/>
-      </radialGradient>
-      <linearGradient id="hud" x1="0" x2="1">
-        <stop offset="0" stop-color="rgba(200,245,255,.35)"/>
-        <stop offset="0.5" stop-color="rgba(217,208,255,.28)"/>
-        <stop offset="1" stop-color="rgba(255,84,122,.18)"/>
-      </linearGradient>
-    </defs>
-
-    <rect x="0" y="0" width="180" height="240" fill="rgba(5,11,16,.55)"/>
-    <rect x="0" y="0" width="180" height="240" fill="url(#g1)"/>
-    ${Array.from({length:16}).map((_,i)=>`<rect x="0" y="${i*15}" width="180" height="1" fill="rgba(255,255,255,.06)"/>`).join("")}
-
-    <rect x="14" y="16" width="152" height="208" rx="18" fill="none" stroke="rgba(220,235,255,.14)"/>
-    <path d="M24 34 h60" stroke="url(#hud)" stroke-width="2" opacity=".7"/>
-    <path d="M24 206 h90" stroke="url(#hud)" stroke-width="2" opacity=".55"/>
-
-    <g transform="translate(0,10)">
-      <ellipse cx="90" cy="110" rx="58" ry="28" fill="rgba(0,0,0,.25)" stroke="rgba(220,235,255,.18)" stroke-width="2"/>
-      <ellipse cx="90" cy="110" rx="46" ry="20" fill="rgba(5,11,16,.55)"/>
-      <ellipse cx="90" cy="110" rx="18" ry="18" fill="rgba(200,245,255,.18)" stroke="rgba(200,245,255,.35)" stroke-width="2"/>
-      <circle cx="90" cy="110" r="7" fill="rgba(0,0,0,.55)"/>
-      <circle cx="96" cy="104" r="3" fill="rgba(255,255,255,.45)"/>
-      <path d="M32 110 q58-52 116 0" fill="none" stroke="rgba(220,235,255,.16)" stroke-width="3"/>
-      <path d="M32 110 q58 52 116 0" fill="none" stroke="rgba(220,235,255,.10)" stroke-width="3"/>
-      ${lashes}
-    </g>
-
-    <text x="24" y="58" fill="rgba(234,243,255,.45)" font-family="ui-monospace, Menlo, Monaco, Consolas, monospace" font-size="10" letter-spacing="2">BIO-SCAN</text>
-    <text x="24" y="74" fill="rgba(234,243,255,.35)" font-family="ui-monospace, Menlo, Monaco, Consolas, monospace" font-size="10" letter-spacing="2">PRTCL-108</text>
-    <text x="24" y="90" fill="rgba(234,243,255,.30)" font-family="ui-monospace, Menlo, Monaco, Consolas, monospace" font-size="10" letter-spacing="2">EYE-ID</text>
-  </svg>`;
-}
-
-/* PROCESSING steps */
-const PROC_STEPS=[
-  {p:12, t:"синхронизация доступа", m:"Система поднимает терминал. <b>Ты не просишь доступ — ты его подтверждаешь.</b>"},
-  {p:34, t:"скан параметров", m:"Считывание базы: воля, фокус, хаос, сопротивление."},
-  {p:56, t:"раскладка талантов", m:"Таланты компилируются в билд. <b>Коротко. Понятно. По делу.</b>"},
-  {p:78, t:"поиск дебаффов", m:"Дебаффы — места, где управление уходит из рук."},
-  {p:100,t:"сборка мультипасса", m:"Фиксация факта. <b>MULTIPASS готов.</b>"}
-];
-
-/* UI refs */
-const dobEl=$("dob"), avatarEl=$("avatar"), nameEl=$("name"), placeEl=$("place");
-const scanBtn=$("scanBtn"), resetBtn=$("resetBtn");
-const warnEl=$("warn"), scanFill=$("scanFill");
-const modal=$("modal"), closeModal=$("closeModal");
-const procFill=$("procFill"), procPct=$("procPct"), procStep=$("procStep"), procMsg=$("procMsg");
-const stateChip=$("stateChip"), outChip=$("outChip");
-const accessBadge=$("accessBadge"), helpBtn=$("helpBtn");
-
-const mp=$("mp"), placeholder=$("placeholder"), eyeSvgEl=$("eyeSvg");
-const mpId=$("mpId"), mpDob=$("mpDob"), mpPlace=$("mpPlace"), mpRole=$("mpRole"), mpClass=$("mpClass"), mpFlag=$("mpFlag");
-const mpSkills=$("mpSkills"), mpDebuffs=$("mpDebuffs"), mpBuild=$("mpBuild"), mpStats=$("mpStats"), mpHint=$("mpHint");
-
-const sceneState=$("sceneState"), sceneTxt=$("sceneTxt"), choicesEl=$("choices");
-const mission=$("mission"), missionTxt=$("missionTxt"), doneBtn=$("doneBtn"), skipBtn=$("skipBtn");
-
-/* render helpers */
-function setList(ul, items){ ul.innerHTML = items.map(x=>`<li>${escapeHtml(x)}</li>`).join(""); }
-function setStats(container, stats){
-  container.innerHTML = stats.map(s=>{
-    const w=clamp01(s.v/100)*100;
-    return `<div class="stat"><span>${escapeHtml(s.k)}</span><div class="bar"><div class="fill" style="width:${w}%"></div></div><span class="val">${s.v}</span></div>`;
-  }).join("");
-}
-function genProfile(dob,name,place,avatar){
-  const seed=hashStr(`${dob}|${name}|${place}|${avatar}|PRTCL108`);
-  const rng=rng32(seed);
-  const role=pick(rng,ROLES);
-  const cls=pick(rng,CLASSES);
-  const flag=pick(rng,FLAGS);
-  const skills=shuffle(rng,SKILLS).slice(0,4);
-  const debuffs=shuffle(rng,DEBUFFS).slice(0,3);
-  const build=shuffle(rng,BUILDS).slice(0,3);
-  const hint=pick(rng,HINTS);
-  const stats=[
-    {k:"Воля", v: Math.floor(60+rng()*41)},
-    {k:"Фокус", v: Math.floor(45+rng()*56)},
-    {k:"Хаос", v: Math.floor(40+rng()*61)},
-    {k:"Сопротивление", v: Math.floor(35+rng()*66)},
-  ];
-  return {seed, role, cls, flag, skills, debuffs, build, stats, hint, avatar, name, place, dob};
-}
-
-/* modal control */
-function showModal(){
-  modal.classList.add("show");
-  procFill.style.width="0%";
-  procPct.textContent="0%";
-  procStep.textContent="синхронизация доступа";
-}
-function hideModal(){ modal.classList.remove("show"); }
-closeModal.addEventListener("click", hideModal);
-modal.addEventListener("click", (e)=>{ if(e.target===modal) hideModal(); });
-
-function runProcessing(onDone){
-  showModal();
-  let i=0;
-  const tick=()=>{
-    const s=PROC_STEPS[i];
-    procStep.textContent=s.t;
-    procMsg.innerHTML=s.m;
-    procFill.style.width=s.p+"%";
-    procPct.textContent=s.p+"%";
-    i++;
-    if(i<PROC_STEPS.length) setTimeout(tick, 520);
-    else setTimeout(()=>{ hideModal(); onDone(); }, 420);
-  };
-  setTimeout(tick, 220);
-}
-
-/* SCENE 00 choices */
-const SCENE_CHOICES=[
-  {id:"STABILITY", t:"выбор 01", v:"Сохранить стабильность и не трогать узел."},
-  {id:"CUT", t:"выбор 02", v:"Срезать лишнее: убрать одну уступку системе."},
-  {id:"MOVE", t:"выбор 03", v:"Сделать ход: маленькое действие сегодня, без обсуждений."}
-];
-const MISSIONS={
-  STABILITY:"В течение 24 часов: не принимай решений в спешке. Одна пауза перед ответом. Зафиксируй момент, когда тебя тянет согласиться автоматически.",
-  CUT:"В течение 24 часов: убери одну уступку. Любую. Маленькую. Не объясняй никому. Вернись и отметь выполнение.",
-  MOVE:"В течение 24 часов: сделай один конкретный шаг по делу (1 сообщение / 1 заявка / 1 действие). Без подготовки. Затем отметь выполнение."
-};
-
-let STATE = loadState();
-
-function renderChoices(){
-  choicesEl.innerHTML = SCENE_CHOICES.map(c=>`
-    <div class="choice" data-id="${c.id}">
-      <div class="ct">${c.t}</div>
-      <div class="cv">${c.v}</div>
-    </div>
-  `).join("");
-  [...choicesEl.querySelectorAll(".choice")].forEach(el=>{
-    el.addEventListener("click", ()=>choose(el.getAttribute("data-id")));
-  });
-}
-function choose(id){
-  if(!STATE.profile) return;
-  STATE.scene = {choice:id, mission:"PENDING", ts:Date.now()};
-  saveState();
-  sceneState.textContent="ВЫБОР ЗАФИКСИРОВАН";
-  sceneTxt.textContent="Система приняла выбор. Следующий шаг — действие. Без действий выбор остаётся текстом.";
-  mission.style.display="block";
-  missionTxt.textContent = MISSIONS[id] || "Миссия не найдена.";
-}
-doneBtn.addEventListener("click", ()=>{
-  if(!STATE.scene) return;
-  STATE.scene.mission="DONE";
-  saveState();
-  sceneState.textContent="МИССИЯ ВЫПОЛНЕНА";
-  sceneTxt.textContent="Доступ подтверждён действием. Ветка усилена. Следующие сцены будут глубже.";
-});
-skipBtn.addEventListener("click", ()=>{
-  if(!STATE.scene) return;
-  STATE.scene.mission="SKIPPED";
-  saveState();
-  sceneState.textContent="МИССИЯ ПРОПУЩЕНА";
-  sceneTxt.textContent="Система зафиксировала откат. Это не провал — это текущая ветка. Продолжишь позже.";
-});
-
-/* storage */
-function loadState(){
-  try{
-    const raw = localStorage.getItem("prtcl108_state");
-    return raw ? JSON.parse(raw) : {profile:null, scene:null};
-  }catch(e){ return {profile:null, scene:null}; }
-}
-function saveState(){
-  try{ localStorage.setItem("prtcl108_state", JSON.stringify(STATE)); }catch(e){}
-}
-
-/* restore UI if state exists */
-function renderFromState(){
-  renderChoices();
-  if(STATE.profile){
-    placeholder.style.display="none";
-    mp.classList.add("show"); mp.style.display="block";
-    outChip.textContent="SCAN COMPLETE";
-    stateChip.textContent="СКАН ЗАВЕРШЕН";
-    accessBadge.textContent="ACCESS: GRANTED";
-
-    const p=STATE.profile;
-    mpId.textContent = makeId(p.dob);
-    mpDob.textContent = p.dob;
-    mpPlace.textContent = p.place || "НЕ УКАЗАНО";
-    mpRole.textContent = p.role;
-    mpClass.textContent = p.cls;
-    mpFlag.textContent = p.flag;
-
-    setList(mpSkills, p.skills);
-    setList(mpDebuffs, p.debuffs);
-    setList(mpBuild, p.build);
-    setStats(mpStats, p.stats);
-    mpHint.textContent = p.hint;
-
-    // FIX: глаз рендерится всегда (контейнер + svg display:block)
-    if (eyeSvgEl){
-      eyeSvgEl.innerHTML = eyeSVG(p.avatar);
-    }
-
-    // scene restore
-    if(STATE.scene){
-      mission.style.display="block";
-      missionTxt.textContent = MISSIONS[STATE.scene.choice] || "—";
-      if(STATE.scene.mission==="DONE"){
-        sceneState.textContent="МИССИЯ ВЫПОЛНЕНА";
-        sceneTxt.textContent="Доступ подтверждён действием. Следующие сцены будут глубже.";
-      }else if(STATE.scene.mission==="SKIPPED"){
-        sceneState.textContent="МИССИЯ ПРОПУЩЕНА";
-        sceneTxt.textContent="Система зафиксировала откат. Продолжишь позже.";
-      }else{
-        sceneState.textContent="ВЫБОР ЗАФИКСИРОВАН";
-        sceneTxt.textContent="Система приняла выбор. Следующий шаг — действие.";
+    // deterministic hash from input -> stable "unique" output
+    function hashStr(str){
+      let h = 2166136261;
+      for (let i=0; i<str.length; i++){
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
       }
-    }else{
-      sceneState.textContent="ОЖИДАНИЕ ВЫБОРА";
-      mission.style.display="none";
+      return (h >>> 0);
     }
-  }else{
-    renderChoices();
-  }
-}
+    function mulberry32(seed){
+      return function(){
+        let t = seed += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      }
+    }
+    function pick(rng, arr){
+      return arr[Math.floor(rng()*arr.length)];
+    }
+    function pickN(rng, arr, n){
+      const a = arr.slice();
+      // Fisher-Yates partial
+      for (let i=a.length-1; i>0; i--){
+        const j = Math.floor(rng()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a.slice(0, n);
+    }
+    function romanTier(x){
+      const r = ["I","II","III","IV","V"];
+      return r[clamp(Math.round(x)-1,0,4)];
+    }
 
-/* main scan */
-function scan(){
-  const dob=(dobEl.value||"").trim();
-  const avatar=(avatarEl.value||"f").trim();
-  const name=(nameEl.value||"").trim();
-  const place=((placeEl.value||"").trim() || "НЕ УКАЗАНО");
+    // --------- UI refs ----------
+    const btnInit = $("btnInit");
+    const terminal = $("terminal");
+    const btnScan = $("btnScan");
+    const scanbar = $("scanbar");
+    const output = $("output");
 
-  if(!validDOB(dob)){
-    warnEl.style.display="block";
-    return;
-  }
-  warnEl.style.display="none";
+    const dob = $("dob");
+    const origin = $("origin");
+    const callsign = $("callsign");
 
-  stateChip.textContent="ИНИЦИАЛИЗАЦИЯ…";
-  outChip.textContent="PROCESSING";
-  scanFill.style.width="0%";
-  setTimeout(()=>scanFill.style.width="100%",50);
+    const btnFaq = $("btnFaq");
+    const btnFaq2 = $("btnFaq2");
+    const faq = $("faq");
+    const closeFaq = $("closeFaq");
 
-  runProcessing(()=>{
-    const profile=genProfile(dob,name,place,avatar);
+    const btnExplain = $("btnExplain");
+    const explain = $("explain");
+    const btnFocus = $("btnFocus");
+    const btnRescan = $("btnRescan");
 
-    // fill multipass
-    if (eyeSvgEl) eyeSvgEl.innerHTML = eyeSVG(avatar); // FIX: глаз
-    mpId.textContent = makeId(dob);
-    mpDob.textContent = dob;
-    mpPlace.textContent = place;
-    mpRole.textContent = profile.role;
-    mpClass.textContent = profile.cls;
-    mpFlag.textContent = profile.flag;
+    // --------- terminal open animation ----------
+    let terminalOpened = false;
+    function openTerminal(){
+      if (terminalOpened) return;
+      terminalOpened = true;
+      terminal.classList.add("open");
+      terminal.setAttribute("aria-hidden", "false");
 
-    setList(mpSkills, profile.skills);
-    setList(mpDebuffs, profile.debuffs);
-    setList(mpBuild, profile.build);
-    setStats(mpStats, profile.stats);
-    mpHint.textContent = profile.hint;
+      // subtle "boot" effect on progress bar
+      scanbar.style.width = "12%";
+      setTimeout(()=> scanbar.style.width = "0%", 260);
 
-    placeholder.style.display="none";
-    mp.classList.add("show"); mp.style.display="block";
+      // focus first field
+      setTimeout(()=> dob.focus(), 420);
 
-    stateChip.textContent="СКАН ЗАВЕРШЕН";
-    outChip.textContent="SCAN COMPLETE";
-    accessBadge.textContent="ACCESS: GRANTED";
+      // scroll into view smoothly
+      setTimeout(()=> terminal.scrollIntoView({behavior:"smooth", block:"nearest"}), 120);
+    }
 
-    // rotate manifesto
-    $("manifestText").innerHTML = MANIFEST[Math.floor(Math.random()*MANIFEST.length)];
+    btnInit.addEventListener("click", openTerminal);
 
-    // set state
-    STATE.profile = profile;
-    STATE.scene = null;
-    saveState();
+    btnFocus.addEventListener("click", () => {
+      // if terminal is not open, open it, then focus
+      openTerminal();
+    });
 
-    // scene ready
-    renderChoices();
-    sceneState.textContent="ОЖИДАНИЕ ВЫБОРА";
-    mission.style.display="none";
-    sceneTxt.textContent="Ты вошёл(ла) в режим, где решения имеют вес. Выбери, как ты проходишь первый узел.";
-  });
-}
+    btnExplain.addEventListener("click", () => {
+      explain.scrollIntoView({behavior:"smooth", block:"start"});
+    });
 
-function reset(){
-  dobEl.value=""; nameEl.value=""; placeEl.value=""; avatarEl.value="f";
-  warnEl.style.display="none";
-  scanFill.style.width="0%";
-  placeholder.style.display="block";
-  mp.style.display="none"; mp.classList.remove("show");
-  stateChip.textContent="ОЖИДАНИЕ ВВОДА";
-  outChip.textContent="НЕ АКТИВНО";
-  accessBadge.textContent="ACCESS: LOCKED";
-  $("manifestText").innerHTML = MANIFEST[Math.floor(Math.random()*MANIFEST.length)];
+    // enable scan when required fields filled
+    function validate(){
+      const ok = dob.value.trim().length >= 8 && origin.value.trim().length >= 2 && callsign.value.trim().length >= 2;
+      btnScan.disabled = !ok;
+    }
+    [dob, origin, callsign].forEach(el => el.addEventListener("input", validate));
 
-  STATE = {profile:null, scene:null};
-  saveState();
-  renderChoices();
-  mission.style.display="none";
-}
+    // Allow ENTER to trigger scan when terminal open
+    document.addEventListener("keydown", (e)=>{
+      if (!terminalOpened) return;
+      if (e.key === "Enter" && !btnScan.disabled){
+        e.preventDefault();
+        runScan();
+      }
+    });
 
-scanBtn.addEventListener("click", scan);
-resetBtn.addEventListener("click", reset);
+    // --------- generation vocab ----------
+    const ROLES = [
+      "ОПЕРАТОР ПРОЦЕССА",
+      "АРХИТЕКТОР СИСТЕМ",
+      "КАРТОГРАФ ВАРИАНТОВ",
+      "СКАНЕР СРЕДЫ",
+      "ИНИЦИАТОР СДВИГА",
+      "СБОРЩИК РЕАЛЬНОСТИ",
+      "СТАБИЛИЗАТОР ПОТОКА",
+      "МОДУЛЯТОР ПОЛЯ",
+      "АНАЛИТИК ГЛУБИН",
+      "ОПЕРАТОР РАЗРЫВА",
+      "ДЕРЖАТЕЛЬ КУРСА",
+      "ХРАНИТЕЛЬ РЕСУРСА",
+      "НЕЗАРЕГИСТРИРОВАННЫЙ",
+      "ВНЕ ПРОТОКОЛА"
+    ];
 
-helpBtn.addEventListener("click", ()=>{
-  alert("PRTCL 108 — это терминал. Ты вводишь данные → получаешь MULTIPASS → выбираешь ход → выполняешь миссию. Это не мотивация. Это протокол выбора.");
-});
+    const OPPONENTS = [
+      "ЧУЖИЕ ПРАВИЛА",
+      "РАССЕИВАНИЕ ФОКУСА",
+      "ПЕРЕРАСХОД РЕСУРСА",
+      "ЦИКЛ ОТКЛАДЫВАНИЯ",
+      "ГИПЕРКОНТРОЛЬ",
+      "РАЗДВОЕННАЯ ЦЕЛЬ",
+      "ПОТЕРЯ ИМПУЛЬСА",
+      "НЕСТАБИЛЬНАЯ СРЕДА",
+      "ЗАДЕРЖКА РЕШЕНИЯ",
+      "ВНЕШНИЙ ШУМ"
+    ];
 
-/* init */
-renderFromState();
-</script>
+    const ACTIVE_SKILLS = [
+      "ХОЛОДНЫЙ АНАЛИЗ",
+      "БЫСТРОЕ РЕШЕНИЕ",
+      "КОНТРОЛЬ ВЕКТОРА",
+      "СМЕНА ТРАЕКТОРИИ",
+      "РАЗРЫВ ПАТТЕРНА",
+      "ОТКЛЮЧЕНИЕ ЧУЖОЙ ЛОГИКИ",
+      "СЖАТИЕ СМЫСЛА",
+      "ОПЕРЕЖЕНИЕ ХОДА",
+      "ПЕРЕРАСПРЕДЕЛЕНИЕ РЕСУРСА",
+      "УДЕРЖАНИЕ ФОКУСА"
+    ];
+
+    const PASSIVE_SKILLS = [
+      "ВНУТРЕННИЙ КАРКАС",
+      "ЧУВСТВО МОМЕНТА",
+      "ВНУТРЕННИЙ ЛОКАТОР",
+      "ФИЛЬТРАЦИЯ ШУМА",
+      "ТИХАЯ УСТОЙЧИВОСТЬ",
+      "ВОЗВРАТ В ОСЬ",
+      "ЭНЕРГОСБЕРЕЖЕНИЕ",
+      "КОНТАКТ С СОБОЙ",
+      "ВНУТРЕННЯЯ ОПОРА"
+    ];
+
+    const VECTORS = [
+      "УКРЕПЛЕНИЕ ФОКУСА",
+      "СТАБИЛИЗАЦИЯ РЕСУРСА",
+      "ПОВЫШЕНИЕ АВТОНОМНОСТИ",
+      "СНИЖЕНИЕ ВНЕШНЕГО ШУМА",
+      "УСКОРЕНИЕ РЕШЕНИЙ",
+      "СБОРКА ПОСЛЕДОВАТЕЛЬНОСТИ",
+      "ОБНОВЛЕНИЕ ТРАЕКТОРИИ",
+      "ИНТЕГРАЦИЯ ОПЫТА"
+    ];
+
+    const PARAMS = [
+      { key:"РЕСУРС", hint:"энергия" },
+      { key:"ФОКУС", hint:"внимание" },
+      { key:"УСТОЙЧИВОСТЬ", hint:"реакция на давление" },
+      { key:"АДАПТАЦИЯ", hint:"скорость перестройки" },
+      { key:"СКОРОСТЬ РЕШЕНИЙ", hint:"темп выбора" },
+      { key:"ТОЧНОСТЬ ВЫБОРА", hint:"попадание в цель" },
+      { key:"АВТОНОМНОСТЬ", hint:"действие без подтверждения" },
+      { key:"ФИЛЬТРАЦИЯ ШУМА", hint:"отсев лишнего" },
+      { key:"ИМПУЛЬС ДЕЙСТВИЯ", hint:"запуск процессов" },
+      { key:"ПОСЛЕДОВАТЕЛЬНОСТЬ", hint:"доведение до результата" },
+      { key:"ВНУТРЕННЯЯ ОПОРА", hint:"опора на себя" },
+      { key:"КОНТАКТ С СОБОЙ", hint:"понимание состояния" }
+    ];
+
+    function formatId(seed){
+      const alpha = "ABCDEFGHJKMNPQRSTUVWXYZ";
+      const a = alpha[seed % alpha.length];
+      const n = (seed % 90) + 10;
+      const s = (seed >>> 8).toString(16).toUpperCase().slice(0,3).padEnd(3,"0");
+      return `MP-108-${a}${n}-${s}`;
+    }
+
+    function phaseLabel(rng){
+      // 4 phases
+      const phases = ["1 / 4","2 / 4","3 / 4","4 / 4"];
+      return `PHASE: ${pick(rng, phases)}`;
+    }
+
+    // --------- scan simulation + output ----------
+    let scanning = false;
+
+    async function runScan(){
+      if (scanning) return;
+      scanning = true;
+
+      btnScan.disabled = true;
+      btnScan.textContent = "СКАНИРОВАНИЕ…";
+
+      // progress animation steps
+      scanbar.style.width = "6%";
+      await new Promise(r => setTimeout(r, 150));
+      scanbar.style.width = "42%";
+      await new Promise(r => setTimeout(r, 380));
+      scanbar.style.width = "78%";
+      await new Promise(r => setTimeout(r, 420));
+      scanbar.style.width = "100%";
+      await new Promise(r => setTimeout(r, 220));
+
+      generate();
+      output.hidden = false;
+      output.scrollIntoView({behavior:"smooth", block:"start"});
+
+      // reset bar
+      await new Promise(r => setTimeout(r, 220));
+      scanbar.style.width = "0%";
+
+      btnScan.textContent = "ЗАПУСТИТЬ СКАН";
+      scanning = false;
+      validate();
+    }
+
+    btnScan.addEventListener("click", runScan);
+
+    function generate(){
+      const input = `${dob.value.trim()}|${origin.value.trim()}|${callsign.value.trim()}`.toLowerCase();
+      const seed = hashStr(input);
+      const rng = mulberry32(seed);
+
+      // id & status
+      $("mpId").textContent = formatId(seed);
+
+      const statuses = ["STATUS: ACTIVE","STATUS: CONDITIONAL","STATUS: LIMITED","STATUS: UNSTABLE"];
+      const status = pick(rng, statuses);
+      $("mpStatus").textContent = status;
+
+      $("outName").textContent = callsign.value.trim();
+      $("outOrigin").textContent = origin.value.trim();
+
+      // role & opponent
+      $("outRole").textContent = pick(rng, ROLES);
+      $("outOpp").textContent = pick(rng, OPPONENTS);
+      $("outPhase").textContent = phaseLabel(rng);
+
+      // vector
+      $("outVector").textContent = pick(rng, VECTORS);
+
+      // stats - choose 8 shown
+      const stats = pickN(rng, PARAMS, 8).map(p=>{
+        const pct = Math.floor(45 + rng()*50); // 45..95
+        const tier = romanTier((pct/100)*5);
+        return { name:p.key, pct, tier };
+      }).sort((a,b)=> b.pct - a.pct);
+
+      const ulStats = $("outStats");
+      ulStats.innerHTML = "";
+      stats.forEach(s=>{
+        const li = document.createElement("li");
+        li.textContent = `${s.name}: ${s.tier} / ${s.pct}%`;
+        ulStats.appendChild(li);
+      });
+
+      // skills
+      const active = pickN(rng, ACTIVE_SKILLS, 3 + Math.floor(rng()*3)); // 3..5
+      const passive = pickN(rng, PASSIVE_SKILLS, 2 + Math.floor(rng()*3)); // 2..4
+
+      const ulA = $("outActive"); ulA.innerHTML = "";
+      active.forEach(x=>{
+        const li = document.createElement("li"); li.textContent = x; ulA.appendChild(li);
+      });
+
+      const ulP = $("outPassive"); ulP.innerHTML = "";
+      passive.forEach(x=>{
+        const li = document.createElement("li"); li.textContent = x; ulP.appendChild(li);
+      });
+
+      // stamp date
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2,"0");
+      const mm = String(now.getMonth()+1).padStart(2,"0");
+      const yyyy = now.getFullYear();
+      $("stampDate").textContent = `DATE: ${dd}.${mm}.${yyyy}`;
+      $("stampLine").textContent = `PRTCL 108 · ${status.replace("STATUS: ","")}`;
+    }
+
+    // rescan
+    btnRescan.addEventListener("click", () => {
+      output.hidden = true;
+      openTerminal();
+    });
+
+    // FAQ
+    function openFaq(){ faq.showModal(); }
+    function closeFaqFn(){ faq.close(); }
+
+    btnFaq.addEventListener("click", openFaq);
+    btnFaq2.addEventListener("click", openFaq);
+    closeFaq.addEventListener("click", closeFaqFn);
+
+    // close dialog on click outside
+    faq.addEventListener("click", (e)=>{
+      const rect = faq.getBoundingClientRect();
+      const inDialog = (rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+                        rect.left <= e.clientX && e.clientX <= rect.left + rect.width);
+      if (!inDialog) faq.close();
+    });
+
+  </script>
 </body>
 </html>
