@@ -106,9 +106,18 @@
     .brand{
       display:flex;
       align-items:flex-end;
-      justify-content:space-between;
+      justify-content:center; /* CHANGED: center the poster */
       gap:12px;
       flex-wrap:wrap;
+      position: relative;     /* CHANGED: anchor ADM badge */
+    }
+
+    /* CHANGED: centered poster block */
+    .poster{
+      width: 100%;
+      text-align: center;
+      padding-right: 130px; /* space so ADM badge on the right doesn't overlap */
+      padding-left: 130px;
     }
 
     .title{
@@ -150,7 +159,13 @@
       background: rgba(255,255,255,.05);
       box-shadow: inset 0 0 0 1px rgba(191,246,255,.10);
       user-select:none;
+
+      /* CHANGED: pin to the right like a badge, while title stays centered */
+      position: absolute;
+      right: 0;
+      bottom: 0;
     }
+
     .pulseDot{
       width:10px; height:10px;
       border-radius:50%;
@@ -167,6 +182,18 @@
     .adm b{
       color: rgba(255,255,255,.92);
       letter-spacing:.08em;
+    }
+
+    /* CHANGED: on small screens keep layout clean (badge goes below) */
+    @media (max-width: 620px){
+      .poster{ padding-right: 0; padding-left: 0; }
+      .adm{
+        position: static;
+        margin-top: 10px;
+      }
+      .brand{
+        align-items: center;
+      }
     }
 
     /* Panels */
@@ -713,10 +740,12 @@
 
       <header>
         <div class="brand">
-          <div>
+          <!-- CHANGED: poster block to keep title centered -->
+          <div class="poster">
             <h1 class="title">PRTCL 108</h1>
             <p class="sub">Terminal: Скан персонажа → MULTIPASS → Вход → Выбор → Последствия</p>
           </div>
+
           <div class="adm" title="Режим активен">
             <span class="pulseDot"></span>
             <b>ADM MODE</b>
